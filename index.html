@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Descubra o Tratamento Ideal - Creabily</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-949626738"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-949626738');
+    </script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#6b308b',
+                        primaryLight: '#8a42b1',
+                        cta: '#55c9bc',
+                        ctaHover: '#44b0a4'
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Glassmorphism utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        .glass-input {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px);
+        }
+        .option-btn {
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover, .option-btn:active {
+            border-color: #6b308b;
+            background-color: rgba(107, 48, 139, 0.05);
+            transform: translateY(-2px);
+        }
+        .option-btn.selected {
+            border-color: #6b308b;
+            background-color: rgba(107, 48, 139, 0.1);
+            font-weight: 600;
+            color: #6b308b;
+        }
+        
+        /* Spinner */
+        .loader {
+            border: 4px solid rgba(107, 48, 139, 0.1);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border-left-color: #6b308b;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-gray-800 font-sans antialiased flex flex-col min-h-screen overflow-x-hidden relative bg-gray-50">
+
+    <!-- Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute inset-0 bg-[radial-gradient(#d1d5db_1px,transparent_1px)] [background-size:24px_24px] opacity-40"></div>
+        <div class="absolute top-[-10%] right-[-5%] w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-primaryLight/30 rounded-full blur-[80px] mix-blend-multiply opacity-60 animate-blob"></div>
+        <div class="absolute bottom-[-10%] left-[-10%] w-[300px] h-[300px] md:w-[600px] md:h-[600px] bg-cta/30 rounded-full blur-[80px] mix-blend-multiply opacity-60 animate-blob animation-delay-2000"></div>
+    </div>
+    
+    <!-- Simple Header -->
+    <header class="w-full py-6 px-6 flex justify-center items-center z-10 relative">
+        <img src="assets/logo.png" alt="Creabily - A Arte da Cura" class="h-10 sm:h-14 object-contain" />
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col justify-center items-center px-4 py-4 sm:py-8 w-full max-w-2xl mx-auto z-10 relative">
+        
+        <div id="quiz-container" class="glass rounded-3xl p-6 sm:p-10 w-full animate-fade-in transition-all duration-300">
+            
+            <!-- PROGRESS BAR -->
+            <div id="progress-bar-container" class="w-full bg-gray-200 rounded-full h-2.5 mb-8 hidden">
+                <div id="progress-bar" class="bg-primary h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 25%"></div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VIEW: SELECT UNIT -->
+            <!-- ========================================== -->
+            <div id="view-unit" class="view-section">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-primary mb-6 leading-tight text-center">
+                    Escolha a unidade mais próxima de você:
+                </h1>
+                
+                <div class="space-y-4">
+                    <button onclick="selectUnit('Paulista')" class="w-full text-left p-5 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white flex flex-col gap-1">
+                        <span class="font-extrabold text-lg">Avenida Paulista</span>
+                        <span class="text-sm text-gray-500 leading-tight">Avenida Paulista 1159, conj. 311, 312, 313</span>
+                    </button>
+                    <button onclick="selectUnit('Granja Viana')" class="w-full text-left p-5 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white flex flex-col gap-1">
+                        <span class="font-extrabold text-lg">Granja Viana, Jandira</span>
+                        <span class="text-sm text-gray-500 leading-tight">R. do Golf, 47 - Granja Viana, Jandira - SP</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VIEW: START (PHASE 1) -->
+            <!-- ========================================== -->
+            <div id="view-start" class="view-section hidden">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-primary mb-6 leading-tight text-center">
+                    Conteúdos que podem te ajudar:
+                </h1>
+                
+                <div class="space-y-3">
+                    <button onclick="selectPath('acupuntura', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
+                        <span class="font-medium text-lg">Acupuntura</span>
+                    </button>
+                    <button onclick="selectPath('fisioterapia', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
+                        <span class="font-medium text-lg">Fisioterapia</span>
+                    </button>
+                    <button onclick="selectPath('nutricao', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
+                        <span class="font-medium text-lg">Nutrição</span>
+                    </button>
+                    <button onclick="selectPath('pilates', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
+                        <span class="font-medium text-lg">Pilates</span>
+                    </button>
+                    <button onclick="selectPath('psicologia', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
+                        <span class="font-medium text-lg">Psicologia</span>
+                    </button>
+                    <button onclick="selectPath('psicoterapia', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
+                        <span class="font-medium text-lg">Psicoterapia</span>
+                    </button>
+                    <button onclick="selectPath('quiropraxia', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
+                        <span class="font-medium text-lg">Quiropraxia</span>
+                    </button>
+                    <button onclick="selectPath('rpg', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
+                        <span class="font-medium text-lg">Reeducação Postural Global - RPG</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ACUPUNTURA -->
+            <div id="view-path-acupuntura" class="view-section hidden">
+                <div id="q-2-acu" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. O que mais te motivou a buscar Acupuntura hoje?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Dores físicas e tensões crônicas', 'q-3-acu')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Dores físicas e tensões crônicas.</button>
+                        <button onclick="answerQuestion('q2', 'Estresse, ansiedade ou insônia', 'q-3-acu')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Estresse, ansiedade ou insônia.</button>
+                        <button onclick="answerQuestion('q2', 'Equilíbrio energético e bem-estar', 'q-3-acu')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Equilíbrio energético e bem-estar geral.</button>
+                    </div>
+                </div>
+                <div id="q-3-acu" class="question-block hidden">
+                    <button onclick="goBack('q-2-acu', 'q-3-acu')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Há quanto tempo você sente esses sintomas?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Começou recentemente', 'q-4-acu')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Começou recentemente (Aguda).</button>
+                        <button onclick="answerQuestion('q3', 'Já faz meses ou anos', 'q-4-acu')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Já faz meses ou anos (Crônica).</button>
+                    </div>
+                </div>
+                <div id="q-4-acu" class="question-block hidden">
+                    <button onclick="goBack('q-3-acu', 'q-4-acu')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Você já tentou outros tratamentos antes sem sucesso?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Sim, já tentei de tudo')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim, já tentei de tudo.</button>
+                        <button onclick="finishQuiz('q4', 'Não, é minha primeira tentativa')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Não, é minha primeira tentativa.</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FISIOTERAPIA -->
+            <div id="view-path-fisioterapia" class="view-section hidden">
+                <div id="q-2-fisio" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. Onde a dor ou limitação mais te incomoda?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Coluna (Lombar, Cervical)', 'q-3-fisio')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Coluna (Lombar, Cervical).</button>
+                        <button onclick="answerQuestion('q2', 'Articulações (Joelho, Ombro, Quadril)', 'q-3-fisio')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Articulações (Joelho, Ombro, Quadril).</button>
+                        <button onclick="answerQuestion('q2', 'Dores musculares ou lesão recente', 'q-3-fisio')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Dores musculares ou lesão recente.</button>
+                    </div>
+                </div>
+                <div id="q-3-fisio" class="question-block hidden">
+                    <button onclick="goBack('q-2-fisio', 'q-3-fisio')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Há quanto tempo você sente esse incômodo?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Começou recentemente', 'q-4-fisio')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Começou recentemente (Aguda).</button>
+                        <button onclick="answerQuestion('q3', 'Há meses ou anos', 'q-4-fisio')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Há meses ou anos (Crônica).</button>
+                    </div>
+                </div>
+                <div id="q-4-fisio" class="question-block hidden">
+                    <button onclick="goBack('q-3-fisio', 'q-4-fisio')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Isso está impedindo você de trabalhar ou se exercitar?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Sim, me limita muito')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim, me limita muito.</button>
+                        <button onclick="finishQuiz('q4', 'Consigo fazer, mas com dor')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Consigo fazer, mas com muito desconforto.</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUTRICAO -->
+            <div id="view-path-nutricao" class="view-section hidden">
+                <div id="q-2-nutri" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. Qual é o seu principal objetivo com a nutrição?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Perda de peso', 'q-3-nutri')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Perda de peso e emagrecimento saudável.</button>
+                        <button onclick="answerQuestion('q2', 'Massa muscular', 'q-3-nutri')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Ganho de massa muscular ou performance.</button>
+                        <button onclick="answerQuestion('q2', 'Saúde e energia', 'q-3-nutri')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Melhorar saúde, energia ou tratar doenças.</button>
+                    </div>
+                </div>
+                <div id="q-3-nutri" class="question-block hidden">
+                    <button onclick="goBack('q-2-nutri', 'q-3-nutri')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Como é a sua relação com a comida hoje?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Fome emocional', 'q-4-nutri')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sinto muita fome emocional ou ansiedade.</button>
+                        <button onclick="answerQuestion('q3', 'Dificuldade em manter rotina', 'q-4-nutri')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Tenho dificuldade em manter uma rotina saudável.</button>
+                    </div>
+                </div>
+                <div id="q-4-nutri" class="question-block hidden">
+                    <button onclick="goBack('q-3-nutri', 'q-4-nutri')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Você possui alguma restrição alimentar ou condição de saúde?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Sim')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim (diabetes, intolerâncias, etc).</button>
+                        <button onclick="finishQuiz('q4', 'Não')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Não, sou saudável.</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PILATES -->
+            <div id="view-path-pilates" class="view-section hidden">
+                <div id="q-2-pilates" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. Qual o seu maior objetivo ao buscar o Pilates?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Corrigir postura e dores', 'q-3-pilates')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Corrigir postura e aliviar dores nas costas.</button>
+                        <button onclick="answerQuestion('q2', 'Ganhar força e flexibilidade', 'q-3-pilates')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Ganhar flexibilidade, força e tonificação.</button>
+                        <button onclick="answerQuestion('q2', 'Reabilitação', 'q-3-pilates')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Reabilitação após lesão ou cirurgia.</button>
+                    </div>
+                </div>
+                <div id="q-3-pilates" class="question-block hidden">
+                    <button onclick="goBack('q-2-pilates', 'q-3-pilates')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Como é a sua rotina atual?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Muito sentado', 'q-4-pilates')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Passo muito tempo sentado(a) trabalhando.</button>
+                        <button onclick="answerQuestion('q3', 'Ativo mas rígido', 'q-4-pilates')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sou ativo(a), mas sinto o corpo rígido.</button>
+                    </div>
+                </div>
+                <div id="q-4-pilates" class="question-block hidden">
+                    <button onclick="goBack('q-3-pilates', 'q-4-pilates')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Você já tem experiência com o método Pilates?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Sim')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim, já pratiquei antes.</button>
+                        <button onclick="finishQuiz('q4', 'Não')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Não, será minha primeira vez.</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PSICOLOGIA -->
+            <div id="view-path-psicologia" class="view-section hidden">
+                <div id="q-2-psico" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. O que você sente que mais afeta sua rotina hoje?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Estresse/Ansiedade', 'q-3-psico')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Estresse, ansiedade excessiva ou pânico.</button>
+                        <button onclick="answerQuestion('q2', 'Tristeza/Desânimo', 'q-3-psico')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Tristeza, desânimo ou falta de energia.</button>
+                        <button onclick="answerQuestion('q2', 'Problemas de relacionamento', 'q-3-psico')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Problemas de relacionamento ou conflitos.</button>
+                    </div>
+                </div>
+                <div id="q-3-psico" class="question-block hidden">
+                    <button onclick="goBack('q-2-psico', 'q-3-psico')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Você sente que essas emoções estão afetando seu corpo físico?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Sim', 'q-4-psico')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim, sinto dores físicas, insônia ou cansaço.</button>
+                        <button onclick="answerQuestion('q3', 'Não', 'q-4-psico')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Apenas mentalmente, o corpo está ok.</button>
+                    </div>
+                </div>
+                <div id="q-4-psico" class="question-block hidden">
+                    <button onclick="goBack('q-3-psico', 'q-4-psico')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Você já fez acompanhamento psicológico antes?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Sim')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim, mas quero recomeçar.</button>
+                        <button onclick="finishQuiz('q4', 'Não')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Nunca fiz, será a primeira vez.</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PSICOTERAPIA -->
+            <div id="view-path-psicoterapia" class="view-section hidden">
+                <div id="q-2-psicoterapia" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. Qual é o foco que você deseja dar para a psicoterapia?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Autoconhecimento', 'q-3-psicoterapia')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Autoconhecimento e desenvolvimento pessoal.</button>
+                        <button onclick="answerQuestion('q2', 'Superação', 'q-3-psicoterapia')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Superar traumas ou fases difíceis da vida.</button>
+                        <button onclick="answerQuestion('q2', 'Controle emocional', 'q-3-psicoterapia')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Melhorar o controle de ansiedade e emoções fortes.</button>
+                    </div>
+                </div>
+                <div id="q-3-psicoterapia" class="question-block hidden">
+                    <button onclick="goBack('q-2-psicoterapia', 'q-3-psicoterapia')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Com que frequência esses sentimentos atrapalham seu dia a dia?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Quase todos os dias', 'q-4-psicoterapia')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Quase todos os dias.</button>
+                        <button onclick="answerQuestion('q3', 'Apenas em momentos de crise', 'q-4-psicoterapia')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Apenas em momentos específicos de crise.</button>
+                    </div>
+                </div>
+                <div id="q-4-psicoterapia" class="question-block hidden">
+                    <button onclick="goBack('q-3-psicoterapia', 'q-4-psicoterapia')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Qual formato de terapia você tem preferência?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Longo prazo')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Terapia de longo prazo para mudança profunda.</button>
+                        <button onclick="finishQuiz('q4', 'Curto prazo')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Terapia focada na resolução de um problema atual.</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QUIROPRAXIA -->
+            <div id="view-path-quiropraxia" class="view-section hidden">
+                <div id="q-2-quiro" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. O que te fez buscar a Quiropraxia?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Dores intensas na coluna', 'q-3-quiro')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Dores intensas na coluna (cervical, lombar).</button>
+                        <button onclick="answerQuestion('q2', 'Dores de cabeça/enxaqueca', 'q-3-quiro')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Dores de cabeça tensionais ou enxaqueca frequente.</button>
+                        <button onclick="answerQuestion('q2', 'Estalos ou travamentos', 'q-3-quiro')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Estalos nas articulações ou episódios de travamento.</button>
+                    </div>
+                </div>
+                <div id="q-3-quiro" class="question-block hidden">
+                    <button onclick="goBack('q-2-quiro', 'q-3-quiro')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Você costuma "travar" a coluna ou pescoço com frequência?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Sim', 'q-4-quiro')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim, isso tem acontecido direto.</button>
+                        <button onclick="answerQuestion('q3', 'Não', 'q-4-quiro')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Raramente trava, mas sinto muita tensão.</button>
+                    </div>
+                </div>
+                <div id="q-4-quiro" class="question-block hidden">
+                    <button onclick="goBack('q-3-quiro', 'q-4-quiro')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Você já tem algum exame de imagem recente (Raio-X, Ressonância)?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Sim')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim, já tenho exames recentes.</button>
+                        <button onclick="finishQuiz('q4', 'Não')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Não, ainda não fiz exames.</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RPG -->
+            <div id="view-path-rpg" class="view-section hidden">
+                <div id="q-2-rpg" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. Qual é a sua principal queixa postural?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Corcunda/Escoliose', 'q-3-rpg')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Ombros caídos, corcunda ou escoliose visível.</button>
+                        <button onclick="answerQuestion('q2', 'Dor na postura', 'q-3-rpg')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Dor constante nas costas ao ficar sentado ou em pé.</button>
+                        <button onclick="answerQuestion('q2', 'Assimetria', 'q-3-rpg')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Assimetria no corpo (ex: um ombro mais alto que o outro).</button>
+                    </div>
+                </div>
+                <div id="q-3-rpg" class="question-block hidden">
+                    <button onclick="goBack('q-2-rpg', 'q-3-rpg')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Você sente muita dor associada a essa má postura?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Sim', 'q-4-rpg')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sim, sinto muita dor e cansaço nos músculos.</button>
+                        <button onclick="answerQuestion('q3', 'Não', 'q-4-rpg')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Não chega a doer, é mais um incômodo estético.</button>
+                    </div>
+                </div>
+                <div id="q-4-rpg" class="question-block hidden">
+                    <button onclick="goBack('q-3-rpg', 'q-4-rpg')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Qual o seu nível atual de atividade física?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Sedentário')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sedentário, não pratico exercícios físicos hoje.</button>
+                        <button onclick="finishQuiz('q4', 'Ativo')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Pratico exercícios regularmente (musculação, etc).</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VIEW: LOADING -->
+            <!-- ========================================== -->
+            <div id="view-loading" class="view-section hidden text-center py-10">
+                <div class="flex flex-col items-center justify-center space-y-6">
+                    <div class="loader"></div>
+                    <h2 class="text-xl font-semibold text-primary animate-pulse-slow">
+                        Analisando suas respostas...
+                    </h2>
+                    <p class="text-gray-500 text-sm">Cruzando dados com nossa inteligência clínica.</p>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VIEW: CAPTURA DE LEAD -->
+            <!-- ========================================== -->
+            <div id="view-capture" class="view-section hidden animate-fade-in">
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 text-green-600 mb-4">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Seu pré-diagnóstico está pronto!</h2>
+                    <p class="text-gray-600 text-sm">Para onde devemos enviar o seu resultado e os próximos passos recomendados?</p>
+                </div>
+
+                <form id="lead-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nome Completo</label>
+                        <input type="text" id="nome" required class="w-full px-4 py-3 rounded-xl border border-gray-300 glass-input focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Seu nome">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">WhatsApp</label>
+                        <input type="tel" id="whatsapp" required class="w-full px-4 py-3 rounded-xl border border-gray-300 glass-input focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="(00) 00000-0000">
+                    </div>
+                    
+                    <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-cta to-ctaHover hover:from-ctaHover hover:to-cta text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 mt-6 flex justify-center items-center gap-2">
+                        <span>Ver Meu Resultado Agora</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </button>
+                    <p class="text-xs text-center text-gray-400 mt-3">Prometemos não enviar spam. Seus dados estão seguros.</p>
+                </form>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- VIEW: RESULTADO FINAL -->
+            <!-- ========================================== -->
+            <div id="view-result" class="view-section hidden animate-fade-in text-center">
+                <span class="inline-block px-4 py-1 rounded-full bg-purple-100 text-primary text-xs font-bold uppercase tracking-wider mb-4">Resultado da Análise</span>
+                
+                <h2 id="result-title" class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4"></h2>
+                
+                <div class="bg-white/60 p-6 rounded-2xl border border-gray-100 text-left mb-8 shadow-sm">
+                    <p id="result-desc" class="text-gray-700 leading-relaxed"></p>
+                </div>
+
+                <p class="text-sm text-gray-600 mb-4 font-semibold">O Próximo Passo:</p>
+                <p class="text-sm text-gray-500 mb-6">Nossos especialistas na Creabily têm horários disponíveis esta semana para a sua Avaliação Integrada.</p>
+                
+                <a href="#" id="whatsapp-link" target="_blank" class="inline-flex w-full justify-center items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-0.5">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.064 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+                    Agendar Minha Avaliação
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // State Management
+        const state = {
+            unit: null,      // Unidade escolhida
+            path: null,      // A, B, ou C
+            foco: null,      // Resposta Q1
+            q2: null,
+            q3: null,
+            q4: null,
+            nome: null,
+            whatsapp: null
+        };
+
+        // Select Unit
+        function selectUnit(unitName) {
+            state.unit = unitName;
+            hideAllViews();
+            document.getElementById('view-start').classList.remove('hidden');
+        }
+
+        const resultData = {
+            'acupuntura': {
+                title: 'Acupuntura e Equilíbrio',
+                desc: 'Baseado em suas respostas, percebemos que suas queixas envolvem bloqueios que geram desde dor até estresse. A acupuntura atuará diretamente nesses pontos para regular seu sistema nervoso, aliviar a tensão e devolver seu equilíbrio e bem-estar.'
+            },
+            'fisioterapia': {
+                title: 'Fisioterapia Especializada',
+                desc: 'Pelas suas respostas, notamos que você lida com dor ou limitação de movimento. Soluções genéricas não vão funcionar. Você precisa de uma avaliação clínica profunda com nossa Fisioterapia para tratar a inflamação na raiz e recuperar sua mobilidade.'
+            },
+            'nutricao': {
+                title: 'Acompanhamento Nutricional',
+                desc: 'Sua rotina, emoções e objetivo atual pedem um olhar atento à sua alimentação. Uma nutrição adequada não é dieta restritiva, mas sim fornecer a energia correta que o seu corpo e mente precisam para atingir seus resultados.'
+            },
+            'pilates': {
+                title: 'Pilates Clínico',
+                desc: 'Seu perfil indica que o foco deve ser no reequilíbrio biomecânico. Nossos métodos de Pilates focarão no fortalecimento do seu núcleo, melhoria da flexibilidade e da postura, garantindo um corpo mais forte, móvel e livre de lesões.'
+            },
+            'psicologia': {
+                title: 'Psicologia e Saúde Emocional',
+                desc: 'O que você sente reflete diretamente no seu dia a dia. É importante ter um espaço seguro para cuidar de suas emoções. Nossa abordagem em Psicologia vai ajudá-lo(a) a entender essas angústias e construir mecanismos saudáveis para lidar com elas.'
+            },
+            'psicoterapia': {
+                title: 'Acompanhamento Psicoterapêutico',
+                desc: 'Baseado em suas respostas, o acompanhamento psicoterapêutico trará os recursos necessários para o seu autoconhecimento e controle emocional. Este é o melhor momento para olhar para dentro e reconstruir seu bem-estar psicológico.'
+            },
+            'quiropraxia': {
+                title: 'Alinhamento com Quiropraxia',
+                desc: 'As suas queixas de travamentos, tensões ou dores intensas mostram que sua estrutura precisa de realinhamento. A Quiropraxia ajustará sua coluna e articulações, promovendo um alívio imediato da sobrecarga nervosa e muscular.'
+            },
+            'rpg': {
+                title: 'Reeducação Postural Global (RPG)',
+                desc: 'Sua postura está sofrendo compensações que geram sobrecarga e dores. O RPG é o tratamento ideal para o seu perfil, pois irá reajustar todo o seu eixo de simetria de forma global, eliminando a dor e corrigindo a estética postural.'
+            }
+        };
+
+        // Utility: Hide all views
+        function hideAllViews() {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+        }
+
+        // Utility: Update Progress Bar
+        function updateProgress(percent) {
+            const container = document.getElementById('progress-bar-container');
+            const bar = document.getElementById('progress-bar');
+            container.classList.remove('hidden');
+            bar.style.width = percent + '%';
+        }
+
+        // Step 1: Select Path
+        function selectPath(path, btnElement) {
+            state.path = path;
+            state.foco = btnElement.innerText.trim();
+            
+            hideAllViews();
+            document.getElementById(`view-path-${path.toLowerCase()}`).classList.remove('hidden');
+            updateProgress(40);
+        }
+
+        // Generic Question Answer for internal routing
+        function answerQuestion(qKey, answer, nextElementId) {
+            state[qKey] = answer;
+            
+            // Hide current question block (parent of the button)
+            const currentBlock = event.target.closest('.question-block');
+            currentBlock.classList.add('hidden');
+            
+            // Show next block
+            document.getElementById(nextElementId).classList.remove('hidden');
+            
+            // Increment progress slightly
+            const currentWidth = parseInt(document.getElementById('progress-bar').style.width) || 40;
+            updateProgress(currentWidth + 20);
+        }
+
+        // Go back button inside questions
+        function goBack(targetElementId, currentElementId) {
+            document.getElementById(currentElementId).classList.add('hidden');
+            document.getElementById(targetElementId).classList.remove('hidden');
+        }
+
+        // Finish Quiz - Trigger Loading
+        function finishQuiz(qKey, answer) {
+            state[qKey] = answer;
+            
+            updateProgress(100);
+            hideAllViews();
+            document.getElementById('view-loading').classList.remove('hidden');
+            
+            // Simulate AI processing
+            setTimeout(() => {
+                document.getElementById('progress-bar-container').classList.add('hidden');
+                hideAllViews();
+                document.getElementById('view-capture').classList.remove('hidden');
+            }, 3000);
+        }
+
+        // Form Submit
+        document.getElementById('lead-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btnSubmit = document.getElementById('btn-submit');
+            const originalBtnHtml = btnSubmit.innerHTML;
+            btnSubmit.innerHTML = 'Enviando...';
+            btnSubmit.disabled = true;
+
+            state.nome = document.getElementById('nome').value;
+            state.whatsapp = document.getElementById('whatsapp').value;
+
+            // Send to Webhook
+            try {
+                // Em produção, isso aponta para /.netlify/functions/webhook
+                const webhookUrl = '/.netlify/functions/webhook';
+                
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(state)
+                });
+                
+                // Show Results regardless of webhook success to not block user
+                showResults();
+                
+            } catch (error) {
+                console.error("Erro ao enviar lead", error);
+                // Even on error, show result to user
+                showResults();
+            }
+        });
+
+        function showResults() {
+            hideAllViews();
+            
+            // Disparar conversão do Google Ads na conta definitiva
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-949626738/GrO6CK76uoAdEPLO6MQD',
+                    'value': 1.0,
+                    'currency': 'BRL'
+                });
+            }
+            
+            const result = resultData[state.path];
+            document.getElementById('result-title').innerText = result.title;
+            document.getElementById('result-desc').innerText = result.desc;
+            
+            // Set WhatsApp Link based on unit
+            const unitPhones = {
+                'Paulista': '5511933130234',
+                'Granja Viana': '5511914429741'
+            };
+            const phone = unitPhones[state.unit] || '5511933130234';
+            const msg = encodeURIComponent("Olá, vim do Instagram. Gostaria de fazer uma consulta.");
+            document.getElementById('whatsapp-link').href = `https://wa.me/${phone}?text=${msg}`;
+            
+            document.getElementById('view-result').classList.remove('hidden');
+        }
+        
+        // Input mask simple for Whatsapp
+        document.getElementById('whatsapp').addEventListener('input', function (e) {
+            var x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+    </script>
+</body>
+</html>
