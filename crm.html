@@ -391,7 +391,7 @@
       .analytics-grid { grid-template-columns: 1fr; gap: 12px; }
       .board { grid-auto-columns: 82vw; scroll-snap-type: x mandatory; }
       .col { scroll-snap-align: start; min-height: 50vh; }
-      .mobile-board-pills { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; margin-bottom: 4px; -webkit-overflow-scrolling: touch; }
+      .mobile-board-pills { display: flex !important; width: 100%; max-width: 100%; gap: 8px; overflow-x: auto; padding: 4px 0 12px; margin-bottom: 4px; -webkit-overflow-scrolling: touch; }
       .mobile-board-pills::-webkit-scrollbar { display: none; }
       .m-pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line-strong); font-size: 12px; font-weight: 600; color: var(--text-2); white-space: nowrap; flex: none; cursor: pointer; box-shadow: var(--shadow-sm); }
       .m-pill:active { background: var(--brand-50); border-color: var(--brand); color: var(--brand); }
