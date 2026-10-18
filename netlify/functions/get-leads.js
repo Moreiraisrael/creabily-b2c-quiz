@@ -11,9 +11,17 @@ exports.handler = async (event, context) => {
         const password = body.password;
 
         // Senha para proteger os dados. Pode ser configurada na Netlify via CRM_PASSWORD
-        const ADMIN_PASSWORD = process.env.CRM_PASSWORD || 'Creabily2026';
+        const ADMIN_PASSWORD = process.env.CRM_PASSWORD;
+        if (!ADMIN_PASSWORD) {
+            console.error('[Segurança] Variável CRM_PASSWORD não configurada no Netlify.');
+            return {
+                statusCode: 500,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ error: 'CRM sem senha configurada (CRM_PASSWORD). Configure no Netlify.' })
+            };
+        }
 
-        if (password !== ADMIN_PASSWORD) {
+        if (typeof password !== 'string' || password !== ADMIN_PASSWORD) {
             return {
                 statusCode: 401,
                 headers: { 'Content-Type': 'application/json' },

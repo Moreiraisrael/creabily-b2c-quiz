@@ -92,6 +92,25 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Clinical Loading Step States */
+        .step-completed {
+            color: #15803d !important;
+            font-weight: 600;
+        }
+        .step-completed .step-icon {
+            background-color: #22c55e !important;
+            color: white !important;
+        }
+        .step-active {
+            color: #6b308b !important;
+            font-weight: 600;
+        }
+        .step-active .step-icon {
+            background-color: #8a42b1 !important;
+            color: white !important;
+            animation: pulse 1.2s infinite;
+        }
     </style>
 </head>
 <body class="text-gray-800 font-sans antialiased flex flex-col min-h-screen overflow-x-hidden relative bg-gray-50">
@@ -399,45 +418,95 @@
             </div>
 
             <!-- ========================================== -->
-            <!-- VIEW: LOADING -->
+            <!-- VIEW: LOADING CLÍNICO AVANÇADO -->
             <!-- ========================================== -->
-            <div id="view-loading" class="view-section hidden text-center py-10">
-                <div class="flex flex-col items-center justify-center space-y-6">
-                    <div class="loader"></div>
-                    <h2 class="text-xl font-semibold text-primary animate-pulse-slow">
-                        Analisando suas respostas...
-                    </h2>
-                    <p class="text-gray-500 text-sm">Cruzando dados com nossa inteligência clínica.</p>
+            <div id="view-loading" class="view-section hidden text-center py-6 sm:py-8">
+                <div class="max-w-md mx-auto flex flex-col items-center space-y-6">
+                    <div class="relative flex items-center justify-center">
+                        <div class="loader"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-xs font-bold text-primary" id="loading-pct">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-primary mb-1">
+                            Preparando Sua Recomendação
+                        </h2>
+                        <p class="text-gray-500 text-xs sm:text-sm">Nossa inteligência integrada está avaliando suas respostas...</p>
+                    </div>
+
+                    <!-- Checklist de Etapas Dinâmico -->
+                    <div class="w-full bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-purple-100 shadow-sm text-left space-y-3.5">
+                        <div id="step-analyzing-1" class="flex items-center gap-3 text-xs sm:text-sm text-gray-400 transition-all duration-300">
+                            <span class="step-icon w-6 h-6 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 text-xs shrink-0 font-bold">1</span>
+                            <span>Mapeando histórico de desconfortos e sintomas...</span>
+                        </div>
+                        <div id="step-analyzing-2" class="flex items-center gap-3 text-xs sm:text-sm text-gray-400 transition-all duration-300">
+                            <span class="step-icon w-6 h-6 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 text-xs shrink-0 font-bold">2</span>
+                            <span>Cruzando suas respostas com nossos tratamentos...</span>
+                        </div>
+                        <div id="step-analyzing-3" class="flex items-center gap-3 text-xs sm:text-sm text-gray-400 transition-all duration-300">
+                            <span class="step-icon w-6 h-6 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 text-xs shrink-0 font-bold">3</span>
+                            <span id="unit-checking-label">Verificando especialistas disponíveis na sua Unidade...</span>
+                        </div>
+                        <div id="step-analyzing-4" class="flex items-center gap-3 text-xs sm:text-sm text-gray-400 transition-all duration-300">
+                            <span class="step-icon w-6 h-6 rounded-full flex items-center justify-center bg-gray-100 text-gray-500 text-xs shrink-0 font-bold">4</span>
+                            <span>Sua recomendação está pronta!</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- ========================================== -->
-            <!-- VIEW: CAPTURA DE LEAD -->
+            <!-- VIEW: CAPTURA DE LEAD COM PROVA SOCIAL -->
             <!-- ========================================== -->
             <div id="view-capture" class="view-section hidden animate-fade-in">
+                <!-- Google Social Proof Badge -->
+                <div class="flex items-center justify-center gap-2 mb-4 bg-white/90 border border-amber-200 rounded-full py-1.5 px-4 max-w-fit mx-auto shadow-sm">
+                    <svg class="w-4 h-4 text-amber-500 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    <span class="text-xs font-bold text-gray-800">4.9 no Google</span>
+                    <span class="text-gray-300">•</span>
+                    <span class="text-xs text-gray-600 font-medium">+500 mil atendimentos na Creabily</span>
+                </div>
+
                 <div class="text-center mb-6">
-                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 text-green-600 mb-4">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 text-green-600 mb-3 shadow-inner">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Seu pré-diagnóstico está pronto!</h2>
-                    <p class="text-gray-600 text-sm">Para onde devemos enviar o seu resultado e os próximos passos recomendados?</p>
+                    <h2 class="text-2xl font-extrabold text-gray-800 mb-1">Sua recomendação está pronta!</h2>
+                    <p class="text-gray-600 text-sm">Informe seu nome e WhatsApp para visualizar o tratamento indicado e garantir seu atendimento:</p>
                 </div>
 
                 <form id="lead-form" class="space-y-4">
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nome Completo</label>
-                        <input type="text" id="nome" required class="w-full px-4 py-3 rounded-xl border border-gray-300 glass-input focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="Seu nome">
+                        <input type="text" id="nome" required minlength="3" class="w-full px-4 py-3 rounded-xl border border-gray-300 glass-input focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-800 font-medium" placeholder="Ex: Maria Santos">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">WhatsApp</label>
-                        <input type="tel" id="whatsapp" required class="w-full px-4 py-3 rounded-xl border border-gray-300 glass-input focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all" placeholder="(00) 00000-0000">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-sm font-semibold text-gray-700">WhatsApp (com DDD)</label>
+                            <span id="wpp-validation-feedback" class="text-xs font-medium text-gray-400">Ex: (11) 99999-9999</span>
+                        </div>
+                        <div class="relative">
+                            <input type="tel" id="whatsapp" required maxlength="15" class="w-full px-4 py-3 rounded-xl border border-gray-300 glass-input focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-gray-800 font-medium" placeholder="(11) 90000-0000">
+                            <span id="wpp-icon-valid" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-green-500 hidden">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </span>
+                        </div>
+                        <p id="wpp-error-msg" class="text-xs text-red-500 mt-1 hidden font-medium">Por favor, insira um WhatsApp válido com 11 dígitos (DDD + celular).</p>
                     </div>
                     
-                    <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-cta to-ctaHover hover:from-ctaHover hover:to-cta text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 mt-6 flex justify-center items-center gap-2">
+                    <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-cta to-ctaHover hover:from-ctaHover hover:to-cta text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 mt-5 flex justify-center items-center gap-2 text-base">
                         <span>Ver Meu Resultado Agora</span>
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
-                    <p class="text-xs text-center text-gray-400 mt-3">Prometemos não enviar spam. Seus dados estão seguros.</p>
+                    
+                    <!-- Trust Badges -->
+                    <div class="pt-3 border-t border-gray-100 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500">
+                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Dados Protegidos (LGPD)</span>
+                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg> Equipe Multidisciplinar</span>
+                    </div>
                 </form>
             </div>
 
@@ -445,21 +514,41 @@
             <!-- VIEW: RESULTADO FINAL -->
             <!-- ========================================== -->
             <div id="view-result" class="view-section hidden animate-fade-in text-center">
-                <span class="inline-block px-4 py-1 rounded-full bg-purple-100 text-primary text-xs font-bold uppercase tracking-wider mb-4">Resultado da Análise</span>
+                <!-- Urgency Countdown -->
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold mb-4 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                    <span>Sua vaga para avaliação está pré-reservada: <span id="countdown-timer" class="font-extrabold text-amber-900">14:59</span></span>
+                </div>
                 
-                <h2 id="result-title" class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-4"></h2>
+                <div>
+                    <span class="inline-block px-4 py-1 rounded-full bg-purple-100 text-primary text-xs font-bold uppercase tracking-wider mb-2">Tratamento Recomendado</span>
+                </div>
                 
-                <div class="bg-white/60 p-6 rounded-2xl border border-gray-100 text-left mb-8 shadow-sm">
+                <h2 id="result-title" class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-3"></h2>
+                
+                <div class="bg-white/80 p-6 rounded-2xl border border-purple-100 text-left mb-6 shadow-sm">
                     <p id="result-desc" class="text-gray-700 leading-relaxed"></p>
+                    <div id="result-unit-info" class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
+                        <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-cta" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> <span id="result-unit-name">Unidade Paulista</span></span>
+                        <span class="text-primary font-bold">Atendimento Especializado</span>
+                    </div>
                 </div>
 
-                <p class="text-sm text-gray-600 mb-4 font-semibold">O Próximo Passo:</p>
-                <p class="text-sm text-gray-500 mb-6">Nossos especialistas na Creabily têm horários disponíveis esta semana para a sua Avaliação Integrada.</p>
+                <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 mb-6 text-left flex items-center gap-3 shadow-sm">
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-primary">A Beatriz já chamou você no WhatsApp! 🌟</p>
+                        <p class="text-xs text-gray-600">Nossa assistente virtual enviou uma mensagem com seu resultado. Responda por lá ou clique abaixo para continuar a conversa.</p>
+                    </div>
+                </div>
                 
-                <a href="#" id="whatsapp-link" target="_blank" class="inline-flex w-full justify-center items-center gap-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-0.5">
+                <a href="#" id="whatsapp-link" target="_blank" class="inline-flex w-full justify-center items-center gap-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 text-base sm:text-lg">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.064 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                    Agendar Minha Avaliação
+                    <span>Continuar com a Beatriz no WhatsApp</span>
                 </a>
+                <p class="text-xs text-gray-400 mt-3">Você será atendido pela Beatriz da equipe oficial Creabily.</p>
             </div>
 
         </div>
@@ -565,54 +654,216 @@
             document.getElementById(targetElementId).classList.remove('hidden');
         }
 
-        // Finish Quiz - Trigger Loading
+        // Parse UTM parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        state.utm_source = urlParams.get('utm_source') || '';
+        state.utm_campaign = urlParams.get('utm_campaign') || '';
+        state.utm_medium = urlParams.get('utm_medium') || '';
+        state.utm_content = urlParams.get('utm_content') || '';
+        state.utm_term = urlParams.get('utm_term') || '';
+        state.gclid = urlParams.get('gclid') || '';
+
+        // Select Unit
+        function selectUnit(unitName) {
+            state.unit = unitName;
+            
+            // Personaliza label da unidade na tela de carregamento clínico
+            const unitLabelEl = document.getElementById('unit-checking-label');
+            if (unitLabelEl) {
+                unitLabelEl.innerText = `Verificando especialistas disponíveis na Unidade ${unitName}...`;
+            }
+            
+            hideAllViews();
+            document.getElementById('view-start').classList.remove('hidden');
+        }
+
+        // Finish Quiz - Trigger Advanced Clinical Loading
         function finishQuiz(qKey, answer) {
             state[qKey] = answer;
             
             updateProgress(100);
             hideAllViews();
-            document.getElementById('view-loading').classList.remove('hidden');
             
-            // Simulate AI processing
+            const loadingView = document.getElementById('view-loading');
+            loadingView.classList.remove('hidden');
+            
+            const pctEl = document.getElementById('loading-pct');
+            const step1 = document.getElementById('step-analyzing-1');
+            const step2 = document.getElementById('step-analyzing-2');
+            const step3 = document.getElementById('step-analyzing-3');
+            const step4 = document.getElementById('step-analyzing-4');
+
+            // Reset step classes
+            [step1, step2, step3, step4].forEach(s => {
+                if (s) {
+                    s.classList.remove('step-active', 'step-completed');
+                }
+            });
+
+            // Passo 1: 0 a 25% (Imediato)
+            if (pctEl) pctEl.innerText = '25%';
+            if (step1) step1.classList.add('step-active');
+
+            // Passo 2: 50% (após 900ms)
+            setTimeout(() => {
+                if (pctEl) pctEl.innerText = '55%';
+                if (step1) {
+                    step1.classList.remove('step-active');
+                    step1.classList.add('step-completed');
+                    step1.querySelector('.step-icon').innerHTML = '✓';
+                }
+                if (step2) step2.classList.add('step-active');
+            }, 900);
+
+            // Passo 3: 85% (após 1800ms)
+            setTimeout(() => {
+                if (pctEl) pctEl.innerText = '85%';
+                if (step2) {
+                    step2.classList.remove('step-active');
+                    step2.classList.add('step-completed');
+                    step2.querySelector('.step-icon').innerHTML = '✓';
+                }
+                if (step3) step3.classList.add('step-active');
+            }, 1800);
+
+            // Passo 4: 100% (após 2700ms)
+            setTimeout(() => {
+                if (pctEl) pctEl.innerText = '100%';
+                if (step3) {
+                    step3.classList.remove('step-active');
+                    step3.classList.add('step-completed');
+                    step3.querySelector('.step-icon').innerHTML = '✓';
+                }
+                if (step4) {
+                    step4.classList.add('step-completed');
+                    step4.querySelector('.step-icon').innerHTML = '✓';
+                }
+            }, 2700);
+
+            // Transição para o formulário com dados pré-analisados (3400ms)
             setTimeout(() => {
                 document.getElementById('progress-bar-container').classList.add('hidden');
                 hideAllViews();
                 document.getElementById('view-capture').classList.remove('hidden');
-            }, 3000);
+            }, 3400);
         }
+
+        // WhatsApp Phone Validation Helper
+        function validatePhoneDigits(phoneRaw) {
+            const digits = phoneRaw.replace(/\D/g, '');
+            // Valid Brazilian cell phone: 11 digits, valid DDD (11-99), 3rd digit is 9
+            if (digits.length !== 11) return false;
+            const ddd = parseInt(digits.substring(0, 2), 10);
+            if (ddd < 11 || ddd > 99) return false;
+            if (digits.charAt(2) !== '9') return false;
+            return true;
+        }
+
+        const wppInput = document.getElementById('whatsapp');
+        const wppIconValid = document.getElementById('wpp-icon-valid');
+        const wppErrorMsg = document.getElementById('wpp-error-msg');
+        const wppFeedback = document.getElementById('wpp-validation-feedback');
+
+        wppInput.addEventListener('input', function (e) {
+            // Apply Brazilian Phone Mask (11) 90000-0000
+            let digits = e.target.value.replace(/\D/g, '');
+            if (digits.length > 11) digits = digits.slice(0, 11);
+
+            let formatted = '';
+            if (digits.length > 0) {
+                formatted = '(' + digits.substring(0, 2);
+                if (digits.length > 2) {
+                    formatted += ') ' + digits.substring(2, 7);
+                    if (digits.length > 7) {
+                        formatted += '-' + digits.substring(7, 11);
+                    }
+                }
+            }
+            e.target.value = formatted;
+
+            // Live validation check
+            if (validatePhoneDigits(digits)) {
+                wppInput.classList.remove('border-red-400', 'border-gray-300');
+                wppInput.classList.add('border-green-500');
+                if (wppIconValid) wppIconValid.classList.remove('hidden');
+                if (wppErrorMsg) wppErrorMsg.classList.add('hidden');
+                if (wppFeedback) {
+                    wppFeedback.innerText = 'WhatsApp válido ✓';
+                    wppFeedback.className = 'text-xs font-semibold text-green-600';
+                }
+            } else {
+                wppInput.classList.remove('border-green-500');
+                if (wppIconValid) wppIconValid.classList.add('hidden');
+                if (digits.length >= 11) {
+                    wppInput.classList.add('border-red-400');
+                    if (wppErrorMsg) wppErrorMsg.classList.remove('hidden');
+                } else {
+                    wppInput.classList.remove('border-red-400');
+                    wppInput.classList.add('border-gray-300');
+                    if (wppErrorMsg) wppErrorMsg.classList.add('hidden');
+                    if (wppFeedback) {
+                        wppFeedback.innerText = 'Ex: (11) 99999-9999';
+                        wppFeedback.className = 'text-xs font-semibold text-gray-400';
+                    }
+                }
+            }
+        });
 
         // Form Submit
         document.getElementById('lead-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const rawPhone = document.getElementById('whatsapp').value;
+            if (!validatePhoneDigits(rawPhone)) {
+                wppInput.classList.add('border-red-400');
+                wppInput.focus();
+                if (wppErrorMsg) wppErrorMsg.classList.remove('hidden');
+                return;
+            }
+
             const btnSubmit = document.getElementById('btn-submit');
-            const originalBtnHtml = btnSubmit.innerHTML;
-            btnSubmit.innerHTML = 'Enviando...';
+            btnSubmit.innerHTML = '<span class="animate-pulse">Consultando Agenda...</span>';
             btnSubmit.disabled = true;
 
-            state.nome = document.getElementById('nome').value;
-            state.whatsapp = document.getElementById('whatsapp').value;
+            state.nome = document.getElementById('nome').value.trim();
+            state.whatsapp = rawPhone;
 
             // Send to Webhook
             try {
-                // Em produção, isso aponta para /.netlify/functions/webhook
                 const webhookUrl = '/.netlify/functions/webhook';
-                
                 await fetch(webhookUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(state)
                 });
-                
-                // Show Results regardless of webhook success to not block user
                 showResults();
-                
             } catch (error) {
-                console.error("Erro ao enviar lead", error);
-                // Even on error, show result to user
+                console.error("Erro ao registrar lead", error);
                 showResults();
             }
         });
+
+        // 15-Minute Urgency Countdown Timer
+        let countdownInterval = null;
+        function startUrgencyCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            let totalSeconds = 15 * 60;
+            const timerEl = document.getElementById('countdown-timer');
+            
+            countdownInterval = setInterval(() => {
+                totalSeconds--;
+                if (totalSeconds <= 0) {
+                    clearInterval(countdownInterval);
+                    if (timerEl) timerEl.innerText = 'Expirando em instantes';
+                    return;
+                }
+                const m = Math.floor(totalSeconds / 60);
+                const s = totalSeconds % 60;
+                if (timerEl) {
+                    timerEl.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+                }
+            }, 1000);
+        }
 
         function showResults() {
             hideAllViews();
@@ -626,27 +877,39 @@
                 });
             }
             
-            const result = resultData[state.path];
+            const result = resultData[state.path] || {
+                title: 'Avaliação Integrada Creabily',
+                desc: 'Com base no seu perfil, nossa equipe multidisciplinar montará um plano integrado unindo reabilitação física e bem-estar para tratar sua queixa na raiz.'
+            };
+            
             document.getElementById('result-title').innerText = result.title;
             document.getElementById('result-desc').innerText = result.desc;
             
-            // Set WhatsApp Link based on unit
+            // Unidade selecionada
+            const selectedUnit = state.unit || 'Paulista';
+            const unitNameEl = document.getElementById('result-unit-name');
+            if (unitNameEl) {
+                unitNameEl.innerText = `Unidade ${selectedUnit}`;
+            }
+
+            // Telefones de atendimento por unidade
             const unitPhones = {
                 'Paulista': '5511933130234',
                 'Granja Viana': '5511914429741'
             };
-            const phone = unitPhones[state.unit] || '5511933130234';
-            const msg = encodeURIComponent("Olá, vim do Instagram. Gostaria de fazer uma consulta.");
-            document.getElementById('whatsapp-link').href = `https://wa.me/${phone}?text=${msg}`;
+            const phone = unitPhones[selectedUnit] || '5511933130234';
+
+            // Mensagem personalizada e contextualizada (Corrige a mensagem estática antiga)
+            const dynamicMessage = `Olá! Acabei de fazer o teste no site da Creabily. Meu resultado indicou o tratamento de *${result.title}* para a *Unidade ${selectedUnit}*. Gostaria de confirmar disponibilidade para minha Avaliação Integrada.`;
+            const encodedMsg = encodeURIComponent(dynamicMessage);
             
+            document.getElementById('whatsapp-link').href = `https://wa.me/${phone}?text=${encodedMsg}`;
+            
+            // Inicia o contador de urgência de pré-reserva
+            startUrgencyCountdown();
+
             document.getElementById('view-result').classList.remove('hidden');
         }
-        
-        // Input mask simple for Whatsapp
-        document.getElementById('whatsapp').addEventListener('input', function (e) {
-            var x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
-            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
-        });
     </script>
 </body>
 </html>
