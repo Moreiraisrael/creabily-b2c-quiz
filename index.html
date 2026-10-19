@@ -16,6 +16,7 @@
       gtag('js', new Date());
 
       gtag('config', 'AW-949626738');
+      gtag('config', 'AW-18466424706');
     </script>
     
     <!-- Tailwind CSS -->
@@ -1079,10 +1080,15 @@
         function showResults() {
             hideAllViews();
             
-            // Disparar conversão do Google Ads na conta definitiva
+            // Disparar conversão do Google Ads na conta definitiva e administradora
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'conversion', {
                     'send_to': 'AW-949626738/GrO6CK76uoAdEPLO6MQD',
+                    'value': 1.0,
+                    'currency': 'BRL'
+                });
+                gtag('event', 'conversion', {
+                    'send_to': 'AW-18466424706/GrO6CK76uoAdEPLO6MQD',
                     'value': 1.0,
                     'currency': 'BRL'
                 });
