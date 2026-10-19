@@ -8,7 +8,7 @@ exports.handler = async (event, context) => {
 
     try {
         const body = JSON.parse(event.body || '{}');
-        const { nome, whatsapp, path, foco, q2, q3, q4, unit } = body;
+        const { nome, whatsapp, path, foco, q2, q3, q4, unit, turno, previsao, modalidade } = body;
         const limpar = (v, max = 300) => (v === undefined || v === null) ? null : String(v).trim().slice(0, max) || null;
 
         // Validação básica do lead
@@ -19,7 +19,7 @@ exports.handler = async (event, context) => {
             };
         }
 
-        console.log(`[Webhook] Processando novo lead do Quiz: ${nome} (Caminho ${path}, Unidade ${unit})`);
+        console.log(`[Webhook] Processando novo lead do Quiz: ${nome} (Caminho ${path}, Unidade ${unit}, Turno ${turno})`);
 
         // Formatação consistente do número de WhatsApp
         let cleanNumber = String(whatsapp).replace(/\D/g, '');
@@ -36,7 +36,8 @@ exports.handler = async (event, context) => {
             'psicologia': 'Psicologia',
             'psicoterapia': 'Psicoterapia',
             'quiropraxia': 'Quiropraxia',
-            'rpg': 'RPG'
+            'rpg': 'RPG',
+            'imotion': 'i-Motion (EMS)'
         };
         const tratamentoFormatado = rotuloTratamento[path] || 'Saúde Integrada';
 
@@ -56,12 +57,23 @@ exports.handler = async (event, context) => {
             psicologia:   ['O que você sente que mais afeta sua rotina hoje?', 'Você sente que essas emoções estão afetando seu corpo físico?', 'Você já fez acompanhamento psicológico antes?'],
             psicoterapia: ['Qual é o foco que você deseja dar para a psicoterapia?', 'Com que frequência esses sentimentos atrapalham seu dia a dia?', 'Qual formato de terapia você tem preferência?'],
             quiropraxia:  ['O que te fez buscar a Quiropraxia?', 'Você costuma "travar" a coluna ou pescoço com frequência?', 'Você já tem algum exame de imagem recente (Raio-X, Ressonância)?'],
-            rpg:          ['Qual é a sua principal queixa postural?', 'Você sente muita dor associada a essa má postura?', 'Qual o seu nível atual de atividade física?']
+            rpg:          ['Qual é a sua principal queixa postural?', 'Você sente muita dor associada a essa má postura?', 'Qual o seu nível atual de atividade física?'],
+            imotion:      ['Qual é o seu objetivo principal com a tecnologia i-Motion (EMS)?', 'Com que frequência você pratica atividades físicas atualmente?', 'Você possui alguma contraindicação como marcapasso ou gestação?']
         };
         const textosPerguntas = PERGUNTAS[path] || ['Pergunta 2', 'Pergunta 3', 'Pergunta 4'];
         const quizAnswers = [q2, q3, q4]
             .map((resposta, i) => ({ pergunta: textosPerguntas[i], resposta: limpar(resposta) }))
             .filter(item => item.resposta);
+
+        if (turno) {
+            quizAnswers.push({ pergunta: 'Turno de Preferência', resposta: limpar(turno) });
+        }
+        if (previsao) {
+            quizAnswers.push({ pergunta: 'Previsão para Início', resposta: limpar(previsao) });
+        }
+        if (modalidade) {
+            quizAnswers.push({ pergunta: 'Modalidade de Atendimento', resposta: limpar(modalidade) });
+        }
 
         const rotinas = [];
 
@@ -74,6 +86,8 @@ exports.handler = async (event, context) => {
         if (supabaseUrl && supabaseKey) {
             const supabase = createClient(supabaseUrl, supabaseKey);
 
+            const preAgendamentoNote = `[Pré-Agendamento] Turno: ${limpar(turno) || 'Não informado'} | Previsão: ${limpar(previsao) || 'Esta semana'} | Modalidade: ${limpar(modalidade) || 'Particular'} (Avaliação R$ 300)`;
+
             const baseLead = {
                 name: limpar(nome, 120),
                 phone: cleanNumber,
@@ -82,10 +96,11 @@ exports.handler = async (event, context) => {
                 main_complaint: limpar(foco) || 'Não informada',
                 status: 'novo_lead_quiz'
             };
-            // Campos novos (exigem a migração SQL da Fase 0)
+            // Campos novos (compatíveis com schema do CRM)
             const leadCompleto = {
                 ...baseLead,
                 quiz_answers: quizAnswers,
+                notes: preAgendamentoNote,
                 utm_source: limpar(body.utm_source, 120),
                 utm_medium: limpar(body.utm_medium, 120),
                 utm_campaign: limpar(body.utm_campaign, 200),
@@ -98,7 +113,7 @@ exports.handler = async (event, context) => {
             const supabasePromise = (async () => {
                 let { error } = await supabase.from('leads').insert([leadCompleto]);
                 if (error) {
-                    // Se as colunas novas ainda não existirem, grava o lead mesmo assim (nunca perder um lead)
+                    // Se as colunas novas ainda não existirem, tenta formato básico (nunca perder um lead)
                     console.error('[Supabase] Erro ao inserir lead completo, tentando formato básico:', error.message);
                     ({ error } = await supabase.from('leads').insert([baseLead]));
                 }
@@ -122,7 +137,10 @@ exports.handler = async (event, context) => {
         const instanceName = process.env.EVOLUTION_INSTANCE_NAME;
 
         if (evolutionApiUrl && evolutionApiKey && instanceName) {
-            const wppMessage = `Olá ${nome}, tudo bem? Aqui é a Beatriz, da Creabily. 🌟\n\nPelas suas respostas no nosso teste, indicamos o tratamento de *${tratamentoFormatado}* na nossa *${nomeUnidade}*.\n\nVocê teria disponibilidade esta semana para conversarmos e agendarmos sua Avaliação Integrada com nossa equipe?`;
+            const turnoTexto = turno ? ` no turno da *${turno}*` : '';
+            const modalidadeTexto = modalidade ? ` (${modalidade})` : '';
+
+            const wppMessage = `Olá ${nome}, tudo bem? Aqui é a Beatriz, da Creabily! 🌟\n\nRecebi suas respostas no nosso teste para *${tratamentoFormatado}* na *${nomeUnidade}*${turnoTexto}${modalidadeTexto}.\n\nNossa Avaliação Clínica Inicial é individualizada e dura 1 hora com especialista (investimento de R$ 300,00 no particular, com suporte completo caso queira solicitar reembolso junto ao seu convênio).\n\n⚠️ *Aviso importante:* Seu pré-agendamento é uma solicitação de preferência. Por gentileza, *aguarde nossa confirmação oficial de horário aqui no WhatsApp* antes de se dirigir à clínica.\n\nPodemos confirmar sua data e horário preferido agora? 😊`;
 
             console.log(`[Evolution API] Enviando mensagem da Beatriz para ${cleanNumber} (instância: ${instanceName})...`);
 

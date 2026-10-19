@@ -161,35 +161,32 @@
             <!-- VIEW: START (PHASE 1) -->
             <!-- ========================================== -->
             <div id="view-start" class="view-section hidden">
-                <h1 class="text-2xl sm:text-3xl font-extrabold text-primary mb-6 leading-tight text-center">
-                    Conteúdos que podem te ajudar:
+                <div class="flex items-center justify-between mb-4">
+                    <button type="button" onclick="goBackToUnits()" class="text-xs text-gray-500 hover:text-primary flex items-center gap-1 font-semibold transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Trocar Unidade (<span id="current-unit-badge" class="text-primary font-bold">Paulista</span>)
+                    </button>
+                    <span class="text-[11px] bg-purple-100 text-primary font-bold px-2.5 py-0.5 rounded-full border border-purple-200">Etapa 1 de 4</span>
+                </div>
+
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-primary mb-2 leading-tight text-center">
+                    Qual atendimento você procura hoje?
                 </h1>
+                <p class="text-xs sm:text-sm text-gray-500 text-center mb-6">
+                    Selecione a especialidade desejada para personalizarmos sua avaliação clínica:
+                </p>
                 
-                <div class="space-y-3">
-                    <button onclick="selectPath('acupuntura', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
-                        <span class="font-medium text-lg">Acupuntura</span>
-                    </button>
-                    <button onclick="selectPath('fisioterapia', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
-                        <span class="font-medium text-lg">Fisioterapia</span>
-                    </button>
-                    <button onclick="selectPath('nutricao', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
-                        <span class="font-medium text-lg">Nutrição</span>
-                    </button>
-                    <button onclick="selectPath('pilates', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
-                        <span class="font-medium text-lg">Pilates</span>
-                    </button>
-                    <button onclick="selectPath('psicologia', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
-                        <span class="font-medium text-lg">Psicologia</span>
-                    </button>
-                    <button onclick="selectPath('psicoterapia', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
-                        <span class="font-medium text-lg">Psicoterapia</span>
-                    </button>
-                    <button onclick="selectPath('quiropraxia', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
-                        <span class="font-medium text-lg">Quiropraxia</span>
-                    </button>
-                    <button onclick="selectPath('rpg', this)" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white">
-                        <span class="font-medium text-lg">Reeducação Postural Global - RPG</span>
-                    </button>
+                <div id="services-list" class="space-y-3">
+                    <!-- Gerado dinamicamente com base na Unidade selecionada -->
+                </div>
+
+                <!-- Aviso de tratamentos exclusivos da Paulista (visível apenas na Granja Viana) -->
+                <div id="granja-exclusive-alert" class="hidden mt-5 p-3.5 bg-purple-50/80 border border-purple-200 rounded-xl text-purple-900 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 shadow-sm">
+                    <div class="flex items-start gap-2">
+                        <span class="text-base shrink-0">💡</span>
+                        <span class="leading-relaxed">Procura <strong>Quiropraxia</strong> ou <strong>Acupuntura</strong>? Estes atendimentos são exclusivos da nossa <strong>Unidade Paulista</strong>.</span>
+                    </div>
+                    <button type="button" onclick="selectUnit('Paulista')" class="text-xs text-primary font-bold underline whitespace-nowrap hover:text-cta transition-colors">Ir para Paulista</button>
                 </div>
             </div>
 
@@ -417,6 +414,35 @@
                 </div>
             </div>
 
+            <!-- I-MOTION -->
+            <div id="view-path-imotion" class="view-section hidden">
+                <div id="q-2-imotion" class="question-block">
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">2. Qual é o seu objetivo principal com a tecnologia i-Motion (EMS)?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q2', 'Fortalecimento e tonificação muscular', 'q-3-imotion')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Fortalecimento e definição muscular acelerada.</button>
+                        <button onclick="answerQuestion('q2', 'Fortalecimento sem impacto/carga articular', 'q-3-imotion')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Fortalecer músculos sem impacto ou sobrecarga nas articulações.</button>
+                        <button onclick="answerQuestion('q2', 'Condicionamento físico rápido (20 min)', 'q-3-imotion')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Condicionamento físico e queima calórica em sessões de 20 min.</button>
+                    </div>
+                </div>
+                <div id="q-3-imotion" class="question-block hidden">
+                    <button onclick="goBack('q-2-imotion', 'q-3-imotion')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">3. Com que frequência você pratica atividades físicas atualmente?</h3>
+                    <div class="space-y-3">
+                        <button onclick="answerQuestion('q3', 'Sedentário ou quase nunca', 'q-4-imotion')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sedentário ou quase nunca me exercito.</button>
+                        <button onclick="answerQuestion('q3', '1 a 2 vezes por semana', 'q-4-imotion')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Pratico de 1 a 2 vezes por semana.</button>
+                        <button onclick="answerQuestion('q3', '3 ou mais vezes por semana', 'q-4-imotion')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Sou ativo(a), 3 ou mais vezes por semana.</button>
+                    </div>
+                </div>
+                <div id="q-4-imotion" class="question-block hidden">
+                    <button onclick="goBack('q-3-imotion', 'q-4-imotion')" class="text-sm text-gray-400 hover:text-primary mb-4 flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg> Voltar</button>
+                    <h3 class="font-semibold text-lg mb-4 text-gray-800">4. Você possui alguma contraindicação como marcapasso ou gestação?</h3>
+                    <div class="space-y-3">
+                        <button onclick="finishQuiz('q4', 'Não, liberado(a) para praticar')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Não possuo, estou liberado(a) para treinar.</button>
+                        <button onclick="finishQuiz('q4', 'Gostaria de tirar dúvidas com a equipe')" class="w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn bg-white">Tenho dúvidas sobre minha condição e quero orientação.</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- ========================================== -->
             <!-- VIEW: LOADING CLÍNICO AVANÇADO -->
             <!-- ========================================== -->
@@ -496,6 +522,61 @@
                         </div>
                         <p id="wpp-error-msg" class="text-xs text-red-500 mt-1 hidden font-medium">Por favor, insira um WhatsApp válido com 11 dígitos (DDD + celular).</p>
                     </div>
+
+                    <!-- Pré-Agendamento: Turno de Preferência -->
+                    <div class="pt-2 border-t border-gray-100">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center justify-between">
+                            <span>Turno de Preferência para Consulta</span>
+                            <span class="text-[11px] font-normal text-gray-400">Pré-reserva</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="cursor-pointer border-2 border-gray-200 rounded-xl p-2.5 text-center transition-all hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-purple-50 has-[:checked]:text-primary">
+                                <input type="radio" name="turno" value="Manhã (08h às 12h)" class="sr-only" checked>
+                                <span class="block text-sm font-bold">☀️ Manhã</span>
+                                <span class="block text-[10px] text-gray-500">08h - 12h</span>
+                            </label>
+                            <label class="cursor-pointer border-2 border-gray-200 rounded-xl p-2.5 text-center transition-all hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-purple-50 has-[:checked]:text-primary">
+                                <input type="radio" name="turno" value="Tarde (12h às 17h)" class="sr-only">
+                                <span class="block text-sm font-bold">🌤️ Tarde</span>
+                                <span class="block text-[10px] text-gray-500">12h - 17h</span>
+                            </label>
+                            <label class="cursor-pointer border-2 border-gray-200 rounded-xl p-2.5 text-center transition-all hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-purple-50 has-[:checked]:text-primary">
+                                <input type="radio" name="turno" value="Noite (17h às 20h)" class="sr-only">
+                                <span class="block text-sm font-bold">🌙 Noite</span>
+                                <span class="block text-[10px] text-gray-500">17h - 20h</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Previsão e Modalidade -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Previsão para início</label>
+                            <select id="previsao" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white text-sm text-gray-800 font-medium outline-none focus:ring-2 focus:ring-primary">
+                                <option value="Esta semana" selected>Esta semana</option>
+                                <option value="Próxima semana">Próxima semana</option>
+                                <option value="Apenas tirar dúvidas">Apenas tirar dúvidas</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Modalidade de Atendimento</label>
+                            <select id="modalidade" class="w-full px-3 py-2.5 rounded-xl border border-gray-300 bg-white text-sm text-gray-800 font-medium outline-none focus:ring-2 focus:ring-primary">
+                                <option value="Particular" selected>Particular (Avaliação R$ 300)</option>
+                                <option value="Reembolso de Convênio">Reembolso de Convênio</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Aviso de Segurança e Confirmação de Horário (Alerta Âmbar) -->
+                    <div class="p-3.5 bg-amber-50 border border-amber-300 rounded-xl text-amber-900 text-xs flex items-start gap-2.5 shadow-sm">
+                        <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <div>
+                            <span class="font-bold">Aviso importante sobre seu Pré-Agendamento:</span>
+                            <p class="text-amber-800 mt-0.5 leading-relaxed">
+                                A indicação de turno é uma <strong>solicitação de preferência</strong>. Para sua comodidade e segurança, <strong>aguarde a confirmação de horário oficial da nossa recepção via WhatsApp</strong> antes de comparecer à clínica.
+                            </p>
+                        </div>
+                    </div>
                     
                     <button type="submit" id="btn-submit" class="w-full bg-gradient-to-r from-cta to-ctaHover hover:from-ctaHover hover:to-cta text-white font-bold py-4 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 mt-5 flex justify-center items-center gap-2 text-base">
                         <span>Ver Meu Resultado Agora</span>
@@ -526,7 +607,7 @@
                 
                 <h2 id="result-title" class="text-2xl sm:text-3xl font-extrabold text-gray-800 mb-3"></h2>
                 
-                <div class="bg-white/80 p-6 rounded-2xl border border-purple-100 text-left mb-6 shadow-sm">
+                <div class="bg-white/80 p-6 rounded-2xl border border-purple-100 text-left mb-5 shadow-sm">
                     <p id="result-desc" class="text-gray-700 leading-relaxed"></p>
                     <div id="result-unit-info" class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 font-medium">
                         <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-cta" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> <span id="result-unit-name">Unidade Paulista</span></span>
@@ -534,21 +615,72 @@
                     </div>
                 </div>
 
-                <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 mb-6 text-left flex items-center gap-3 shadow-sm">
+                <!-- Pricing & Value Card (Transparência de Valores sem Assustar o Lead) -->
+                <div class="bg-gradient-to-br from-purple-50/70 via-white to-purple-50/40 p-5 rounded-2xl border border-purple-200 text-left mb-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-primary bg-purple-100 px-3 py-1 rounded-full">Investimento na sua Saúde</span>
+                        <span class="text-xs text-gray-500 font-medium">Transparência total</span>
+                    </div>
+                    <div class="border-b border-gray-100 pb-3 mb-3">
+                        <div class="flex justify-between items-baseline mb-1">
+                            <h4 class="font-extrabold text-gray-800 text-base">Avaliação Clínica Individualizada (1h)</h4>
+                            <span class="text-2xl font-black text-primary">R$ 300</span>
+                        </div>
+                        <p class="text-xs text-gray-600 leading-relaxed">
+                            Uma hora completa e exclusiva com nosso especialista: anamnese aprofundada, testes ortopédicos e biomecânicos específicos e elaboração do seu plano de tratamento sob medida.
+                        </p>
+                        <div class="mt-2.5 flex flex-wrap gap-2 text-[11px] text-gray-600">
+                            <span class="bg-white px-2.5 py-1 rounded-lg border border-gray-200 flex items-center gap-1 font-medium">💳 Pagamento na clínica no dia da consulta</span>
+                            <span class="bg-white px-2.5 py-1 rounded-lg border border-gray-200 flex items-center gap-1 font-medium">🏥 Relatório e NF para reembolso de convênio</span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1.5 italic">
+                            *O valor e a quantidade de sessões do tratamento contínuo serão definidos após esta avaliação inicial.
+                        </p>
+                    </div>
+
+                    <!-- Opcional Termografia -->
+                    <div class="bg-white p-3.5 rounded-xl border border-dashed border-purple-300">
+                        <div class="flex justify-between items-baseline">
+                            <span class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                                <span>🌡️</span>
+                                <span>Opcional de Alta Precisão: Termografia Clínica</span>
+                            </span>
+                            <span class="text-xs font-extrabold text-purple-700">+ R$ 180</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 mt-1 leading-snug">
+                            Mapeamento térmico computadorizado por infravermelho que localiza com precisão pontos de inflamação e sobrecarga muscular invisíveis a olho nu.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card de Status do Pré-Agendamento -->
+                <div class="bg-amber-50/80 p-4 rounded-xl border border-amber-200 mb-5 text-left flex items-start gap-3 shadow-sm">
+                    <div class="w-8 h-8 rounded-full bg-amber-200/80 flex items-center justify-center text-amber-800 shrink-0 font-bold text-sm">
+                        ⏳
+                    </div>
+                    <div class="text-xs">
+                        <p class="font-bold text-amber-900 mb-0.5">Pré-Agendamento Registrado (<span id="result-turno-label">Manhã</span>)</p>
+                        <p class="text-amber-800 leading-relaxed">
+                            Sua solicitação de turno foi enviada à equipe. <strong>Aguarde a confirmação de horário da nossa recepção no WhatsApp</strong> antes de comparecer à unidade.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-purple-50 p-4 rounded-xl border border-purple-200 mb-5 text-left flex items-center gap-3 shadow-sm">
                     <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                     </div>
                     <div>
                         <p class="text-xs font-bold text-primary">A Beatriz já chamou você no WhatsApp! 🌟</p>
-                        <p class="text-xs text-gray-600">Nossa assistente virtual enviou uma mensagem com seu resultado. Responda por lá ou clique abaixo para continuar a conversa.</p>
+                        <p class="text-xs text-gray-600">Nossa assistente virtual enviou uma mensagem com seu resultado. Responda por lá ou clique abaixo para confirmar seu horário.</p>
                     </div>
                 </div>
                 
                 <a href="#" id="whatsapp-link" target="_blank" class="inline-flex w-full justify-center items-center gap-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 px-6 rounded-xl shadow-lg transform transition hover:-translate-y-0.5 text-base sm:text-lg">
                     <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.064 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
-                    <span>Continuar com a Beatriz no WhatsApp</span>
+                    <span>Confirmar com a Beatriz no WhatsApp</span>
                 </a>
-                <p class="text-xs text-gray-400 mt-3">Você será atendido pela Beatriz da equipe oficial Creabily.</p>
+                <p class="text-xs text-gray-400 mt-3">Você será atendido pela Beatriz da recepção oficial Creabily.</p>
             </div>
 
         </div>
@@ -557,21 +689,99 @@
     <script>
         // State Management
         const state = {
-            unit: null,      // Unidade escolhida
-            path: null,      // A, B, ou C
-            foco: null,      // Resposta Q1
+            unit: 'Paulista',      // Unidade escolhida
+            path: null,            // Categoria do serviço
+            foco: null,            // Resposta Q1
             q2: null,
             q3: null,
             q4: null,
             nome: null,
-            whatsapp: null
+            whatsapp: null,
+            turno: 'Manhã (08h às 12h)',
+            previsao: 'Esta semana',
+            modalidade: 'Particular'
         };
 
-        // Select Unit
+        const SERVICES_DATA = {
+            'fisioterapia': { name: 'Fisioterapia Especializada', icon: '🩺', desc: 'Tratamento de dores na coluna, articulações e recuperação de movimentos' },
+            'rpg': { name: 'Reeducação Postural Global (RPG)', icon: '📐', desc: 'Alinhamento da postura, escoliose e alívio de tensões crônicas' },
+            'pilates': { name: 'Pilates Clínico & Funcional', icon: '🧘', desc: 'Fortalecimento do core, flexibilidade e estabilização postural' },
+            'imotion': { name: 'Tecnologia i-Motion (EMS)', icon: '⚡', desc: 'Eletroestimulação muscular para tonificação e reabilitação sem impacto' },
+            'quiropraxia': { name: 'Quiropraxia & Alinhamento', icon: '🦴', desc: 'Ajuste vertebral para alívio de travamentos e dores agudas' },
+            'acupuntura': { name: 'Acupuntura Tradicional', icon: '🪡', desc: 'Alívio da dor, controle do estresse e reequilíbrio bioenergético' },
+            'psicologia': { name: 'Psicologia & Saúde Mental', icon: '🧠', desc: 'Cuidado emocional, ansiedade, estresse e autoconhecimento' },
+            'psicoterapia': { name: 'Acompanhamento Psicoterapêutico', icon: '💬', desc: 'Processos terapêuticos para superação e equilíbrio pessoal' },
+            'nutricao': { name: 'Nutrição Clínica & Esportiva', icon: '🥗', desc: 'Reeducação alimentar, emagrecimento e performance' }
+        };
+
+        const SERVICES_BY_UNIT = {
+            'Granja Viana': ['fisioterapia', 'rpg', 'pilates', 'imotion'],
+            'Paulista': ['fisioterapia', 'rpg', 'pilates', 'quiropraxia', 'acupuntura', 'psicoterapia', 'psicologia', 'nutricao', 'imotion']
+        };
+
+        function renderServicesForUnit(unitName) {
+            const listContainer = document.getElementById('services-list');
+            if (!listContainer) return;
+            const badgeEl = document.getElementById('current-unit-badge');
+            const granjaAlert = document.getElementById('granja-exclusive-alert');
+            
+            if (badgeEl) badgeEl.innerText = unitName;
+
+            const isGranja = unitName.toLowerCase().includes('granja');
+            const keys = isGranja ? SERVICES_BY_UNIT['Granja Viana'] : SERVICES_BY_UNIT['Paulista'];
+
+            if (granjaAlert) {
+                if (isGranja) {
+                    granjaAlert.classList.remove('hidden');
+                } else {
+                    granjaAlert.classList.add('hidden');
+                }
+            }
+
+            listContainer.innerHTML = '';
+            keys.forEach(key => {
+                const item = SERVICES_DATA[key];
+                if (!item) return;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.onclick = function() { selectPath(key, btn); };
+                btn.className = 'w-full text-left p-4 rounded-xl border-2 border-gray-200 option-btn text-gray-700 bg-white hover:border-primary transition-all flex items-center justify-between gap-3 shadow-sm group';
+                btn.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">${item.icon}</span>
+                        <div>
+                            <span class="font-extrabold text-base text-gray-800 block service-title">${item.name}</span>
+                            <span class="text-xs text-gray-500 font-normal leading-tight">${item.desc}</span>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-gray-300 group-hover:text-primary transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                `;
+                listContainer.appendChild(btn);
+            });
+        }
+
+        function goBackToUnits() {
+            hideAllViews();
+            const progressContainer = document.getElementById('progress-bar-container');
+            if (progressContainer) progressContainer.classList.add('hidden');
+            document.getElementById('view-unit').classList.remove('hidden');
+        }
+
+        // Select Unit (unificado e dinâmico)
         function selectUnit(unitName) {
             state.unit = unitName;
+            
+            // Personaliza label da unidade na tela de carregamento clínico
+            const unitLabelEl = document.getElementById('unit-checking-label');
+            if (unitLabelEl) {
+                unitLabelEl.innerText = `Verificando especialistas disponíveis na Unidade ${unitName}...`;
+            }
+
+            renderServicesForUnit(unitName);
+            
             hideAllViews();
             document.getElementById('view-start').classList.remove('hidden');
+            updateProgress(20);
         }
 
         const resultData = {
@@ -582,6 +792,10 @@
             'fisioterapia': {
                 title: 'Fisioterapia Especializada',
                 desc: 'Pelas suas respostas, notamos que você lida com dor ou limitação de movimento. Soluções genéricas não vão funcionar. Você precisa de uma avaliação clínica profunda com nossa Fisioterapia para tratar a inflamação na raiz e recuperar sua mobilidade.'
+            },
+            'imotion': {
+                title: 'Tecnologia i-Motion (Eletroestimulação Muscular)',
+                desc: 'O método i-Motion ativa até 300 músculos simultaneamente através de impulsos eletromagnéticos precisos e seguros. É a tecnologia ideal para fortalecimento muscular acelerado, definição e ganho de força com zero sobrecarga ou impacto nas articulações.'
             },
             'nutricao': {
                 title: 'Acompanhamento Nutricional',
@@ -625,11 +839,15 @@
         // Step 1: Select Path
         function selectPath(path, btnElement) {
             state.path = path;
-            state.foco = btnElement.innerText.trim();
+            const titleEl = btnElement ? btnElement.querySelector('.service-title') : null;
+            state.foco = titleEl ? titleEl.innerText.trim() : (btnElement ? btnElement.innerText.trim() : path);
             
             hideAllViews();
-            document.getElementById(`view-path-${path.toLowerCase()}`).classList.remove('hidden');
-            updateProgress(40);
+            const targetEl = document.getElementById(`view-path-${path.toLowerCase()}`);
+            if (targetEl) {
+                targetEl.classList.remove('hidden');
+                updateProgress(40);
+            }
         }
 
         // Generic Question Answer for internal routing
@@ -662,20 +880,6 @@
         state.utm_content = urlParams.get('utm_content') || '';
         state.utm_term = urlParams.get('utm_term') || '';
         state.gclid = urlParams.get('gclid') || '';
-
-        // Select Unit
-        function selectUnit(unitName) {
-            state.unit = unitName;
-            
-            // Personaliza label da unidade na tela de carregamento clínico
-            const unitLabelEl = document.getElementById('unit-checking-label');
-            if (unitLabelEl) {
-                unitLabelEl.innerText = `Verificando especialistas disponíveis na Unidade ${unitName}...`;
-            }
-            
-            hideAllViews();
-            document.getElementById('view-start').classList.remove('hidden');
-        }
 
         // Finish Quiz - Trigger Advanced Clinical Loading
         function finishQuiz(qKey, answer) {
@@ -822,8 +1026,15 @@
             }
 
             const btnSubmit = document.getElementById('btn-submit');
-            btnSubmit.innerHTML = '<span class="animate-pulse">Consultando Agenda...</span>';
+            btnSubmit.innerHTML = '<span class="animate-pulse">Consultando Agenda & Vagas...</span>';
             btnSubmit.disabled = true;
+
+            const turnoEl = document.querySelector('input[name="turno"]:checked');
+            state.turno = turnoEl ? turnoEl.value : 'Manhã (08h às 12h)';
+            const previsaoEl = document.getElementById('previsao');
+            state.previsao = previsaoEl ? previsaoEl.value : 'Esta semana';
+            const modalidadeEl = document.getElementById('modalidade');
+            state.modalidade = modalidadeEl ? modalidadeEl.value : 'Particular';
 
             state.nome = document.getElementById('nome').value.trim();
             state.whatsapp = rawPhone;
@@ -885,6 +1096,10 @@
             document.getElementById('result-title').innerText = result.title;
             document.getElementById('result-desc').innerText = result.desc;
             
+            // Atualiza rótulo do turno pré-agendado
+            const turnoLabel = document.getElementById('result-turno-label');
+            if (turnoLabel) turnoLabel.innerText = state.turno;
+
             // Unidade selecionada
             const selectedUnit = state.unit || 'Paulista';
             const unitNameEl = document.getElementById('result-unit-name');
@@ -899,8 +1114,8 @@
             };
             const phone = unitPhones[selectedUnit] || '5511933130234';
 
-            // Mensagem personalizada e contextualizada (Corrige a mensagem estática antiga)
-            const dynamicMessage = `Olá! Acabei de fazer o teste no site da Creabily. Meu resultado indicou o tratamento de *${result.title}* para a *Unidade ${selectedUnit}*. Gostaria de confirmar disponibilidade para minha Avaliação Integrada.`;
+            // Mensagem personalizada e acolhedora no WhatsApp
+            const dynamicMessage = `Olá! Finalizei meu teste no site da Creabily para *${result.title}* na *Unidade ${selectedUnit}*. Pré-agendei minha preferência para o turno da *${state.turno}* (${state.modalidade}). Gostaria de confirmar a disponibilidade para minha Avaliação Clínica (R$ 300).`;
             const encodedMsg = encodeURIComponent(dynamicMessage);
             
             document.getElementById('whatsapp-link').href = `https://wa.me/${phone}?text=${encodedMsg}`;
