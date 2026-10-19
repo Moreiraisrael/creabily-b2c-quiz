@@ -1353,26 +1353,42 @@
     }
 
     // =========================================================
-    // Recuperador Ativo de Leads
+    // Recuperador Ativo de Leads (Inteligência Anti-Spam e Filtro Estrito)
     // =========================================================
+    function isEligibleForRecovery(l) {
+      // 1. Bloqueio estrito: já foi atendido ou agendado
+      if (['agendado', 'consulta_realizada'].includes(l.status)) return false;
+      // 2. Bloqueio estrito: tem data de consulta marcada ou resumo de agendamento concluído
+      if (l.appointment_at) return false;
+      if (l.agendamento_resumo && String(l.agendamento_resumo).trim().length > 0) return false;
+      // 3. Bloqueio estrito: solicitou descadastro / opt-out (palavra PARAR)
+      if (l.opted_out_at) return false;
+      if (l.notes && l.notes.includes('[OPT-OUT]')) return false;
+      // 4. Bloqueio se anotação indicar que já fechou ou realizou consulta
+      if (l.lost_reason && /atendido|fechou|realizada/i.test(l.lost_reason)) return false;
+      return true;
+    }
+
     function getRecoveryQueues(list) {
+      // Filtra apenas leads elegíveis (que NÃO foram atendidos, NÃO fecharam e NÃO deram opt-out)
+      const eligible = list.filter(isEligibleForRecovery);
+
       // 1. Resgate Pós-Quiz (< 3h sem avanço)
-      const posQuiz = list.filter(l => {
-        if (isAttended(l) || ['no_show', 'perdido'].includes(l.status)) return false;
+      const posQuiz = eligible.filter(l => {
+        if (['no_show', 'perdido'].includes(l.status)) return false;
         const h = hoursSince(l.created_at);
         return h !== null && h <= 3;
       }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       // 2. Retomada de Turno / Conversa Parada (3h a 48h)
-      const retomada = list.filter(l => {
-        if (isAttended(l) || ['no_show', 'perdido'].includes(l.status)) return false;
+      const retomada = eligible.filter(l => {
+        if (['no_show', 'perdido'].includes(l.status)) return false;
         const h = hoursSince(l.status_changed_at || l.created_at || l.last_interaction_at);
         return h !== null && h > 3 && h <= 48;
       }).sort((a, b) => (stageAge(b)?.h || 0) - (stageAge(a)?.h || 0));
 
-      // 3. Reaquecimento de Frios & No-Show (> 7 dias ou arquivado)
-      const frios = list.filter(l => {
-        if (l.status === 'consulta_realizada') return false;
+      // 3. Reaquecimento de Frios & No-Show (> 7 dias que nunca fecharam)
+      const frios = eligible.filter(l => {
         if (['no_show', 'perdido'].includes(l.status)) return true;
         const h = hoursSince(l.status_changed_at || l.created_at || l.last_interaction_at);
         return h !== null && h >= 168;
@@ -1387,6 +1403,7 @@
 
       const queues = recQueues || getRecoveryQueues(list);
       const total = queues.posQuiz.length + queues.retomada.length + queues.frios.length;
+      const optOutSuffix = '\n\n_(Caso não queira mais receber nossos avisos, responda PARAR)_';
 
       function renderRecoveryCard(l, queueType) {
         const ph = phoneOf(l);
@@ -1396,17 +1413,18 @@
         const queixa = service(l);
         const age = stageAge(l);
         const timeText = age ? age.text : 'recente';
+        const isOptedOut = Boolean(l.opted_out_at || (l.notes && l.notes.includes('[OPT-OUT]')));
 
         let defaultMsg = '';
         let btnLabel = '';
         if (queueType === 'pos_quiz') {
-          defaultMsg = `Oi, ${firstName(l)}! Tudo bem? Aqui é da Creabily ${unitLabel(l)}. Vi que você fez nosso teste de dor e saúde para ${queixa}${quando ? ` (preferência de turno: ${quando})` : ''}! Conseguiu ver a mensagem anterior? Nossa avaliação individual de 1 hora com especialista é R$ 300 (com nota fiscal e relatório completo para reembolso pelo seu plano de saúde). Conseguimos reservar sua vaga para esta semana?`;
+          defaultMsg = `Oi, ${firstName(l)}! Tudo bem? Aqui é da Creabily ${unitLabel(l)}. Vi que você fez nosso teste de dor e saúde para ${queixa}${quando ? ` (preferência de turno: ${quando})` : ''}! Conseguiu ver a mensagem anterior? Nossa avaliação individual de 1 hora com especialista é R$ 300 (com nota fiscal e relatório completo para reembolso pelo seu plano de saúde). Conseguimos reservar sua vaga para esta semana?` + optOutSuffix;
           btnLabel = '⚡ Resgatar no WhatsApp (Pós-Quiz)';
         } else if (queueType === 'retomada') {
-          defaultMsg = `Oi, ${firstName(l)}! Tudo bem? Passando para checar se você prefere manter o horário que selecionou no quiz para ${queixa} ou se prefere que a gente encontre outro dia/turno na Creabily ${unitLabel(l)}? Como a grade dos especialistas preenche rápido, queria garantir sua prioridade.`;
+          defaultMsg = `Oi, ${firstName(l)}! Tudo bem? Passando para checar se você prefere manter o horário que selecionou no quiz para ${queixa} ou se prefere que a gente encontre outro dia/turno na Creabily ${unitLabel(l)}? Como a grade dos especialistas preenche rápido, queria garantir sua prioridade.` + optOutSuffix;
           btnLabel = '💬 Confirmar Horário no WhatsApp';
         } else {
-          defaultMsg = `Olá, ${firstName(l)}! Tudo bem? Aqui é da equipe clínica da Creabily ${unitLabel(l)}. Lembrei de você hoje: como está a sua queixa de ${queixa}? Abrimos algumas vagas prioritárias de avaliação esta semana e emitimos toda a documentação para reembolso pelo seu plano de saúde. Vamos cuidar disso juntos?`;
+          defaultMsg = `Olá, ${firstName(l)}! Tudo bem? Aqui é da equipe clínica da Creabily ${unitLabel(l)}. Lembrei de você hoje: como está a sua queixa de ${queixa}? Abrimos algumas vagas prioritárias de avaliação esta semana e emitimos toda a documentação para reembolso pelo seu plano de saúde. Vamos cuidar disso juntos?` + optOutSuffix;
           btnLabel = '🔥 Reaquecer no WhatsApp';
         }
 
@@ -1421,6 +1439,7 @@
                 <div class="recovery-card-meta">${esc(phoneFmt(ph))} · ${unitChip(l)}</div>
               </div>
               <span class="chip ${temp.cls}">${temp.icon} ${temp.label}</span>
+              ${isOptedOut ? `<span class="chip" style="background:#fee2e2;color:#991b1b;font-weight:600">🚫 Descadastrado (PARAR)</span>` : ''}
             </div>
 
             <div class="recovery-box">
@@ -1430,7 +1449,8 @@
             </div>
 
             <div class="recovery-actions" onclick="event.stopPropagation()">
-              ${ph ? `<a class="btn-recover-wa" href="${waUrl}" target="_blank" rel="noopener">${ic('wa', 'icon-sm')}${btnLabel}</a>` : ''}
+              ${ph && !isOptedOut ? `<a class="btn-recover-wa" href="${waUrl}" target="_blank" rel="noopener">${ic('wa', 'icon-sm')}${btnLabel}</a>` : ''}
+              ${isOptedOut ? `<span class="chip" style="background:#f1f5f9;color:#64748b">🚫 Mensagens bloqueadas (Opt-out)</span>` : ''}
               <button class="btn-recover-sub" onclick="openDrawer('${esc(l.id)}')">Ficha</button>
               <button class="btn-recover-sub" onclick="moveLead('${esc(l.id)}','agendado')" title="Marcar como Agendado">Agendar</button>
             </div>
@@ -1699,19 +1719,20 @@
       const nome = firstName(l), svc = service(l), un = l.preferred_unit === 'granja_viana' ? 'Granja Viana' : 'Av. Paulista';
       const resp = firstAnswer(l);
       const quando = preAgendamentoTexto(l);
+      const optOut = '\n\n_(Caso não queira mais receber nossos avisos, responda PARAR)_';
       if (view === 'b2b') return {
         primeiro: `Oi, ${nome}! Aqui é da Creabily. Recebemos sua aplicação para a mentoria e adoraríamos conversar. Qual o melhor dia e horário para uma ligação rápida de 15 minutos?`,
-        retorno: `Oi, ${nome}! Passando para saber se ainda tem interesse na mentoria da Creabily. Posso te enviar os próximos horários disponíveis?`
+        retorno: `Oi, ${nome}! Passando para saber se ainda tem interesse na mentoria da Creabily. Posso te enviar os próximos horários disponíveis?` + optOut
       };
       return {
         primeiro: `Oi, ${nome}! Aqui é da Creabily ${un}. Vi que você fez nosso teste sobre ${svc}${resp ? ` e marcou "${resp}"` : ''}. Nossos especialistas realizam uma Avaliação Clínica Completa de 1 hora (valor de R$ 300 particular, com relatório e nota fiscal para reembolso pelo seu convênio). Você prefere atendimento pela manhã ou tarde?`,
         confirmar_pre: `Olá, ${nome}! Tudo bem? Aqui é da recepção da Creabily ${un}. Recebemos seu teste e seu pré-agendamento de preferência para ${quando} para ${svc}! Nossa primeira consulta é uma Avaliação Individualizada de 1 hora com especialista (valor de R$ 300 no particular, com suporte de NF e relatório para reembolso pelo seu plano de saúde). Podemos confirmar oficialmente esse horário na nossa grade para você?`,
-        pos_quiz: `Oi, ${nome}! Tudo bem? Aqui é da Creabily ${un}. Vi que você concluiu nosso teste sobre ${svc}. Conseguiu ver a mensagem anterior? Nossos especialistas têm horários abertos esta semana para sua avaliação individualizada de 1h (com emissão de relatório para reembolso do seu convênio). Podemos garantir sua vaga?`,
+        pos_quiz: `Oi, ${nome}! Tudo bem? Aqui é da Creabily ${un}. Vi que você concluiu nosso teste sobre ${svc}. Conseguiu ver a mensagem anterior? Nossos especialistas têm horários abertos esta semana para sua avaliação individualizada de 1h (com emissão de relatório para reembolso do seu convênio). Podemos garantir sua vaga?` + optOut,
         agendar_novo: `Oi, ${nome}! Tudo bem? Aqui é da Creabily ${un}. Vi que você concluiu nossa avaliação sobre ${svc}. Gostaria de agendar sua avaliação inicial de 1 hora com nosso fisioterapeuta especialista? Tenho horários abertos pela manhã ou tarde esta semana.`,
-        retorno: `Oi, ${nome}! Tudo bem? Passando para checar se você prefere manter a preferência de horário que você indicou no teste para ${svc} ou se prefere que a gente encontre outro dia/turno na Creabily ${un}? As vagas com os especialistas preenchem rápido, queria te garantir prioridade!`,
-        reaquecer_dor: `Olá, ${nome}! Tudo bem? Aqui é da equipe clínica da Creabily ${un}. Lembrei de você hoje: como está a sua queixa de ${svc}? Abrimos algumas vagas prioritárias de avaliação clínica de 1 hora esta semana e emitimos toda a documentação para reembolso pelo seu plano de saúde. Vamos cuidar disso juntos?`,
-        reaquecer_noshow: `Oi, ${nome}, tudo bem? Aqui é da recepção da Creabily ${un}. Sei que imprevistos acontecem e você não conseguiu comparecer à sua avaliação. Como sua saúde e seu bem-estar vêm em primeiro lugar, quer que eu veja um novo horário mais tranquilo para você?`,
-        ultimo: `Oi, ${nome}! Esta é minha última mensagem para não te incomodar. Quando quiser agendar sua avaliação de ${svc} na Creabily ${un}, é só responder por aqui que te recebo com todo carinho!`
+        retorno: `Oi, ${nome}! Tudo bem? Passando para checar se você prefere manter a preferência de horário que você indicou no teste para ${svc} ou se prefere que a gente encontre outro dia/turno na Creabily ${un}? As vagas com os especialistas preenchem rápido, queria te garantir prioridade!` + optOut,
+        reaquecer_dor: `Olá, ${nome}! Tudo bem? Aqui é da equipe clínica da Creabily ${un}. Lembrei de você hoje: como está a sua queixa de ${svc}? Abrimos algumas vagas prioritárias de avaliação clínica de 1 hora esta semana e emitimos toda a documentação para reembolso pelo seu plano de saúde. Vamos cuidar disso juntos?` + optOut,
+        reaquecer_noshow: `Oi, ${nome}, tudo bem? Aqui é da recepção da Creabily ${un}. Sei que imprevistos acontecem e você não conseguiu comparecer à sua avaliação. Como sua saúde e seu bem-estar vêm em primeiro lugar, quer que eu veja um novo horário mais tranquilo para você?` + optOut,
+        ultimo: `Oi, ${nome}! Esta é minha última mensagem para não te incomodar. Quando quiser agendar sua avaliação de ${svc} na Creabily ${un}, é só responder por aqui que te recebo com todo carinho!` + optOut
       };
     }
     const TPL_LABELS = {
@@ -1767,6 +1788,7 @@
       const tpls = templates(l), tplKey = defaultTpl(l);
       const cur = stageOf(l.status);
       const ph = phoneOf(l);
+      const isOptedOut = Boolean(l.opted_out_at || (l.notes && l.notes.includes('[OPT-OUT]')));
       const answers = Array.isArray(l.quiz_answers) ? l.quiz_answers : [];
       const b2bFields = [['Profissão / negócio', l.profissao], ['Faturamento', l.faturamento], ['Momento', l.momento], ['Dores', l.dores], ['Transformação', l.transformacao], ['E-mail', l.email], ['Instagram', l.instagram]].filter(x => x[1]);
       const origemRows = [['Origem', o ? o.label : 'Não identificada'], ['Campanha', l.utm_campaign], ['Meio', l.utm_medium], ['Palavra-chave', l.utm_term], ['Anúncio', l.utm_content], ['Entrou em', l.created_at ? dateFmt(l.created_at) : '']].filter(x => x[1]);
@@ -1798,6 +1820,7 @@
           </div>
 
           ${ph ? `<div class="d-section"><h5>Mensagem de WhatsApp</h5>
+            ${isOptedOut ? `<div style="background:#fee2e2;color:#991b1b;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:8px">🚫 Paciente solicitou descadastro (PARAR). Não envie mensagens automáticas ou de reaquecimento.</div>` : ''}
             <div class="tpl">${Object.keys(tpls).map(k => `<button data-tpl="${k}" class="${k === tplKey ? 'on' : ''}" onclick="pickTpl('${k}')">${TPL_LABELS[k] || k}</button>`).join('')}</div>
             <textarea class="input" id="d-msg" rows="5">${esc(keepMsg ?? tpls[tplKey])}</textarea>
             <div class="grid2" style="margin-top:8px">
