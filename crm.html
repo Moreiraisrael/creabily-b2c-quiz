@@ -273,6 +273,62 @@
     .chip.perdido { background: var(--slate-50); color: var(--slate); font-weight: 600; }
     .chip.pre-agendado { background: var(--teal-50); color: var(--teal); font-weight: 600; }
     .chip.sem-agendamento { background: var(--amber-50); color: var(--amber); font-weight: 600; }
+    .chip.hot { background: #fee2e2; color: #b91c1c; font-weight: 600; }
+    [data-theme="dark"] .chip.hot { background: #451216; color: #fca5a5; }
+    .chip.warm { background: #fef3c7; color: #b45309; font-weight: 600; }
+    [data-theme="dark"] .chip.warm { background: #3d260a; color: #fcd34d; }
+    .chip.cold { background: #f1f5f9; color: #64748b; font-weight: 600; }
+    [data-theme="dark"] .chip.cold { background: #1e293b; color: #94a3b8; }
+    .chip.attended { background: #e8f6ee; color: #1f9d55; font-weight: 600; }
+    [data-theme="dark"] .chip.attended { background: #0d2e1c; color: #4ade80; }
+    .chip.pending { background: #fff7ed; color: #ea580c; font-weight: 600; }
+    [data-theme="dark"] .chip.pending { background: #381a0b; color: #fb923c; }
+
+    /* Barra de Filtros Rápidos (Temperatura & Atendimento) */
+    .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); }
+    .filter-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .filter-label { font-size: 12px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+    .filter-seg { display: inline-flex; background: #ebe9f1; border-radius: var(--radius-sm); padding: 2px; gap: 2px; }
+    [data-theme="dark"] .filter-seg { background: #231e32; }
+    .filter-seg button { border: 0; background: none; height: 30px; padding: 0 10px; border-radius: 7px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all .15s; }
+    .filter-seg button.on { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: var(--shadow-sm); }
+    .filter-divider { width: 1px; height: 24px; background: var(--line); margin: 0 4px; }
+    @media (max-width: 820px) {
+      .filter-bar { padding: 8px 10px; gap: 8px; }
+      .filter-divider { display: none; }
+      .filter-group { width: 100%; justify-content: space-between; }
+      .filter-seg { flex: 1; }
+      .filter-seg button { flex: 1; text-align: center; padding: 0 6px; font-size: 11px; }
+    }
+
+    /* Estilos do Recuperador de Leads */
+    .recovery-hero { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .recovery-hero-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .recovery-hero-head h3 { margin: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .recovery-hero-head p { margin: 2px 0 0; font-size: 13px; color: var(--text-3); }
+    .recovery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; }
+    @media (max-width: 1080px) { .recovery-grid { grid-template-columns: 1fr; } }
+    .recovery-col { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+    .recovery-col.col-urgent { border-top: 3px solid #dc2626; }
+    .recovery-col.col-resume { border-top: 3px solid #d97706; }
+    .recovery-col.col-cold { border-top: 3px solid #64748b; }
+    .recovery-col-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--surface-subtle); }
+    .recovery-col-head h4 { margin: 0; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .recovery-col-head .sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+    .recovery-card { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 10px; background: var(--surface); transition: background .15s; }
+    .recovery-card:last-child { border-bottom: 0; }
+    .recovery-card:hover { background: var(--surface-subtle); }
+    .recovery-card-top { display: flex; align-items: center; gap: 10px; }
+    .recovery-card-who { flex: 1; min-width: 0; }
+    .recovery-card-name { font-weight: 700; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .recovery-card-meta { font-size: 12px; color: var(--text-3); margin-top: 1px; }
+    .recovery-box { font-size: 12.5px; color: var(--text-2); background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; line-height: 1.4; }
+    .recovery-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 2px; }
+    .btn-recover-wa { flex: 1; height: 36px; padding: 0 12px; border-radius: 8px; background: #1faa59; color: #fff; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none; border: 0; transition: background .15s, transform .15s; }
+    .btn-recover-wa:hover { background: #178a48; transform: translateY(-1px); }
+    .btn-recover-sub { height: 36px; padding: 0 10px; border-radius: 8px; font-size: 12px; font-weight: 500; border: 1px solid var(--line-strong); background: var(--surface); color: var(--text-2); cursor: pointer; }
+    .btn-recover-sub:hover { border-color: var(--brand); color: var(--brand); }
+
     .pill { min-width: 24px; height: 22px; padding: 0 8px; border-radius: 999px; background: #efedf4; color: var(--text-2); font-size: 12px; font-weight: 600; display: grid; place-items: center; }
     [data-theme="dark"] .pill { background: #29243a; color: var(--text-2); }
     .pill.red { background: var(--red); color: #fff; }
@@ -395,9 +451,9 @@
       .mobile-board-pills::-webkit-scrollbar { display: none; }
       .m-pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line-strong); font-size: 12px; font-weight: 600; color: var(--text-2); white-space: nowrap; flex: none; cursor: pointer; box-shadow: var(--shadow-sm); }
       .m-pill:active { background: var(--brand-50); border-color: var(--brand); color: var(--brand); }
-      .tabbar { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
-        background: var(--surface); backdrop-filter: blur(10px); border-top: 1px solid var(--line); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08); }
-      .tabbar button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 500; color: var(--text-3); padding: 6px 0; position: relative; min-height: 48px; }
+      .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+        background: var(--surface); backdrop-filter: blur(10px); border-top: 1px solid var(--line); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08); }
+      .tabbar button { border: 0; background: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10px; font-weight: 500; color: var(--text-3); padding: 4px 0; position: relative; min-height: 48px; }
       .tabbar button.active { color: var(--brand); font-weight: 700; }
       .tabbar .badge { position: absolute; top: 2px; left: calc(50% + 6px); min-width: 16px; height: 16px; border-radius: 999px; background: var(--red); color: #fff; font-size: 10px; display: grid; place-items: center; padding: 0 4px; }
       .mobile-only { display: inline-flex !important; }
@@ -445,6 +501,7 @@
       <div class="nav-label">Pacientes</div>
       <button class="nav-item active" data-view="today" onclick="setView('today')"><span data-ic="sun"></span>Hoje<span class="count" id="nav-today">0</span></button>
       <button class="nav-item" data-view="board" onclick="setView('board')"><span data-ic="columns"></span>Funil<span class="count" id="nav-board">0</span></button>
+      <button class="nav-item" data-view="recovery" onclick="setView('recovery')"><span data-ic="target"></span>Recuperador<span class="count alert" id="nav-recovery">0</span></button>
       <button class="nav-item" data-view="cold" onclick="setView('cold')"><span data-ic="archive"></span>Perdidos &amp; No-Show<span class="count" id="nav-cold">0</span></button>
       <div class="nav-label">Outros</div>
       <button class="nav-item" data-view="b2b" onclick="setView('b2b')"><span data-ic="briefcase"></span>Mentoria B2B<span class="count" id="nav-b2b">–</span></button>
@@ -475,9 +532,32 @@
       </header>
 
       <div class="content">
+        <!-- Barra Global de Filtros Rápidos (Temperatura & Atendimento) -->
+        <div class="filter-bar" id="global-filter-bar">
+          <div class="filter-group">
+            <span class="filter-label">Temperatura:</span>
+            <div class="filter-seg" id="temp-seg">
+              <button class="on" data-temp="all" onclick="setTempFilter('all')">Todas</button>
+              <button data-temp="hot" onclick="setTempFilter('hot')">🔥 Quentes (&lt; 48h)</button>
+              <button data-temp="warm" onclick="setTempFilter('warm')">⚡ Mornos (2-7d)</button>
+              <button data-temp="cold" onclick="setTempFilter('cold')">❄️ Frios (&gt; 7d)</button>
+            </div>
+          </div>
+          <div class="filter-divider"></div>
+          <div class="filter-group">
+            <span class="filter-label">Atendimento:</span>
+            <div class="filter-seg" id="attended-seg">
+              <button class="on" data-att="all" onclick="setAttendedFilter('all')">Todos</button>
+              <button data-att="attended" onclick="setAttendedFilter('attended')">✅ Atendidos</button>
+              <button data-att="unattended" onclick="setAttendedFilter('unattended')">⏳ Não Atendidos</button>
+            </div>
+          </div>
+        </div>
+
         <section class="kpis" id="kpis"></section>
         <div id="stale-alert-container"></div>
         <div id="view-today"></div>
+        <div id="view-recovery" class="hidden"></div>
         <div id="view-board" class="hidden">
           <div class="board-toolbar" id="board-toolbar">
             <div class="board-tabs" id="board-tabs">
@@ -496,6 +576,7 @@
     <nav class="tabbar">
       <button data-view="today" class="active" onclick="setView('today')"><span data-ic="sun"></span>Hoje<span class="badge hidden" id="tab-today"></span></button>
       <button data-view="board" onclick="setView('board')"><span data-ic="columns"></span>Funil</button>
+      <button data-view="recovery" onclick="setView('recovery')"><span data-ic="target"></span>Recuperar<span class="badge hidden" id="tab-recovery"></span></button>
       <button data-view="cold" onclick="setView('cold')"><span data-ic="archive"></span>Perdidos<span class="badge hidden" id="tab-cold"></span></button>
       <button data-view="b2b" onclick="setView('b2b')"><span data-ic="briefcase"></span>B2B</button>
     </nav>
@@ -538,7 +619,8 @@
       userX: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="22" y2="13"/><line x1="22" y1="8" x2="17" y2="13"/>',
       moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
       filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
-      flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>'
+      flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+      target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
     };
     function ic(name, cls = '') { return `<svg class="icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`; }
     function paintIcons(root = document) { root.querySelectorAll('[data-ic]').forEach(el => { el.outerHTML = ic(el.dataset.ic).replace('<svg ', `<svg ${el.id ? `id="${el.id}" ` : ''}${el.dataset.ic === 'refresh' ? 'data-refresh ' : ''}`); }); }
@@ -552,8 +634,33 @@
     let view = 'today';
     let boardFilter = 'active'; // 'active', 'all', 'cold'
     let unit = 'all';
+    let tempFilter = 'all'; // 'all', 'hot', 'warm', 'cold'
+    let attendedFilter = 'all'; // 'all', 'attended', 'unattended'
     let openLeadId = null;
     let lastSync = null;
+
+    // Classificação de temperatura e status de atendimento
+    function leadTemperature(l) {
+      if (['no_show', 'perdido'].includes(l.status)) return { key: 'cold', label: 'Frio', icon: '❄️', tag: '❄️ Frio', cls: 'cold' };
+      const h = hoursSince(l.status_changed_at || l.created_at || l.last_interaction_at);
+      if (h === null) return { key: 'warm', label: 'Morno', icon: '⚡', tag: '⚡ Morno', cls: 'warm' };
+      if (h < 48) return { key: 'hot', label: 'Quente', icon: '🔥', tag: '🔥 Quente', cls: 'hot' };
+      if (h < 168) return { key: 'warm', label: 'Morno', icon: '⚡', tag: '⚡ Morno', cls: 'warm' };
+      return { key: 'cold', label: 'Frio', icon: '❄️', tag: '❄️ Frio', cls: 'cold' };
+    }
+    function isAttended(l) {
+      return ['consulta_realizada', 'agendado'].includes(l.status);
+    }
+    function setTempFilter(t) {
+      tempFilter = t;
+      document.querySelectorAll('#temp-seg button').forEach(b => b.classList.toggle('on', b.dataset.temp === t));
+      render();
+    }
+    function setAttendedFilter(a) {
+      attendedFilter = a;
+      document.querySelectorAll('#attended-seg button').forEach(b => b.classList.toggle('on', b.dataset.att === a));
+      render();
+    }
 
     // Etapas (mesmos status do banco)
     const STAGES = [
@@ -802,6 +909,15 @@
       const qd = q.replace(/\D/g, '');
       return list.filter(l => {
         if (view !== 'b2b' && unit !== 'all' && l.preferred_unit !== unit) return false;
+        if (tempFilter !== 'all') {
+          const t = leadTemperature(l).key;
+          if (t !== tempFilter) return false;
+        }
+        if (attendedFilter !== 'all') {
+          const att = isAttended(l);
+          if (attendedFilter === 'attended' && !att) return false;
+          if (attendedFilter === 'unattended' && att) return false;
+        }
         if (!q) return true;
         return nameOf(l).toLowerCase().includes(q) || (qd.length >= 3 && phoneOf(l).includes(qd));
       });
@@ -834,12 +950,20 @@
       const pending = b.novos.length + b.atencao.length + b.followup.length;
       const coldCount = all.filter(l => ['no_show', 'perdido'].includes(l.status)).length;
 
+      // Recuperador ativo
+      const recQueues = getRecoveryQueues(all);
+      const totalRecovery = recQueues.posQuiz.length + recQueues.retomada.length + recQueues.frios.length;
+
       // Contadores de navegação
       document.getElementById('nav-today').textContent = pending;
       document.getElementById('nav-today').classList.toggle('alert', pending > 0);
       document.getElementById('nav-board').textContent = all.length;
       const navCold = document.getElementById('nav-cold');
       if (navCold) navCold.textContent = coldCount;
+      const navRec = document.getElementById('nav-recovery');
+      if (navRec) { navRec.textContent = totalRecovery; navRec.classList.toggle('alert', totalRecovery > 0); }
+      const tabRec = document.getElementById('tab-recovery');
+      if (tabRec) { tabRec.textContent = totalRecovery; tabRec.classList.toggle('hidden', !totalRecovery); }
       document.getElementById('nav-b2b').textContent = leadsB2B.length || '–';
       const tb = document.getElementById('tab-today');
       if (tb) { tb.textContent = pending; tb.classList.toggle('hidden', !pending); }
@@ -851,6 +975,7 @@
       const titles = {
         today: ['Hoje', 'Central de contatos do dia e quem precisa de atenção agora'],
         board: ['Funil de pacientes', window.matchMedia('(max-width: 820px)').matches ? 'Toque no card para mudar de etapa' : 'Arraste os cards ou clique para mudar de etapa'],
+        recovery: ['Recuperador Ativo de Leads', 'Resgate imediato pós-quiz, retomada de turno e reaquecimento ativo'],
         cold: ['Perdidos & No-Show', 'Contatos frios e ausências prontos para o plano de reaquecimento'],
         b2b: ['Mentoria B2B', 'Aplicações para a mentoria']
       };
@@ -861,14 +986,23 @@
 
       renderKpis(isB2B ? list : all, b, isB2B);
 
+      const isTodayView = view === 'today';
+      const isRecoveryView = view === 'recovery';
       const isBoardView = view === 'board' || view === 'cold';
-      document.getElementById('view-today').classList.toggle('hidden', isBoardView);
+
+      document.getElementById('view-today').classList.toggle('hidden', !isTodayView);
+      document.getElementById('view-recovery').classList.toggle('hidden', !isRecoveryView);
       document.getElementById('view-board').classList.toggle('hidden', !isBoardView);
+
+      // Barra de filtros rápidos é exibida nas visualizações relevantes
+      const filterBar = document.getElementById('global-filter-bar');
+      if (filterBar) filterBar.classList.toggle('hidden', isB2B);
 
       // Banner de leads parados (> 7 dias)
       renderStaleBanner(all, isB2B);
 
-      if (view === 'today') renderToday(b, isB2B ? list : all);
+      if (isTodayView) renderToday(b, isB2B ? list : all);
+      else if (isRecoveryView) renderRecovery(list, recQueues);
       else renderBoard(list);
 
       if (openLeadId) { const l = findLead(openLeadId); if (l) fillDrawer(l); }
@@ -1218,6 +1352,149 @@
       `;
     }
 
+    // =========================================================
+    // Recuperador Ativo de Leads
+    // =========================================================
+    function getRecoveryQueues(list) {
+      // 1. Resgate Pós-Quiz (< 3h sem avanço)
+      const posQuiz = list.filter(l => {
+        if (isAttended(l) || ['no_show', 'perdido'].includes(l.status)) return false;
+        const h = hoursSince(l.created_at);
+        return h !== null && h <= 3;
+      }).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      // 2. Retomada de Turno / Conversa Parada (3h a 48h)
+      const retomada = list.filter(l => {
+        if (isAttended(l) || ['no_show', 'perdido'].includes(l.status)) return false;
+        const h = hoursSince(l.status_changed_at || l.created_at || l.last_interaction_at);
+        return h !== null && h > 3 && h <= 48;
+      }).sort((a, b) => (stageAge(b)?.h || 0) - (stageAge(a)?.h || 0));
+
+      // 3. Reaquecimento de Frios & No-Show (> 7 dias ou arquivado)
+      const frios = list.filter(l => {
+        if (l.status === 'consulta_realizada') return false;
+        if (['no_show', 'perdido'].includes(l.status)) return true;
+        const h = hoursSince(l.status_changed_at || l.created_at || l.last_interaction_at);
+        return h !== null && h >= 168;
+      }).sort((a, b) => (stageAge(b)?.h || 0) - (stageAge(a)?.h || 0));
+
+      return { posQuiz, retomada, frios };
+    }
+
+    function renderRecovery(list, recQueues) {
+      const container = document.getElementById('view-recovery');
+      if (!container) return;
+
+      const queues = recQueues || getRecoveryQueues(list);
+      const total = queues.posQuiz.length + queues.retomada.length + queues.frios.length;
+
+      function renderRecoveryCard(l, queueType) {
+        const ph = phoneOf(l);
+        const temp = leadTemperature(l);
+        const stage = stageInfo(l.status);
+        const quando = preAgendamentoTexto(l);
+        const queixa = service(l);
+        const age = stageAge(l);
+        const timeText = age ? age.text : 'recente';
+
+        let defaultMsg = '';
+        let btnLabel = '';
+        if (queueType === 'pos_quiz') {
+          defaultMsg = `Oi, ${firstName(l)}! Tudo bem? Aqui é da Creabily ${unitLabel(l)}. Vi que você fez nosso teste de dor e saúde para ${queixa}${quando ? ` (preferência de turno: ${quando})` : ''}! Conseguiu ver a mensagem anterior? Nossa avaliação individual de 1 hora com especialista é R$ 300 (com nota fiscal e relatório completo para reembolso pelo seu plano de saúde). Conseguimos reservar sua vaga para esta semana?`;
+          btnLabel = '⚡ Resgatar no WhatsApp (Pós-Quiz)';
+        } else if (queueType === 'retomada') {
+          defaultMsg = `Oi, ${firstName(l)}! Tudo bem? Passando para checar se você prefere manter o horário que selecionou no quiz para ${queixa} ou se prefere que a gente encontre outro dia/turno na Creabily ${unitLabel(l)}? Como a grade dos especialistas preenche rápido, queria garantir sua prioridade.`;
+          btnLabel = '💬 Confirmar Horário no WhatsApp';
+        } else {
+          defaultMsg = `Olá, ${firstName(l)}! Tudo bem? Aqui é da equipe clínica da Creabily ${unitLabel(l)}. Lembrei de você hoje: como está a sua queixa de ${queixa}? Abrimos algumas vagas prioritárias de avaliação esta semana e emitimos toda a documentação para reembolso pelo seu plano de saúde. Vamos cuidar disso juntos?`;
+          btnLabel = '🔥 Reaquecer no WhatsApp';
+        }
+
+        const waUrl = ph ? `https://wa.me/${ph}?text=${encodeURIComponent(defaultMsg)}` : '#';
+
+        return `
+          <div class="recovery-card" onclick="openDrawer('${esc(l.id)}')">
+            <div class="recovery-card-top">
+              ${avatar(l)}
+              <div class="recovery-card-who">
+                <div class="recovery-card-name">${esc(nameOf(l))}</div>
+                <div class="recovery-card-meta">${esc(phoneFmt(ph))} · ${unitChip(l)}</div>
+              </div>
+              <span class="chip ${temp.cls}">${temp.icon} ${temp.label}</span>
+            </div>
+
+            <div class="recovery-box">
+              <div style="font-weight:600;margin-bottom:2px">🩺 ${esc(queixa)}</div>
+              ${quando ? `<div style="font-size:12px;color:var(--text-3)">📅 Pré-agendamento: <b>${esc(quando)}</b></div>` : ''}
+              <div style="font-size:11.5px;color:var(--red);margin-top:4px">⏱️ Parado nesta etapa há <b>${timeText}</b> (Etapa: ${stage.label})</div>
+            </div>
+
+            <div class="recovery-actions" onclick="event.stopPropagation()">
+              ${ph ? `<a class="btn-recover-wa" href="${waUrl}" target="_blank" rel="noopener">${ic('wa', 'icon-sm')}${btnLabel}</a>` : ''}
+              <button class="btn-recover-sub" onclick="openDrawer('${esc(l.id)}')">Ficha</button>
+              <button class="btn-recover-sub" onclick="moveLead('${esc(l.id)}','agendado')" title="Marcar como Agendado">Agendar</button>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="recovery-hero">
+          <div class="recovery-hero-head">
+            <div>
+              <h3>${ic('target')} Recuperador Ativo de Leads</h3>
+              <p>Régua clínica humanizada para diminuir a perda de pacientes e retomar conversas paradas.</p>
+            </div>
+            <span class="badge-total" style="font-size:13px;padding:6px 14px;background:var(--brand-50);color:var(--brand)">${total} contatos na fila de recuperação</span>
+          </div>
+
+          <div class="recovery-grid">
+            <!-- FILA 1: PÓS-QUIZ (< 3h) -->
+            <div class="recovery-col col-urgent">
+              <div class="recovery-col-head">
+                <div>
+                  <h4>🚨 Resgate Imediato Pós-Quiz</h4>
+                  <div class="sub">Concluiu o teste mas não respondeu à Beatriz (&lt; 3h)</div>
+                </div>
+                <span class="pill red">${queues.posQuiz.length}</span>
+              </div>
+              <div class="rows">
+                ${queues.posQuiz.length ? queues.posQuiz.map(l => renderRecoveryCard(l, 'pos_quiz')).join('') : `<div class="empty">${ic('party')}<div>Nenhum lead travado no pós-quiz agora!</div></div>`}
+              </div>
+            </div>
+
+            <!-- FILA 2: RETOMADA DE TURNO (3h a 48h) -->
+            <div class="recovery-col col-resume">
+              <div class="recovery-col-head">
+                <div>
+                  <h4>⚡ Retomada de Turno &amp; Grade</h4>
+                  <div class="sub">Em conversa parada sem confirmar o horário (3h a 48h)</div>
+                </div>
+                <span class="pill orange">${queues.retomada.length}</span>
+              </div>
+              <div class="rows">
+                ${queues.retomada.length ? queues.retomada.map(l => renderRecoveryCard(l, 'retomada')).join('') : `<div class="empty">${ic('party')}<div>Nenhuma conversa parada nessa faixa!</div></div>`}
+              </div>
+            </div>
+
+            <!-- FILA 3: REAQUECIMENTO DE FRIOS (> 7d) -->
+            <div class="recovery-col col-cold">
+              <div class="recovery-col-head">
+                <div>
+                  <h4>❄️ Reaquecimento de Frios &amp; No-Show</h4>
+                  <div class="sub">Parados há &gt; 7 dias, faltaram ou foram arquivados</div>
+                </div>
+                <span class="pill slate">${queues.frios.length}</span>
+              </div>
+              <div class="rows">
+                ${queues.frios.length ? queues.frios.map(l => renderRecoveryCard(l, 'frios')).join('') : `<div class="empty">${ic('party')}<div>Nenhum lead na fila de frios!</div></div>`}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     function card(l) {
       const o = origin(l);
       const isB2B = view === 'b2b';
@@ -1226,6 +1503,8 @@
       const isNoShow = l.status === 'no_show';
       const isPerdido = l.status === 'perdido';
       const hasPre = !isB2B && hasPreAgendamento(l) && l.status !== 'agendado';
+      const temp = leadTemperature(l);
+      const att = isAttended(l);
       return `<div class="card" draggable="true" data-id="${esc(l.id)}" onclick="openDrawer('${esc(l.id)}')">
         <div class="top">${avatar(l)}<div class="name">${esc(nameOf(l))}</div></div>
         ${sub ? `<p class="svc">${esc(sub)}</p>` : ''}
@@ -1233,6 +1512,8 @@
         <div class="chips">
           ${isB2B ? '' : unitChip(l)}
           ${hasPre ? `<span class="chip pre-agendado">${ic('calendar', 'icon-sm')}Pré-agendado</span>` : ''}
+          ${isB2B ? '' : `<span class="chip ${temp.cls}">${temp.icon} ${temp.label}</span>`}
+          ${isB2B ? '' : `<span class="chip ${att ? 'attended' : 'pending'}">${att ? '✅ Atendido' : '⏳ Pendente'}</span>`}
           ${isNoShow ? `<span class="chip noshow">${ic('userX', 'icon-sm')}Faltou</span>` : ''}
           ${isPerdido ? `<span class="chip perdido">${ic('archive', 'icon-sm')}Frio</span>` : ''}
           ${o ? `<span class="chip ${o.cls}">${esc(o.label)}</span>` : ''}
@@ -1423,21 +1704,23 @@
         retorno: `Oi, ${nome}! Passando para saber se ainda tem interesse na mentoria da Creabily. Posso te enviar os próximos horários disponíveis?`
       };
       return {
-        primeiro: `Oi, ${nome}! Aqui é da Creabily ${un}. Vi que você fez nosso teste sobre ${svc}${resp ? ` e marcou "${resp}"` : ''}. Podemos agendar sua avaliação? Tenho horários esta semana: você prefere manhã, tarde ou noite?`,
-        confirmar_pre: `Oi, ${nome}! Aqui é da Creabily ${un}. Recebemos seu teste e seu pré-agendamento para ${quando} para ${svc}. Está confirmado para você? Se precisar de ajuste no horário, me avise por aqui!`,
-        agendar_novo: `Oi, ${nome}! Tudo bem? Aqui é da Creabily ${un}. Vi que você concluiu nossa avaliação sobre ${svc}. Gostaria de agendar sua avaliação inicial? Tenho horários abertos pela manhã ou tarde esta semana.`,
-        retorno: `Oi, ${nome}! Tudo bem? Passando para saber se ainda tem interesse em ${svc} na Creabily ${un}. Se quiser, já te envio dois horários livres para a avaliação.`,
-        reaquecer_dor: `Oi, ${nome}! Tudo bem? Aqui é da Creabily ${un}. Lembrei de você hoje: você ainda está sentindo incômodo com ${svc}? Abrimos algumas vagas prioritárias de avaliação esta semana e gostaria de te priorizar se ainda precisar de ajuda.`,
-        reaquecer_noshow: `Oi, ${nome}, tudo bem? Aqui é da Creabily ${un}. Sei que imprevistos acontecem e você não conseguiu comparecer à sua avaliação. Como sua saúde vem em primeiro lugar, quer que eu veja um novo horário mais tranquilo para você?`,
-        ultimo: `Oi, ${nome}! Esta é minha última mensagem para não te incomodar. Quando quiser agendar sua avaliação de ${svc}, é só responder aqui que eu te ajudo.`
+        primeiro: `Oi, ${nome}! Aqui é da Creabily ${un}. Vi que você fez nosso teste sobre ${svc}${resp ? ` e marcou "${resp}"` : ''}. Nossos especialistas realizam uma Avaliação Clínica Completa de 1 hora (valor de R$ 300 particular, com relatório e nota fiscal para reembolso pelo seu convênio). Você prefere atendimento pela manhã ou tarde?`,
+        confirmar_pre: `Olá, ${nome}! Tudo bem? Aqui é da recepção da Creabily ${un}. Recebemos seu teste e seu pré-agendamento de preferência para ${quando} para ${svc}! Nossa primeira consulta é uma Avaliação Individualizada de 1 hora com especialista (valor de R$ 300 no particular, com suporte de NF e relatório para reembolso pelo seu plano de saúde). Podemos confirmar oficialmente esse horário na nossa grade para você?`,
+        pos_quiz: `Oi, ${nome}! Tudo bem? Aqui é da Creabily ${un}. Vi que você concluiu nosso teste sobre ${svc}. Conseguiu ver a mensagem anterior? Nossos especialistas têm horários abertos esta semana para sua avaliação individualizada de 1h (com emissão de relatório para reembolso do seu convênio). Podemos garantir sua vaga?`,
+        agendar_novo: `Oi, ${nome}! Tudo bem? Aqui é da Creabily ${un}. Vi que você concluiu nossa avaliação sobre ${svc}. Gostaria de agendar sua avaliação inicial de 1 hora com nosso fisioterapeuta especialista? Tenho horários abertos pela manhã ou tarde esta semana.`,
+        retorno: `Oi, ${nome}! Tudo bem? Passando para checar se você prefere manter a preferência de horário que você indicou no teste para ${svc} ou se prefere que a gente encontre outro dia/turno na Creabily ${un}? As vagas com os especialistas preenchem rápido, queria te garantir prioridade!`,
+        reaquecer_dor: `Olá, ${nome}! Tudo bem? Aqui é da equipe clínica da Creabily ${un}. Lembrei de você hoje: como está a sua queixa de ${svc}? Abrimos algumas vagas prioritárias de avaliação clínica de 1 hora esta semana e emitimos toda a documentação para reembolso pelo seu plano de saúde. Vamos cuidar disso juntos?`,
+        reaquecer_noshow: `Oi, ${nome}, tudo bem? Aqui é da recepção da Creabily ${un}. Sei que imprevistos acontecem e você não conseguiu comparecer à sua avaliação. Como sua saúde e seu bem-estar vêm em primeiro lugar, quer que eu veja um novo horário mais tranquilo para você?`,
+        ultimo: `Oi, ${nome}! Esta é minha última mensagem para não te incomodar. Quando quiser agendar sua avaliação de ${svc} na Creabily ${un}, é só responder por aqui que te recebo com todo carinho!`
       };
     }
     const TPL_LABELS = {
       primeiro: '1º contato',
-      confirmar_pre: 'Confirmar pré-agendamento',
+      confirmar_pre: 'Confirmar pré-agendamento (R$ 300)',
+      pos_quiz: 'Resgate Pós-Quiz (< 3h)',
       agendar_novo: 'Agendar horário',
-      retorno: 'Retorno',
-      reaquecer_dor: 'Reaquecer (Frio)',
+      retorno: 'Retomar turno (3h-48h)',
+      reaquecer_dor: 'Reaquecer (Frio / > 7d)',
       reaquecer_noshow: 'Reaquecer (No-Show)',
       ultimo: 'Última tentativa'
     };
@@ -1448,7 +1731,10 @@
       if (l.status === 'agendado') return 'confirmar_pre';
       if (hasPreAgendamento(l)) return 'confirmar_pre';
       if (l.status === 'followup_3') return 'ultimo';
-      if (l.status === 'novo_lead_quiz') return 'agendar_novo';
+      if (l.status === 'novo_lead_quiz') {
+        const h = hoursSince(l.created_at);
+        return (h !== null && h > 0.5) ? 'pos_quiz' : 'agendar_novo';
+      }
       return 'retorno';
     }
     function waLink(l, text) { return `https://wa.me/${phoneOf(l)}?text=${encodeURIComponent(text ?? templates(l)[defaultTpl(l)])}`; }
