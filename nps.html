@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Avaliação de Atendimento | Creabily</title>
+  <meta name="description" content="Pesquisa de satisfação e qualidade dos atendimentos da Creabily Fisioterapia e Pilates.">
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #0D9488;
+      --primary-dark: #0F766E;
+      --primary-light: #CCFBF1;
+      --accent: #F59E0B;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background-image: radial-gradient(at 0% 0%, rgba(13, 148, 136, 0.08) 0px, transparent 50%),
+                        radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.05) 0px, transparent 50%);
+    }
+
+    .nps-container {
+      width: 100%;
+      max-width: 540px;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .logo-container {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .logo-img {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .badge-unit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Score Scale 0-10 */
+    .scale-box {
+      margin: 24px 0;
+    }
+
+    .scale-label-top {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .scale-grid {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr);
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 480px) {
+      .scale-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+      }
+      .scale-btn:nth-child(11) {
+        grid-column: span 2;
+      }
+    }
+
+    .scale-btn {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+    }
+
+    .scale-btn:hover {
+      background: #E2E8F0;
+      transform: translateY(-2px);
+    }
+
+    .scale-btn.selected {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.35);
+      transform: scale(1.08);
+    }
+
+    .scale-btn.selected.detractor {
+      background: #EF4444;
+      border-color: #DC2626;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+    }
+
+    .scale-btn.selected.passive {
+      background: #F59E0B;
+      border-color: #D97706;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+
+    .scale-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 0 4px;
+    }
+
+    /* Branch Container */
+    .branch-content {
+      display: none;
+      animation: fadeIn 0.4s ease-out forwards;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--border);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Promoter 9-10 View */
+    .promoter-card {
+      text-align: center;
+    }
+
+    .celebrate-icon {
+      font-size: 42px;
+      margin-bottom: 8px;
+      display: inline-block;
+      animation: bounce 1.2s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-6px); }
+    }
+
+    .promoter-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #065F46;
+      margin-bottom: 8px;
+    }
+
+    .promoter-desc {
+      font-size: 13.5px;
+      color: #334155;
+      line-height: 1.55;
+      margin-bottom: 20px;
+    }
+
+    .btn-google {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+      color: white;
+      text-decoration: none;
+      padding: 15px 20px;
+      border-radius: var(--radius-md);
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-google:hover {
+      background: #020617;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(15, 23, 42, 0.35);
+    }
+
+    .google-stars {
+      color: #FBBF24;
+      font-size: 16px;
+      letter-spacing: 2px;
+    }
+
+    /* Detractor / Passive View */
+    .feedback-card {
+      text-align: left;
+    }
+
+    .feedback-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .feedback-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .tag-chip {
+      background: #F1F5F9;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .tag-chip.active {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-color: var(--primary);
+    }
+
+    .feedback-textarea {
+      width: 100%;
+      height: 90px;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--text-main);
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s ease;
+      margin-bottom: 16px;
+    }
+
+    .feedback-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: var(--radius-md);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-submit:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    /* Thank You State */
+    .thankyou-card {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    .thankyou-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 11px;
+      color: #94A3B8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="nps-container">
+    
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-container">
+        <img src="assets/logo.png" alt="Creabily" class="logo-img" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <span class="badge-unit" id="unit-badge">📍 Unidade Av. Paulista</span>
+      </div>
+      <h1 class="title" id="greeting-title">Como foi sua experiência na Creabily?</h1>
+      <p class="subtitle" id="greeting-subtitle">Sua opinião é fundamental para continuarmos cuidando da sua saúde com máxima excelência.</p>
+    </div>
+
+    <!-- Step 1: Score Selector -->
+    <div class="scale-box" id="scale-section">
+      <div class="scale-label-top">De 0 a 10, o quanto você recomendaria a Creabily para amigos e familiares?</div>
+      
+      <div class="scale-grid" id="scale-grid">
+        <button class="scale-btn" data-score="0">0</button>
+        <button class="scale-btn" data-score="1">1</button>
+        <button class="scale-btn" data-score="2">2</button>
+        <button class="scale-btn" data-score="3">3</button>
+        <button class="scale-btn" data-score="4">4</button>
+        <button class="scale-btn" data-score="5">5</button>
+        <button class="scale-btn" data-score="6">6</button>
+        <button class="scale-btn" data-score="7">7</button>
+        <button class="scale-btn" data-score="8">8</button>
+        <button class="scale-btn" data-score="9">9</button>
+        <button class="scale-btn" data-score="10">10</button>
+      </div>
+
+      <div class="scale-legend">
+        <span>0 = Pouco provável</span>
+        <span>10 = Com certeza!</span>
+      </div>
+    </div>
+
+    <!-- Branch A: Promoter (9 or 10) -->
+    <div class="branch-content" id="branch-promoter">
+      <div class="promoter-card">
+        <div class="celebrate-icon">🌟</div>
+        <h2 class="promoter-title">Ficamos muito felizes com a sua confiança!</h2>
+        <p class="promoter-desc">
+          Sua evolução clínica e bem-estar são nossa maior missão. Você poderia nos ajudar compartilhando sua experiência no Google? 
+          <br><br>
+          Leva <strong>menos de 30 segundos</strong> e ajuda outras pessoas com dores no corpo a encontrarem o tratamento certo na Creabily.
+        </p>
+
+        <a href="#" target="_blank" class="btn-google" id="btn-google-review">
+          <span class="google-stars">★★★★★</span>
+          <span>Avaliar no Google</span>
+        </a>
+
+        <div style="margin-top: 18px;">
+          <textarea class="feedback-textarea" id="promoter-comment" placeholder="Quer deixar um elogio para a equipe ou fisioterapeuta? (Opcional)"></textarea>
+          <button class="btn-submit" id="btn-promoter-submit" style="background: #065F46;">Enviar Elogio à Equipe</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Branch B: Neutral or Detractor (0 to 8) -->
+    <div class="branch-content" id="branch-feedback">
+      <div class="feedback-card">
+        <h2 class="feedback-title">Agradecemos sua sinceridade 🙏</h2>
+        <p class="feedback-desc">
+          Nosso compromisso é com seu alívio e conforto. O que faltou para a sua experiência ser <strong>nota 10</strong>? Seu relato é confidencial e vai direto para a coordenação clínica:
+        </p>
+
+        <div class="tags-container">
+          <span class="tag-chip" data-tag="Pontualidade">Pontualidade</span>
+          <span class="tag-chip" data-tag="Alívio da Dor">Alívio da dor</span>
+          <span class="tag-chip" data-tag="Ambiente / Espaço">Ambiente / Espaço</span>
+          <span class="tag-chip" data-tag="Atendimento Recepção">Recepção</span>
+          <span class="tag-chip" data-tag="Atenção do Profissional">Atenção profissional</span>
+          <span class="tag-chip" data-tag="Outro">Outro</span>
+        </div>
+
+        <textarea class="feedback-textarea" id="detractor-comment" placeholder="Conte-nos com detalhes o que podemos aprimorar no seu tratamento..."></textarea>
+
+        <button class="btn-submit" id="btn-feedback-submit">Enviar Feedback à Coordenação</button>
+      </div>
+    </div>
+
+    <!-- Thank You Card -->
+    <div class="thankyou-card" id="thankyou-section">
+      <div class="thankyou-icon">💚</div>
+      <h2 class="title" style="color: var(--primary-dark);">Mensagem Recebida!</h2>
+      <p class="subtitle" style="margin-top: 8px;">
+        Muito obrigado pelo seu tempo. Suas observações foram registradas e nos ajudam a construir um tratamento cada vez mais humano e transformador.
+      </p>
+    </div>
+
+    <div class="footer-note">
+      Creabily Clínica de Terapias Integradas & Reabilitação • Sistema de Gestão de Qualidade
+    </div>
+
+  </div>
+
+  <script>
+    // URL Parameters Parser
+    const urlParams = new URLSearchParams(window.location.search);
+    const patientName = urlParams.get('name') || urlParams.get('patient') || '';
+    const rawUnit = (urlParams.get('unit') || 'paulista').toLowerCase();
+    const service = urlParams.get('service') || 'Fisioterapia e Pilates';
+    const phone = urlParams.get('phone') || '';
+
+    // Unit Setup
+    const isGranja = rawUnit.includes('granja');
+    const unitName = isGranja ? 'Unidade Granja Viana' : 'Unidade Av. Paulista';
+    document.getElementById('unit-badge').innerText = `📍 ${unitName}`;
+
+    // Google Maps Review URLs
+    const GOOGLE_REVIEWS_URLS = {
+      paulista: 'https://www.google.com/maps/search/?api=1&query=Creabily+Fisioterapia+e+Pilates+Av+Paulista',
+      granja_viana: 'https://www.google.com/maps/search/?api=1&query=Creabily+Fisioterapia+e+Pilates+Granja+Viana'
+    };
+    const targetGoogleUrl = isGranja ? GOOGLE_REVIEWS_URLS.granja_viana : GOOGLE_REVIEWS_URLS.paulista;
+    document.getElementById('btn-google-review').href = targetGoogleUrl;
+
+    // Greeting Customization
+    if (patientName) {
+      document.getElementById('greeting-title').innerText = `Olá, ${patientName}!`;
+      document.getElementById('greeting-subtitle').innerText = `Como foi sua sessão de ${service} na ${unitName}? Sua opinião é fundamental para nós.`;
+    }
+
+    let selectedScore = null;
+    let selectedTags = [];
+
+    // Tag toggle
+    document.querySelectorAll('.tag-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+        const tag = chip.getAttribute('data-tag');
+        if (chip.classList.contains('active')) {
+          selectedTags.push(tag);
+        } else {
+          selectedTags = selectedTags.filter(t => t !== tag);
+        }
+      });
+    });
+
+    // Score selection
+    const scaleButtons = document.querySelectorAll('.scale-btn');
+    const branchPromoter = document.getElementById('branch-promoter');
+    const branchFeedback = document.getElementById('branch-feedback');
+
+    scaleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const score = parseInt(btn.getAttribute('data-score'), 10);
+        selectedScore = score;
+
+        // Reset classes
+        scaleButtons.forEach(b => b.className = 'scale-btn');
+
+        // Apply style
+        if (score >= 9) {
+          btn.classList.add('selected');
+          branchFeedback.style.display = 'none';
+          branchPromoter.style.display = 'block';
+        } else if (score >= 7) {
+          btn.classList.add('selected', 'passive');
+          branchPromoter.style.display = 'none';
+          branchFeedback.style.display = 'block';
+        } else {
+          btn.classList.add('selected', 'detractor');
+          branchPromoter.style.display = 'none';
+          branchFeedback.style.display = 'block';
+        }
+
+        // Send preliminary score to backend
+        sendNpsData({
+          score: selectedScore,
+          redirected_to_google: false
+        });
+      });
+    });
+
+    // Click Google Review Button
+    document.getElementById('btn-google-review').addEventListener('click', () => {
+      sendNpsData({
+        score: selectedScore,
+        redirected_to_google: true,
+        feedback_text: document.getElementById('promoter-comment').value
+      });
+    });
+
+    // Promoter Submit (Elogio)
+    document.getElementById('btn-promoter-submit').addEventListener('click', () => {
+      const text = document.getElementById('promoter-comment').value;
+      sendNpsData({
+        score: selectedScore,
+        redirected_to_google: false,
+        feedback_text: text
+      });
+      showThankYou();
+    });
+
+    // Detractor / Passive Submit
+    document.getElementById('btn-feedback-submit').addEventListener('click', () => {
+      const text = document.getElementById('detractor-comment').value;
+      sendNpsData({
+        score: selectedScore,
+        redirected_to_google: false,
+        feedback_text: text,
+        improvement_tags: selectedTags
+      });
+      showThankYou();
+    });
+
+    function showThankYou() {
+      document.getElementById('scale-section').style.display = 'none';
+      branchPromoter.style.display = 'none';
+      branchFeedback.style.display = 'none';
+      document.getElementById('thankyou-section').style.display = 'block';
+    }
+
+    async function sendNpsData(extra = {}) {
+      if (selectedScore === null) return;
+      try {
+        const payload = {
+          patient_name: patientName,
+          phone: phone,
+          unit: isGranja ? 'granja_viana' : 'paulista',
+          service: service,
+          score: selectedScore,
+          ...extra
+        };
+
+        await fetch('/.netlify/functions/submit-nps', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn('Erro ao salvar NPS:', err);
+      }
+    }
+  </script>
+</body>
+</html>
