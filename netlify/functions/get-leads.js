@@ -40,15 +40,23 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const tableName = body.tableType === 'b2b' ? 'leads_b2b' : 'leads';
+        let tableName = 'leads';
+        let orderCol = 'last_interaction_at';
+        if (body.tableType === 'b2b') {
+            tableName = 'leads_b2b';
+            orderCol = 'last_interaction_at';
+        } else if (body.tableType === 'nps') {
+            tableName = 'nps_feedbacks';
+            orderCol = 'created_at';
+        }
 
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // Buscar leads ordenados pelos mais recentes
+        // Buscar dados ordenados pelos mais recentes
         const { data, error } = await supabase
             .from(tableName)
             .select('*')
-            .order('last_interaction_at', { ascending: false });
+            .order(orderCol, { ascending: false });
 
         if (error) {
             throw error;
@@ -57,7 +65,11 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 200,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ success: true, leads: data })
+            body: JSON.stringify({
+                success: true,
+                leads: data,
+                feedbacks: body.tableType === 'nps' ? data : undefined
+            })
         };
 
     } catch (error) {

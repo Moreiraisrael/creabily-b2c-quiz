@@ -335,6 +335,66 @@
     .pill.orange { background: var(--orange); color: #fff; }
     .pill.slate { background: var(--slate); color: #fff; }
 
+    /* ---------- Estilos da Central de Satisfação & NPS ---------- */
+    .nps-hero { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 22px; box-shadow: var(--shadow-sm); }
+    .nps-hero-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: center; }
+    @media (max-width: 900px) { .nps-hero-grid { grid-template-columns: 1fr; } }
+    
+    .nps-score-badge { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 16px; border-radius: 16px; text-align: center; border: 2px solid transparent; }
+    .nps-score-badge.zone-excellence { background: rgba(13, 148, 136, 0.1); border-color: #0D9488; color: #0D9488; }
+    .nps-score-badge.zone-quality { background: rgba(2, 132, 199, 0.1); border-color: #0284C7; color: #0284C7; }
+    .nps-score-badge.zone-warning { background: rgba(217, 119, 6, 0.1); border-color: #D97706; color: #D97706; }
+    .nps-score-badge.zone-danger { background: rgba(220, 38, 38, 0.1); border-color: #DC2626; color: #DC2626; }
+    
+    .nps-score-val { font-size: 52px; font-weight: 800; line-height: 1; font-family: 'Outfit', sans-serif; letter-spacing: -1px; }
+    .nps-score-label { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+    .nps-score-sub { font-size: 11.5px; margin-top: 4px; opacity: 0.9; }
+
+    .nps-breakdown { display: flex; flex-direction: column; gap: 12px; }
+    .nps-bar-container { width: 100%; height: 16px; border-radius: 999px; overflow: hidden; display: flex; background: var(--line); }
+    .nps-bar-seg { height: 100%; transition: width 0.4s ease; }
+    .nps-bar-seg.promoters { background: #0D9488; }
+    .nps-bar-seg.passives { background: #F59E0B; }
+    .nps-bar-seg.detractors { background: #EF4444; }
+
+    .nps-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media (max-width: 600px) { .nps-stats-row { grid-template-columns: repeat(2, 1fr); } }
+    .nps-stat-box { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .nps-stat-title { font-size: 11px; font-weight: 600; color: var(--text-3); text-transform: uppercase; }
+    .nps-stat-number { font-size: 18px; font-weight: 700; color: var(--text); margin-top: 2px; }
+    .nps-stat-pct { font-size: 11.5px; color: var(--text-3); }
+
+    .nps-unit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+    @media (max-width: 768px) { .nps-unit-grid { grid-template-columns: 1fr; } }
+    .nps-unit-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px; box-shadow: var(--shadow-sm); }
+    .nps-unit-info h4 { margin: 0; font-size: 15px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px; }
+    .nps-unit-info p { margin: 4px 0 0; font-size: 12.5px; color: var(--text-3); }
+    .nps-unit-score { font-size: 26px; font-weight: 800; font-family: 'Outfit', sans-serif; }
+
+    .nps-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    .nps-filter-btn { height: 32px; padding: 0 12px; border-radius: 20px; font-size: 12.5px; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); cursor: pointer; transition: all .15s; }
+    .nps-filter-btn:hover { border-color: var(--line-strong); color: var(--text); }
+    .nps-filter-btn.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+    .nps-feed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+    .nps-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 10px; transition: transform .15s, box-shadow .15s; }
+    .nps-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .nps-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .nps-card-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .nps-card-name { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nps-card-meta { font-size: 12px; color: var(--text-3); }
+    .nps-score-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; font-family: 'Outfit', sans-serif; }
+    .nps-score-chip.promoter { background: rgba(13, 148, 136, 0.15); color: #0D9488; }
+    .nps-score-chip.passive { background: rgba(245, 158, 11, 0.15); color: #D97706; }
+    .nps-score-chip.detractor { background: rgba(239, 68, 68, 0.15); color: #DC2626; }
+    .nps-card-comment { font-size: 13.5px; color: var(--text-2); line-height: 1.5; background: var(--surface-subtle); border-radius: 8px; padding: 10px 12px; border-left: 3px solid var(--brand); font-style: italic; }
+    .nps-card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .nps-tag-pill { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; background: rgba(239, 68, 68, 0.1); color: #DC2626; border: 1px solid rgba(239, 68, 68, 0.2); }
+    .nps-google-badge { font-size: 11.5px; font-weight: 600; color: #B45309; background: #FEF3C7; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
+    .nps-card-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: auto; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12px; color: var(--text-3); }
+    .btn-nps-wa { display: inline-flex; align-items: center; gap: 5px; background: #1faa59; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; text-decoration: none; }
+    .btn-nps-wa:hover { background: #178a48; }
+
     /* ---------- Funil (kanban) ---------- */
     .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(180px, 1fr); gap: 14px; overflow-x: auto; padding-bottom: 12px; align-items: start; }
     .col { background: #efedf4; border-radius: var(--radius); padding: 10px; min-height: 60vh; display: flex; flex-direction: column; gap: 8px; transition: background .15s, box-shadow .15s; }
@@ -503,6 +563,8 @@
       <button class="nav-item" data-view="board" onclick="setView('board')"><span data-ic="columns"></span>Funil<span class="count" id="nav-board">0</span></button>
       <button class="nav-item" data-view="recovery" onclick="setView('recovery')"><span data-ic="target"></span>Recuperador<span class="count alert" id="nav-recovery">0</span></button>
       <button class="nav-item" data-view="cold" onclick="setView('cold')"><span data-ic="archive"></span>Perdidos &amp; No-Show<span class="count" id="nav-cold">0</span></button>
+      <div class="nav-label">Qualidade &amp; Reputação</div>
+      <button class="nav-item" data-view="nps" onclick="setView('nps')"><span data-ic="star"></span>Satisfação &amp; NPS<span class="count" id="nav-nps" style="background:#0D9488; color:#fff;">0</span></button>
       <div class="nav-label">Outros</div>
       <button class="nav-item" data-view="b2b" onclick="setView('b2b')"><span data-ic="briefcase"></span>Mentoria B2B<span class="count" id="nav-b2b">–</span></button>
       <div class="spacer"></div>
@@ -558,6 +620,7 @@
         <div id="stale-alert-container"></div>
         <div id="view-today"></div>
         <div id="view-recovery" class="hidden"></div>
+        <div id="view-nps" class="hidden"></div>
         <div id="view-board" class="hidden">
           <div class="board-toolbar" id="board-toolbar">
             <div class="board-tabs" id="board-tabs">
@@ -576,6 +639,7 @@
     <nav class="tabbar">
       <button data-view="today" class="active" onclick="setView('today')"><span data-ic="sun"></span>Hoje<span class="badge hidden" id="tab-today"></span></button>
       <button data-view="board" onclick="setView('board')"><span data-ic="columns"></span>Funil</button>
+      <button data-view="nps" onclick="setView('nps')"><span data-ic="star"></span>NPS<span class="badge hidden" id="tab-nps"></span></button>
       <button data-view="recovery" onclick="setView('recovery')"><span data-ic="target"></span>Recuperar<span class="badge hidden" id="tab-recovery"></span></button>
       <button data-view="cold" onclick="setView('cold')"><span data-ic="archive"></span>Perdidos<span class="badge hidden" id="tab-cold"></span></button>
       <button data-view="b2b" onclick="setView('b2b')"><span data-ic="briefcase"></span>B2B</button>
@@ -620,7 +684,8 @@
       moon: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
       filter: '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>',
       flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
-      target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>'
+      target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+      star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>'
     };
     function ic(name, cls = '') { return `<svg class="icon ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`; }
     function paintIcons(root = document) { root.querySelectorAll('[data-ic]').forEach(el => { el.outerHTML = ic(el.dataset.ic).replace('<svg ', `<svg ${el.id ? `id="${el.id}" ` : ''}${el.dataset.ic === 'refresh' ? 'data-refresh ' : ''}`); }); }
@@ -631,6 +696,9 @@
     let sessionPassword = '';
     let leadsB2C = [];
     let leadsB2B = [];
+    let npsFeedbacks = [];
+    let npsCategoryFilter = 'all';
+    let npsUnitFilter = 'all';
     let view = 'today';
     let boardFilter = 'active'; // 'active', 'all', 'cold'
     let unit = 'all';
@@ -869,9 +937,30 @@
       document.querySelectorAll('.spin').forEach(el => el.classList.remove('spin'));
       if (!r.ok) { if (!silent) toast(r.error, true); return; }
       if (view === 'b2b') leadsB2B = r.data.leads || []; else leadsB2C = r.data.leads || [];
+      loadNpsFeedbacks(true);
       lastSync = new Date();
       render();
       if (!silent) toast('Lista atualizada');
+    }
+
+    async function loadNpsFeedbacks(silent = false) {
+      if (!sessionPassword) return;
+      try {
+        const r = await api('get-leads', { tableType: 'nps' });
+        if (r.ok && r.data.feedbacks) {
+          npsFeedbacks = r.data.feedbacks;
+          const badge = document.getElementById('nav-nps');
+          if (badge) badge.textContent = npsFeedbacks.length;
+          const tabBadge = document.getElementById('tab-nps');
+          if (tabBadge) {
+            tabBadge.textContent = npsFeedbacks.length;
+            tabBadge.classList.toggle('hidden', !npsFeedbacks.length);
+          }
+          if (view === 'nps') renderNpsView();
+        }
+      } catch (e) {
+        console.warn('Erro ao carregar NPS:', e);
+      }
     }
 
     // =========================================================
@@ -884,6 +973,7 @@
       document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === v));
       if (v === 'b2b' && !leadsB2B.length) refreshData(true);
       if (v !== 'b2b' && !leadsB2C.length) refreshData(true);
+      if (v === 'nps') loadNpsFeedbacks(true);
       render();
       window.scrollTo({ top: 0 });
     }
@@ -977,6 +1067,7 @@
         board: ['Funil de pacientes', window.matchMedia('(max-width: 820px)').matches ? 'Toque no card para mudar de etapa' : 'Arraste os cards ou clique para mudar de etapa'],
         recovery: ['Recuperador Ativo de Leads', 'Resgate imediato pós-quiz, retomada de turno e reaquecimento ativo'],
         cold: ['Perdidos & No-Show', 'Contatos frios e ausências prontos para o plano de reaquecimento'],
+        nps: ['Satisfação & NPS da Creabily', 'Mural de avaliações, score de qualidade e direcionamento para o Google Maps'],
         b2b: ['Mentoria B2B', 'Aplicações para a mentoria']
       };
       const curTitle = titles[view] || titles.board;
@@ -989,20 +1080,24 @@
       const isTodayView = view === 'today';
       const isRecoveryView = view === 'recovery';
       const isBoardView = view === 'board' || view === 'cold';
+      const isNpsView = view === 'nps';
 
       document.getElementById('view-today').classList.toggle('hidden', !isTodayView);
       document.getElementById('view-recovery').classList.toggle('hidden', !isRecoveryView);
       document.getElementById('view-board').classList.toggle('hidden', !isBoardView);
+      document.getElementById('view-nps').classList.toggle('hidden', !isNpsView);
+      document.getElementById('kpis').classList.toggle('hidden', isNpsView);
 
       // Barra de filtros rápidos é exibida nas visualizações relevantes
       const filterBar = document.getElementById('global-filter-bar');
-      if (filterBar) filterBar.classList.toggle('hidden', isB2B);
+      if (filterBar) filterBar.classList.toggle('hidden', isB2B || isNpsView);
 
       // Banner de leads parados (> 7 dias)
-      renderStaleBanner(all, isB2B);
+      renderStaleBanner(all, isB2B || isNpsView);
 
       if (isTodayView) renderToday(b, isB2B ? list : all);
       else if (isRecoveryView) renderRecovery(list, recQueues);
+      else if (isNpsView) renderNpsView();
       else renderBoard(list);
 
       if (openLeadId) { const l = findLead(openLeadId); if (l) fillDrawer(l); }
@@ -1534,6 +1629,259 @@
               </div>
             </div>
           </div>
+        </div>
+      `;
+    }
+
+    // =========================================================
+    // 5. TELA SATISFAÇÃO & NPS (Score e Mural de Avaliações)
+    // =========================================================
+    function setNpsCategoryFilter(cat) {
+      npsCategoryFilter = cat;
+      renderNpsView();
+    }
+    function setNpsUnitFilter(u) {
+      npsUnitFilter = u;
+      renderNpsView();
+    }
+
+    function renderNpsView() {
+      const container = document.getElementById('view-nps');
+      if (!container) return;
+
+      const allFeedbacks = npsFeedbacks || [];
+      const total = allFeedbacks.length;
+
+      // Promotores (9-10), Neutros (7-8), Detratores (0-6)
+      const promoters = allFeedbacks.filter(f => f.score >= 9);
+      const passives = allFeedbacks.filter(f => f.score >= 7 && f.score <= 8);
+      const detractors = allFeedbacks.filter(f => f.score <= 6);
+
+      const pCount = promoters.length;
+      const nCount = passives.length;
+      const dCount = detractors.length;
+
+      const pPct = total > 0 ? Math.round((pCount / total) * 100) : 0;
+      const nPct = total > 0 ? Math.round((nCount / total) * 100) : 0;
+      const dPct = total > 0 ? Math.round((dCount / total) * 100) : 0;
+
+      // NPS = % Promotores - % Detratores (-100 a +100)
+      const npsScore = total > 0 ? Math.round(((pCount - dCount) / total) * 100) : 0;
+
+      // Classificação da zona
+      let zoneClass = 'zone-excellence';
+      let zoneLabel = '🌟 Zona de Excelência';
+      let zoneSub = 'Satisfação de padrão ouro (> 75)';
+      if (npsScore < 0) {
+        zoneClass = 'zone-danger';
+        zoneLabel = '🚨 Zona Crítica';
+        zoneSub = 'Mais detratores que promotores';
+      } else if (npsScore < 50) {
+        zoneClass = 'zone-warning';
+        zoneLabel = '⚠️ Zona de Aperfeiçoamento';
+        zoneSub = 'Oportunidade de correção clínica';
+      } else if (npsScore < 75) {
+        zoneClass = 'zone-quality';
+        zoneLabel = '👍 Zona de Qualidade';
+        zoneSub = 'Bom desempenho, expansão de promotores';
+      }
+
+      // Conversão para o Google Meu Negócio
+      const googleCount = allFeedbacks.filter(f => f.redirected_to_google).length;
+      const googlePct = pCount > 0 ? Math.round((googleCount / pCount) * 100) : 0;
+
+      // Segmentação por Unidade
+      const paulistaFeedbacks = allFeedbacks.filter(f => (f.unit || '').includes('paulista'));
+      const granjaFeedbacks = allFeedbacks.filter(f => (f.unit || '').includes('granja'));
+
+      const calcUnitNps = arr => {
+        if (!arr.length) return { score: '–', total: 0, promPct: 0 };
+        const pr = arr.filter(f => f.score >= 9).length;
+        const dt = arr.filter(f => f.score <= 6).length;
+        return {
+          score: Math.round(((pr - dt) / arr.length) * 100),
+          total: arr.length,
+          promPct: Math.round((pr / arr.length) * 100)
+        };
+      };
+      const paulistaStats = calcUnitNps(paulistaFeedbacks);
+      const granjaStats = calcUnitNps(granjaFeedbacks);
+
+      // Filtragem dos feedbacks do mural
+      let filteredList = allFeedbacks;
+      if (npsCategoryFilter === 'promoter') filteredList = filteredList.filter(f => f.score >= 9);
+      else if (npsCategoryFilter === 'passive') filteredList = filteredList.filter(f => f.score >= 7 && f.score <= 8);
+      else if (npsCategoryFilter === 'detractor') filteredList = filteredList.filter(f => f.score <= 6);
+
+      if (npsUnitFilter === 'paulista') filteredList = filteredList.filter(f => (f.unit || '').includes('paulista'));
+      else if (npsUnitFilter === 'granja_viana') filteredList = filteredList.filter(f => (f.unit || '').includes('granja'));
+
+      // Render Cards
+      const renderFeedbackCard = f => {
+        const isProm = f.score >= 9;
+        const isPass = f.score >= 7 && f.score <= 8;
+        const chipCls = isProm ? 'promoter' : (isPass ? 'passive' : 'detractor');
+        const chipText = isProm ? `⭐ ${f.score}/10 Promotor` : (isPass ? `⚡ ${f.score}/10 Neutro` : `⚠️ ${f.score}/10 Detrator`);
+        const isGranja = (f.unit || '').includes('granja');
+        const unitLabel = isGranja ? 'Granja Viana' : 'Av. Paulista';
+        const unitCls = isGranja ? 'granja' : 'paulista';
+
+        const phone = f.phone ? String(f.phone).replace(/\D/g, '') : '';
+        const name = f.patient_name || 'Paciente Anônimo';
+        const hora = f.created_at ? dateFmt(f.created_at) : '';
+
+        const tagsHtml = Array.isArray(f.improvement_tags) && f.improvement_tags.length ? `
+          <div class="nps-card-tags">
+            ${f.improvement_tags.map(t => `<span class="nps-tag-pill">${esc(t)}</span>`).join('')}
+          </div>
+        ` : '';
+
+        const commentHtml = f.feedback_text ? `
+          <div class="nps-card-comment">“${esc(f.feedback_text)}”</div>
+        ` : '';
+
+        const googleBadge = f.redirected_to_google ? `
+          <div class="nps-google-badge">⭐⭐⭐⭐⭐ Avaliou no Google Maps</div>
+        ` : '';
+
+        let waBtn = '';
+        if (phone) {
+          const waMsg = isProm
+            ? `Olá, ${name}! Tudo bem? Passando para te agradecer com muito carinho pela sua avaliação e pelo carinho com a nossa equipe da Creabily ${unitLabel}. Muita saúde para você! 🙏`
+            : `Olá, ${name}! Tudo bem? Aqui é da coordenação clínica da Creabily ${unitLabel}. Recebemos sua avaliação e gostaríamos de te ouvir com muita atenção para garantir que sua experiência com a gente seja nota 10. Como podemos te ajudar?`;
+          const waUrl = `https://wa.me/${phone.startsWith('55') ? phone : '55' + phone}?text=${encodeURIComponent(waMsg)}`;
+          waBtn = `<a href="${waUrl}" target="_blank" rel="noopener noreferrer" class="btn-nps-wa" title="Conversar no WhatsApp">${ic('wa', 'icon-sm')}Responder no WhatsApp</a>`;
+        }
+
+        return `
+          <div class="nps-card">
+            <div class="nps-card-head">
+              <div class="nps-card-who">
+                <div class="avatar">${esc(name.slice(0, 2).toUpperCase())}</div>
+                <div>
+                  <div class="nps-card-name">${esc(name)}</div>
+                  <div class="nps-card-meta">${phone ? esc(phone) : 'Sem telefone'}</div>
+                </div>
+              </div>
+              <span class="nps-score-chip ${chipCls}">${chipText}</span>
+            </div>
+
+            ${googleBadge}
+            ${tagsHtml}
+            ${commentHtml}
+
+            <div class="nps-card-foot">
+              <div>
+                <span class="unit-tag ${unitCls}">📍 ${unitLabel}</span>
+                <span style="margin-left: 6px; color: var(--text-3);">${esc(f.service || 'Fisioterapia')}</span>
+                <span style="margin-left: 6px; color: var(--text-3);">· ${hora}</span>
+              </div>
+              ${waBtn}
+            </div>
+          </div>
+        `;
+      };
+
+      container.innerHTML = `
+        <!-- HERO NPS -->
+        <div class="nps-hero">
+          <div class="nps-hero-grid">
+            <div class="nps-score-badge ${zoneClass}">
+              <div class="nps-score-val">${total > 0 ? (npsScore > 0 ? '+' : '') + npsScore : '–'}</div>
+              <div class="nps-score-label">NPS Creabily</div>
+              <div class="nps-score-sub">${zoneLabel}</div>
+              <div style="font-size:11px; opacity:0.75; margin-top:2px;">${zoneSub}</div>
+            </div>
+
+            <div class="nps-breakdown">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <h3 style="margin:0; font-size:16px; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px;">
+                  ${ic('star')} Distribuição da Satisfação dos Pacientes
+                </h3>
+                <span style="font-size:13px; font-weight:600; color:var(--text-3);">${total} avaliações registradas</span>
+              </div>
+
+              <div class="nps-bar-container" title="Promotores: ${pPct}% | Neutros: ${nPct}% | Detratores: ${dPct}%">
+                <div class="nps-bar-seg promoters" style="width: ${pPct}%"></div>
+                <div class="nps-bar-seg passives" style="width: ${nPct}%"></div>
+                <div class="nps-bar-seg detractors" style="width: ${dPct}%"></div>
+              </div>
+
+              <div class="nps-stats-row">
+                <div class="nps-stat-box">
+                  <div class="nps-stat-title" style="color:#0D9488;">🌟 Promotores (9-10)</div>
+                  <div class="nps-stat-number">${pCount} <span class="nps-stat-pct">(${pPct}%)</span></div>
+                </div>
+                <div class="nps-stat-box">
+                  <div class="nps-stat-title" style="color:#D97706;">⚡ Neutros (7-8)</div>
+                  <div class="nps-stat-number">${nCount} <span class="nps-stat-pct">(${nPct}%)</span></div>
+                </div>
+                <div class="nps-stat-box">
+                  <div class="nps-stat-title" style="color:#DC2626;">⚠️ Detratores (0-6)</div>
+                  <div class="nps-stat-number">${dCount} <span class="nps-stat-pct">(${dPct}%)</span></div>
+                </div>
+                <div class="nps-stat-box">
+                  <div class="nps-stat-title" style="color:#B45309;">⭐⭐⭐⭐⭐ No Google</div>
+                  <div class="nps-stat-number">${googleCount} <span class="nps-stat-pct">(${googlePct}% conv.)</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPARATIVO POR UNIDADE -->
+        <div class="nps-unit-grid">
+          <div class="nps-unit-card">
+            <div class="nps-unit-info">
+              <h4>🏙️ Unidade Av. Paulista</h4>
+              <p>${paulistaStats.total} avaliações • ${paulistaStats.promPct}% promotores</p>
+              <div style="margin-top: 8px;">
+                <a href="https://www.google.com/maps/search/?api=1&query=Creabily+Fisioterapia+e+Pilates+Av+Paulista" target="_blank" rel="noopener noreferrer" style="font-size:12px; color:var(--brand); text-decoration:none; font-weight:600;">Ver no Google Maps ↗</a>
+              </div>
+            </div>
+            <div class="nps-unit-score" style="color:${paulistaStats.score >= 75 ? '#0D9488' : '#D97706'};">
+              ${paulistaStats.score !== '–' ? (paulistaStats.score > 0 ? '+' : '') + paulistaStats.score : '–'}
+            </div>
+          </div>
+
+          <div class="nps-unit-card">
+            <div class="nps-unit-info">
+              <h4>🌿 Unidade Granja Viana</h4>
+              <p>${granjaStats.total} avaliações • ${granjaStats.promPct}% promotores</p>
+              <div style="margin-top: 8px;">
+                <a href="https://www.google.com/maps/search/?api=1&query=Creabily+Fisioterapia+e+Pilates+Granja+Viana" target="_blank" rel="noopener noreferrer" style="font-size:12px; color:var(--brand); text-decoration:none; font-weight:600;">Ver no Google Maps ↗</a>
+              </div>
+            </div>
+            <div class="nps-unit-score" style="color:${granjaStats.score >= 75 ? '#0D9488' : '#D97706'};">
+              ${granjaStats.score !== '–' ? (granjaStats.score > 0 ? '+' : '') + granjaStats.score : '–'}
+            </div>
+          </div>
+        </div>
+
+        <!-- FILTROS DO MURAL -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+          <div class="nps-filters">
+            <button class="nps-filter-btn ${npsCategoryFilter === 'all' ? 'active' : ''}" onclick="setNpsCategoryFilter('all')">Todos (${total})</button>
+            <button class="nps-filter-btn ${npsCategoryFilter === 'promoter' ? 'active' : ''}" onclick="setNpsCategoryFilter('promoter')">🌟 Promotores (${pCount})</button>
+            <button class="nps-filter-btn ${npsCategoryFilter === 'passive' ? 'active' : ''}" onclick="setNpsCategoryFilter('passive')">⚡ Neutros (${nCount})</button>
+            <button class="nps-filter-btn ${npsCategoryFilter === 'detractor' ? 'active' : ''}" onclick="setNpsCategoryFilter('detractor')">⚠️ Detratores (${dCount})</button>
+          </div>
+
+          <div class="nps-filters">
+            <button class="nps-filter-btn ${npsUnitFilter === 'all' ? 'active' : ''}" onclick="setNpsUnitFilter('all')">Todas Unidades</button>
+            <button class="nps-filter-btn ${npsUnitFilter === 'paulista' ? 'active' : ''}" onclick="setNpsUnitFilter('paulista')">🏙️ Paulista</button>
+            <button class="nps-filter-btn ${npsUnitFilter === 'granja_viana' ? 'active' : ''}" onclick="setNpsUnitFilter('granja_viana')">🌿 Granja</button>
+          </div>
+        </div>
+
+        <!-- GRID DE CARDS DE FEEDBACK -->
+        <div class="nps-feed-grid">
+          ${filteredList.length ? filteredList.map(renderFeedbackCard).join('') : `
+            <div style="grid-column: 1 / -1; text-align:center; padding:40px 20px; background:var(--surface); border:1px dashed var(--line); border-radius:var(--radius); color:var(--text-3);">
+              ${ic('star')}
+              <div style="font-weight:600; margin-top:8px;">Nenhuma avaliação encontrada com os filtros selecionados.</div>
+            </div>
+          `}
         </div>
       `;
     }
