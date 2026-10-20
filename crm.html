@@ -1324,7 +1324,7 @@
       };
 
       // Pacientes atendidos para acompanhamento pós-sessão e NPS
-      const atendidosRecentes = list.filter(l => l.status === 'consulta_realizada');
+      const atendidosRecentes = all.filter(l => l.status === 'consulta_realizada');
       const rowNpsHoje = l => {
         const ph = phoneOf(l);
         const hasNps = l.notes && l.notes.includes('[NPS');
