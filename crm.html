@@ -1323,6 +1323,28 @@
         </div>`;
       };
 
+      // Pacientes atendidos para acompanhamento pós-sessão e NPS
+      const atendidosRecentes = list.filter(l => l.status === 'consulta_realizada');
+      const rowNpsHoje = l => {
+        const ph = phoneOf(l);
+        const hasNps = l.notes && l.notes.includes('[NPS');
+        const msgNps = templates(l).pesquisa_nps;
+        return `<div class="row row-today" onclick="openDrawer('${esc(l.id)}')">
+          ${avatar(l)}
+          <div class="who">
+            <div class="name">${esc(nameOf(l))}</div>
+            <div class="meta">
+              ${unitChip(l)}
+              <span class="chip" style="background:${hasNps ? '#ccfbf1' : '#fef3c7'};color:${hasNps ? '#0f766e' : '#b45309'};font-weight:700">
+                ${hasNps ? '⭐ NPS Respondido' : '⏳ Aguardando NPS'}
+              </span>
+              <span>${esc(service(l))}</span>
+            </div>
+          </div>
+          ${ph ? `<a class="btn-action-wa" style="background:#0d9488" href="${waLink(l, msgNps)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Enviar pesquisa NPS no WhatsApp">${ic('wa', 'icon-sm')} ⭐ Enviar NPS</a>` : ''}
+        </div>`;
+      };
+
       document.getElementById('view-today').innerHTML = `
         <!-- 1. GRÁFICOS DE INTELIGÊNCIA & DESEMPENHO (SEMANA, ESPECIALIDADES, ORIGEM & UNIDADE) -->
         ${renderAnalytics(all)}
@@ -1348,6 +1370,7 @@
           ${panel('Leads que pararam de responder', 'Conversas sem retorno recente nas últimas 24-48h ou com retorno para hoje', parouHoje, 'Nenhum lead parado sem resposta hoje', rowParouHoje, true)}
           ${b.atencao.length ? panel('Atenção humana urgente', 'Pacientes que pediram ajuda ou transbordo hoje', b.atencao, '', row, true) : ''}
           ${panel('Consultas agendadas para hoje', 'Confirme a chegada e presença do paciente', agendadasHoje, 'Nenhuma consulta marcada para o dia de hoje', rowAgendadaHoje)}
+          ${panel('Pacientes Atendidos (Pesquisa NPS)', 'Envie a pesquisa de satisfação em 1 clique para gerar avaliações 5 estrelas no Google', atendidosRecentes, 'Nenhum paciente atendido pendente de avaliação', rowNpsHoje)}
         </div>
       `;
     }
@@ -1539,6 +1562,15 @@
           ${o ? `<span class="chip ${o.cls}">${esc(o.label)}</span>` : ''}
           ${ageChip(l)}
         </div>
+        ${l.status === 'consulta_realizada' ? `
+          <div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--border);display:flex;align-items:center;justify-content:space-between">
+            <span class="chip" style="background:#ccfbf1;color:#0f766e;font-weight:700;font-size:10.5px">${l.notes && l.notes.includes('[NPS') ? '⭐ NPS OK' : '⏳ Enviar NPS'}</span>
+            ${phoneOf(l) ? `<a class="btn-action-wa" style="background:#0d9488;color:#fff;font-size:11px;padding:3px 8px;border-radius:6px;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:4px;" 
+               href="${waLink(l, templates(l).pesquisa_nps)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Enviar pesquisa NPS no WhatsApp">
+               ${ic('wa', 'icon-sm')} ⭐ NPS
+            </a>` : ''}
+          </div>
+        ` : ''}
       </div>`;
     }
 
@@ -1732,7 +1764,8 @@
         retorno: `Oi, ${nome}! Tudo bem? Passando para checar se você prefere manter a preferência de horário que você indicou no teste para ${svc} ou se prefere que a gente encontre outro dia/turno na Creabily ${un}? As vagas com os especialistas preenchem rápido, queria te garantir prioridade!` + optOut,
         reaquecer_dor: `Olá, ${nome}! Tudo bem? Aqui é da equipe clínica da Creabily ${un}. Lembrei de você hoje: como está a sua queixa de ${svc}? Abrimos algumas vagas prioritárias de avaliação clínica de 1 hora esta semana e emitimos toda a documentação para reembolso pelo seu plano de saúde. Vamos cuidar disso juntos?` + optOut,
         reaquecer_noshow: `Oi, ${nome}, tudo bem? Aqui é da recepção da Creabily ${un}. Sei que imprevistos acontecem e você não conseguiu comparecer à sua avaliação. Como sua saúde e seu bem-estar vêm em primeiro lugar, quer que eu veja um novo horário mais tranquilo para você?` + optOut,
-        ultimo: `Oi, ${nome}! Esta é minha última mensagem para não te incomodar. Quando quiser agendar sua avaliação de ${svc} na Creabily ${un}, é só responder por aqui que te recebo com todo carinho!` + optOut
+        ultimo: `Oi, ${nome}! Esta é minha última mensagem para não te incomodar. Quando quiser agendar sua avaliação de ${svc} na Creabily ${un}, é só responder por aqui que te recebo com todo carinho!` + optOut,
+        pesquisa_nps: `Oi, ${nome}! Tudo bem? Aqui é da equipe da Creabily ${un}. Como foi sua sessão de ${svc} com a gente? Queremos sempre te oferecer o melhor cuidado: de 0 a 10, que nota você daria para o seu atendimento hoje? Leva menos de 30 segundos: https://avaliacao.creabily.com/nps.html?name=${encodeURIComponent(nome)}&unit=${encodeURIComponent(unitKey(l))}&service=${encodeURIComponent(svc)}&phone=${phoneOf(l)}`
       };
     }
     const TPL_LABELS = {
@@ -1743,10 +1776,12 @@
       retorno: 'Retomar turno (3h-48h)',
       reaquecer_dor: 'Reaquecer (Frio / > 7d)',
       reaquecer_noshow: 'Reaquecer (No-Show)',
-      ultimo: 'Última tentativa'
+      ultimo: 'Última tentativa',
+      pesquisa_nps: '⭐ Pesquisa NPS (Pós-Atendimento)'
     };
     function defaultTpl(l) {
       if (view === 'b2b') return l.status === 'novo_lead_quiz' ? 'primeiro' : 'retorno';
+      if (l.status === 'consulta_realizada') return 'pesquisa_nps';
       if (l.status === 'no_show') return 'reaquecer_noshow';
       if (l.status === 'perdido') return 'reaquecer_dor';
       if (l.status === 'agendado') return 'confirmar_pre';
@@ -1817,6 +1852,17 @@
               <button class="stage ${cur === 'no_show' ? 'on' : ''}" onclick="moveLead('${esc(l.id)}','no_show')"><span class="dot" style="background:#ea580c"></span>No-Show</button>
               <button class="stage ${cur === 'perdido' ? 'on' : ''}" onclick="moveLead('${esc(l.id)}','perdido')"><span class="dot" style="background:#64748b"></span>Perdido</button>
             </div>
+            ${l.status === 'consulta_realizada' ? `
+            <div style="margin-top:12px;padding:12px;background:rgba(13,148,136,0.08);border:1px solid rgba(13,148,136,0.25);border-radius:10px;">
+              <div style="font-size:12px;font-weight:700;color:#0f766e;margin-bottom:4px;display:flex;align-items:center;gap:6px">
+                ⭐ Pós-Atendimento & Avaliação de Satisfação
+              </div>
+              <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;line-height:1.4">Paciente atendido na clínica! Envie a pesquisa inteligente de NPS: notas 9-10 são direcionadas para avaliar no Google Maps e notas baixas geram acolhimento confidencial.</p>
+              ${ph ? `<a class="btn btn-action-wa" style="background:#0d9488;color:#fff;width:100%;justify-content:center;display:flex;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;box-shadow:0 2px 6px rgba(13,148,136,0.25);" 
+                 href="${waLink(l, templates(l).pesquisa_nps)}" target="_blank" rel="noopener">
+                ${ic('wa', 'icon-sm')} ⭐ Enviar Pesquisa NPS no WhatsApp
+              </a>` : ''}
+            </div>` : ''}
           </div>
 
           ${ph ? `<div class="d-section"><h5>Mensagem de WhatsApp</h5>
@@ -1838,6 +1884,10 @@
           </div>` : `<div class="d-section"><h5>Aplicação</h5><dl class="kv">${b2bFields.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`}
 
           <div class="d-section"><h5>Anotações e próximo passo</h5>
+            ${l.notes && l.notes.includes('[NPS') ? `
+              <div style="background:#ccfbf1;border:1px solid rgba(13,148,136,0.3);color:#0f766e;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                ⭐ Avaliação de Satisfação (NPS) Registrada para este paciente
+              </div>` : ''}
             ${l.notes ? `<div class="note-old">${esc(l.notes)}</div>` : ''}
             <textarea class="input" id="d-note" rows="3" placeholder="Ex.: Prefere horário à noite; vai ver com o marido.">${esc(keepNote)}</textarea>
             <div class="grid2" style="margin-top:8px">
