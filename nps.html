@@ -63,7 +63,7 @@
 
     .header {
       text-align: center;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .logo-container {
@@ -85,12 +85,13 @@
       gap: 6px;
       background: var(--primary-light);
       color: var(--primary-dark);
-      padding: 4px 12px;
+      padding: 5px 14px;
       border-radius: 999px;
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 600;
       letter-spacing: 0.3px;
       margin-bottom: 12px;
+      transition: all 0.2s ease;
     }
 
     .title {
@@ -108,13 +109,75 @@
       line-height: 1.5;
     }
 
+    /* Universal Unit Selector */
+    .unit-selector-box {
+      margin: 18px 0 20px 0;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .unit-selector-label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
+    }
+
+    .unit-selector-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .unit-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+    }
+
+    .unit-btn:hover {
+      border-color: #94A3B8;
+      background: #F1F5F9;
+      transform: translateY(-1px);
+    }
+
+    .unit-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
+    }
+
+    .unit-btn .unit-icon {
+      font-size: 15px;
+    }
+
     /* Score Scale 0-10 */
     .scale-box {
-      margin: 24px 0;
+      margin: 20px 0 24px 0;
     }
 
     .scale-label-top {
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 600;
       color: var(--text-main);
       margin-bottom: 12px;
@@ -234,6 +297,14 @@
       margin-bottom: 20px;
     }
 
+    /* Promoter Buttons */
+    .promoter-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
     .btn-google {
       display: flex;
       align-items: center;
@@ -246,7 +317,7 @@
       padding: 15px 20px;
       border-radius: var(--radius-md);
       font-family: 'Outfit', sans-serif;
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 700;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
@@ -260,10 +331,32 @@
       box-shadow: 0 12px 25px rgba(15, 23, 42, 0.35);
     }
 
+    .btn-google.btn-granja {
+      background: linear-gradient(135deg, #0F766E 0%, #0D9488 100%);
+      box-shadow: 0 8px 20px rgba(13, 148, 136, 0.3);
+    }
+
+    .btn-google.btn-granja:hover {
+      background: #0F766E;
+    }
+
     .google-stars {
       color: #FBBF24;
       font-size: 16px;
       letter-spacing: 2px;
+    }
+
+    .unit-switch-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--primary-dark);
+      text-decoration: underline;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      padding: 4px;
     }
 
     /* Detractor / Passive View */
@@ -382,10 +475,25 @@
         <img src="assets/logo.png" alt="Creabily" class="logo-img" onerror="this.style.display='none'">
       </div>
       <div>
-        <span class="badge-unit" id="unit-badge">📍 Unidade Av. Paulista</span>
+        <span class="badge-unit" id="unit-badge">📍 Av. Paulista & Granja Viana</span>
       </div>
       <h1 class="title" id="greeting-title">Como foi sua experiência na Creabily?</h1>
       <p class="subtitle" id="greeting-subtitle">Sua opinião é fundamental para continuarmos cuidando da sua saúde com máxima excelência.</p>
+    </div>
+
+    <!-- Universal Unit Selector (Paulista vs Granja Viana) -->
+    <div class="unit-selector-box" id="unit-selector-box">
+      <span class="unit-selector-label">Em qual unidade você foi atendido(a)?</span>
+      <div class="unit-selector-grid">
+        <button type="button" class="unit-btn" data-unit="paulista" id="btn-unit-paulista">
+          <span class="unit-icon">🏙️</span>
+          <span>Av. Paulista</span>
+        </button>
+        <button type="button" class="unit-btn" data-unit="granja_viana" id="btn-unit-granja">
+          <span class="unit-icon">🌿</span>
+          <span>Granja Viana</span>
+        </button>
+      </div>
     </div>
 
     <!-- Step 1: Score Selector -->
@@ -423,10 +531,10 @@
           Leva <strong>menos de 30 segundos</strong> e ajuda outras pessoas com dores no corpo a encontrarem o tratamento certo na Creabily.
         </p>
 
-        <a href="#" target="_blank" class="btn-google" id="btn-google-review">
-          <span class="google-stars">★★★★★</span>
-          <span>Avaliar no Google</span>
-        </a>
+        <!-- Dynamic Google Buttons (Universal vs Specific) -->
+        <div class="promoter-actions" id="promoter-actions-container">
+          <!-- Populated by JavaScript according to chosen unit -->
+        </div>
 
         <div style="margin-top: 18px;">
           <textarea class="feedback-textarea" id="promoter-comment" placeholder="Quer deixar um elogio para a equipe ou fisioterapeuta? (Opcional)"></textarea>
@@ -477,31 +585,121 @@
     // URL Parameters Parser
     const urlParams = new URLSearchParams(window.location.search);
     const patientName = urlParams.get('name') || urlParams.get('patient') || '';
-    const rawUnit = (urlParams.get('unit') || 'paulista').toLowerCase();
+    const rawUnitParam = urlParams.get('unit'); // can be null, 'paulista', 'granja', etc.
     const service = urlParams.get('service') || 'Fisioterapia e Pilates';
     const phone = urlParams.get('phone') || '';
-
-    // Unit Setup
-    const isGranja = rawUnit.includes('granja');
-    const unitName = isGranja ? 'Unidade Granja Viana' : 'Unidade Av. Paulista';
-    document.getElementById('unit-badge').innerText = `📍 ${unitName}`;
 
     // Google Maps Review URLs
     const GOOGLE_REVIEWS_URLS = {
       paulista: 'https://www.google.com/maps/search/?api=1&query=Creabily+Fisioterapia+e+Pilates+Av+Paulista',
       granja_viana: 'https://www.google.com/maps/search/?api=1&query=Creabily+Fisioterapia+e+Pilates+Granja+Viana'
     };
-    const targetGoogleUrl = isGranja ? GOOGLE_REVIEWS_URLS.granja_viana : GOOGLE_REVIEWS_URLS.paulista;
-    document.getElementById('btn-google-review').href = targetGoogleUrl;
 
-    // Greeting Customization
-    if (patientName) {
-      document.getElementById('greeting-title').innerText = `Olá, ${patientName}!`;
-      document.getElementById('greeting-subtitle').innerText = `Como foi sua sessão de ${service} na ${unitName}? Sua opinião é fundamental para nós.`;
-    }
-
+    // State
+    let currentUnit = null; // null = universal/not chosen yet, 'paulista', or 'granja_viana'
     let selectedScore = null;
     let selectedTags = [];
+
+    // Initialize unit from URL if provided
+    if (rawUnitParam) {
+      const lower = rawUnitParam.toLowerCase();
+      if (lower.includes('granja') || lower.includes('cotia')) {
+        currentUnit = 'granja_viana';
+      } else if (lower.includes('paulista') || lower.includes('sp')) {
+        currentUnit = 'paulista';
+      }
+    }
+
+    // UI Elements
+    const unitBadge = document.getElementById('unit-badge');
+    const greetingTitle = document.getElementById('greeting-title');
+    const greetingSubtitle = document.getElementById('greeting-subtitle');
+    const btnUnitPaulista = document.getElementById('btn-unit-paulista');
+    const btnUnitGranja = document.getElementById('btn-unit-granja');
+    const promoterActionsContainer = document.getElementById('promoter-actions-container');
+
+    function updateUnitUI() {
+      // Buttons state
+      btnUnitPaulista.classList.toggle('active', currentUnit === 'paulista');
+      btnUnitGranja.classList.toggle('active', currentUnit === 'granja_viana');
+
+      if (currentUnit === 'paulista') {
+        unitBadge.innerText = '📍 Unidade Av. Paulista';
+        if (patientName) {
+          greetingTitle.innerText = `Olá, ${patientName}!`;
+          greetingSubtitle.innerText = `Como foi sua sessão de ${service} na Unidade Av. Paulista? Sua opinião é fundamental para nós.`;
+        }
+      } else if (currentUnit === 'granja_viana') {
+        unitBadge.innerText = '📍 Unidade Granja Viana';
+        if (patientName) {
+          greetingTitle.innerText = `Olá, ${patientName}!`;
+          greetingSubtitle.innerText = `Como foi sua sessão de ${service} na Unidade Granja Viana? Sua opinião é fundamental para nós.`;
+        }
+      } else {
+        unitBadge.innerText = '📍 Av. Paulista & Granja Viana';
+        if (patientName) {
+          greetingTitle.innerText = `Olá, ${patientName}!`;
+          greetingSubtitle.innerText = `Como foi sua sessão de ${service} com a gente? Sua opinião é fundamental para nós.`;
+        }
+      }
+
+      // Update Promoter Google Buttons
+      renderPromoterButtons();
+    }
+
+    function renderPromoterButtons() {
+      if (currentUnit === 'paulista') {
+        promoterActionsContainer.innerHTML = `
+          <a href="${GOOGLE_REVIEWS_URLS.paulista}" target="_blank" rel="noopener noreferrer" class="btn-google" id="btn-google-primary">
+            <span class="google-stars">★★★★★</span>
+            <span>Avaliar Av. Paulista no Google</span>
+          </a>
+          <button type="button" class="unit-switch-link" onclick="selectUnit('granja_viana')">
+            Atendido na Granja Viana? Clique aqui para avaliar Granja Viana
+          </button>
+        `;
+      } else if (currentUnit === 'granja_viana') {
+        promoterActionsContainer.innerHTML = `
+          <a href="${GOOGLE_REVIEWS_URLS.granja_viana}" target="_blank" rel="noopener noreferrer" class="btn-google btn-granja" id="btn-google-primary">
+            <span class="google-stars">★★★★★</span>
+            <span>Avaliar Granja Viana no Google</span>
+          </a>
+          <button type="button" class="unit-switch-link" onclick="selectUnit('paulista')">
+            Atendido na Av. Paulista? Clique aqui para avaliar Av. Paulista
+          </button>
+        `;
+      } else {
+        // Universal View: Show both units clearly
+        promoterActionsContainer.innerHTML = `
+          <a href="${GOOGLE_REVIEWS_URLS.paulista}" target="_blank" rel="noopener noreferrer" class="btn-google" onclick="trackReviewClick('paulista')">
+            <span class="google-stars">★★★★★</span>
+            <span>Avaliar Unidade Av. Paulista</span>
+          </a>
+          <a href="${GOOGLE_REVIEWS_URLS.granja_viana}" target="_blank" rel="noopener noreferrer" class="btn-google btn-granja" onclick="trackReviewClick('granja_viana')">
+            <span class="google-stars">★★★★★</span>
+            <span>Avaliar Unidade Granja Viana</span>
+          </a>
+        `;
+      }
+
+      const primaryBtn = document.getElementById('btn-google-primary');
+      if (primaryBtn) {
+        primaryBtn.addEventListener('click', () => {
+          trackReviewClick(currentUnit);
+        });
+      }
+    }
+
+    function selectUnit(unit) {
+      currentUnit = unit;
+      updateUnitUI();
+    }
+
+    btnUnitPaulista.addEventListener('click', () => selectUnit('paulista'));
+    btnUnitGranja.addEventListener('click', () => selectUnit('granja_viana'));
+
+    // Initial UI Setup
+    updateUnitUI();
 
     // Tag toggle
     document.querySelectorAll('.tag-chip').forEach(chip => {
@@ -534,6 +732,7 @@
           btn.classList.add('selected');
           branchFeedback.style.display = 'none';
           branchPromoter.style.display = 'block';
+          renderPromoterButtons();
         } else if (score >= 7) {
           btn.classList.add('selected', 'passive');
           branchPromoter.style.display = 'none';
@@ -552,20 +751,21 @@
       });
     });
 
-    // Click Google Review Button
-    document.getElementById('btn-google-review').addEventListener('click', () => {
+    function trackReviewClick(unit) {
       sendNpsData({
         score: selectedScore,
+        unit: unit || currentUnit || 'universal',
         redirected_to_google: true,
         feedback_text: document.getElementById('promoter-comment').value
       });
-    });
+    }
 
     // Promoter Submit (Elogio)
     document.getElementById('btn-promoter-submit').addEventListener('click', () => {
       const text = document.getElementById('promoter-comment').value;
       sendNpsData({
         score: selectedScore,
+        unit: currentUnit || 'universal',
         redirected_to_google: false,
         feedback_text: text
       });
@@ -577,6 +777,7 @@
       const text = document.getElementById('detractor-comment').value;
       sendNpsData({
         score: selectedScore,
+        unit: currentUnit || 'universal',
         redirected_to_google: false,
         feedback_text: text,
         improvement_tags: selectedTags
@@ -586,6 +787,7 @@
 
     function showThankYou() {
       document.getElementById('scale-section').style.display = 'none';
+      document.getElementById('unit-selector-box').style.display = 'none';
       branchPromoter.style.display = 'none';
       branchFeedback.style.display = 'none';
       document.getElementById('thankyou-section').style.display = 'block';
@@ -597,7 +799,7 @@
         const payload = {
           patient_name: patientName,
           phone: phone,
-          unit: isGranja ? 'granja_viana' : 'paulista',
+          unit: extra.unit || currentUnit || 'universal',
           service: service,
           score: selectedScore,
           ...extra
