@@ -396,12 +396,12 @@
     .btn-nps-wa { display: inline-flex; align-items: center; gap: 5px; background: #1faa59; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; text-decoration: none; }
     .btn-nps-wa:hover { background: #178a48; }
 
-    /* ---------- Agente Outubro Consolidado ---------- */
-    .agente-container { display: flex; flex-direction: column; gap: 16px; }
-    .agente-hero { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow-sm); }
+    /* ---------- Agente Outubro Consolidado (UI/UX 60-30-10 & Design Moderno) ---------- */
+    .agente-container { display: flex; flex-direction: column; gap: 16px; font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    .agente-hero { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px 24px; box-shadow: var(--shadow-sm); }
     .agente-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
-    .agente-live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: rgba(16, 185, 129, 0.12); color: #059669; font-size: 12px; font-weight: 700; }
-    .agente-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3); animation: pulseDot 2s infinite; }
+    .agente-live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; background: rgba(16, 185, 129, 0.1); color: #059669; font-size: 12px; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.2); }
+    .agente-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25); animation: pulseDot 2s infinite; }
     @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
     .agente-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .btn-agente { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; border: 1px solid var(--line); background: var(--surface); color: var(--text); text-decoration: none; }
@@ -416,8 +416,9 @@
     .agente-kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
     @media (max-width: 1200px) { .agente-kpis { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 700px) { .agente-kpis { grid-template-columns: 1fr 1fr; } }
-    .agente-kpi-card { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
-    .agente-kpi-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.5px; }
+    .agente-kpi-card { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; transition: transform .15s; }
+    .agente-kpi-card:hover { transform: translateY(-1px); }
+    .agente-kpi-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.5px; }
     .agente-kpi-value { font-size: 22px; font-weight: 800; color: var(--text); font-family: 'Outfit', sans-serif; line-height: 1.1; }
     .agente-kpi-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
@@ -425,65 +426,98 @@
     .agente-convenio-bar { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px; scrollbar-width: thin; }
     .agente-conv-pill { flex-shrink: 0; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
     .agente-conv-pill:hover { border-color: #6b308b; color: #6b308b; }
-    .agente-conv-pill.active { background: #6b308b; color: #fff; border-color: #6b308b; }
+    .agente-conv-pill.active { background: #6b308b; color: #fff; border-color: #6b308b; box-shadow: 0 2px 6px rgba(107, 48, 139, 0.25); }
     .agente-conv-pill .count { font-size: 10px; padding: 1px 6px; border-radius: 999px; background: rgba(0,0,0,0.08); font-weight: 700; }
     .agente-conv-pill.active .count { background: rgba(255,255,255,0.25); color: #fff; }
 
     /* Barra de Dias */
-    .agente-days-bar { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; }
-    .agente-day-chip { flex-shrink: 0; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .agente-days-bar { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; scrollbar-width: thin; }
+    .agente-day-chip { flex-shrink: 0; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
     .agente-day-chip:hover { border-color: #0E7490; color: #0E7490; }
-    .agente-day-chip.active { background: #0E7490; color: #fff; border-color: #0E7490; }
+    .agente-day-chip.active { background: #0E7490; color: #fff; border-color: #0E7490; box-shadow: 0 2px 6px rgba(14, 116, 144, 0.25); }
 
-    /* Filtros & Busca */
-    .agente-filter-bar { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .agente-search-input { flex: 1; min-width: 220px; height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-subtle); color: var(--text); font-size: 12px; outline: none; }
-    .agente-search-input:focus { border-color: #6b308b; background: #fff; }
+    /* Barra de Filtros & Busca & Seletor de Modo */
+    .agente-filter-bar { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .agente-search-input { flex: 1; min-width: 200px; height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-subtle); color: var(--text); font-size: 12px; outline: none; transition: border-color .15s; }
+    .agente-search-input:focus { border-color: #6b308b; background: #fff; box-shadow: 0 0 0 2px rgba(107, 48, 139, 0.1); }
     .agente-filter-select { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 12px; font-weight: 500; outline: none; }
     .agente-filter-select:focus { border-color: #6b308b; }
 
-    /* Banners de Seção Oficiais (Roxo da Data & Turquesa da Unidade) */
-    .agente-banner-data { background: #581C87; color: #fff; font-size: 13px; font-weight: 700; padding: 10px 16px; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: space-between; letter-spacing: 0.5px; }
-    .agente-banner-unidade { background: #0E7490; color: #fff; font-size: 12px; font-weight: 700; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; letter-spacing: 0.5px; }
+    /* Switch de Visualização: Inteligente vs Tabela Completa */
+    .agente-view-toggle { display: inline-flex; align-items: center; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
+    .agente-view-btn { padding: 6px 12px; border-radius: 6px; font-size: 11.5px; font-weight: 600; cursor: pointer; border: none; background: transparent; color: var(--text-2); transition: all .15s; display: inline-flex; align-items: center; gap: 4px; }
+    .agente-view-btn.active { background: #fff; color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight: 700; }
 
-    /* Tabela Oficial Creabily (Fonte Arial, Cabeçalho Lilás Claro) */
-    .agente-table-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
-    .agente-table-wrapper { overflow-x: auto; max-height: 65vh; }
-    .agente-table { width: 100%; border-collapse: collapse; text-align: left; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
-    .agente-table th { background: #EDE9FE; color: #4C1D95; padding: 9px 10px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #DDD6FE; white-space: nowrap; }
-    .agente-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: middle; }
+    /* Header Moderno com Gradiente Elegante */
+    .agente-header-modern { background: linear-gradient(135deg, #2E1065 0%, #4C1D95 50%, #6B21A8 100%); color: #fff; padding: 12px 18px; border-radius: 12px 12px 0 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; box-shadow: 0 2px 8px rgba(76, 29, 149, 0.2); }
+    .agente-header-title { font-size: 13.5px; font-weight: 700; font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 8px; letter-spacing: 0.3px; }
+    .agente-header-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+    .agente-header-pill { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 3px 8px; border-radius: 6px; font-weight: 600; }
 
-    /* Cores de Validação Oficiais do Prompt Mestre */
-    .row-val-validado { background: #DCFCE7 !important; border-left: 4px solid #16A34A !important; }
-    .row-val-pendente { background: #FEF3C7 !important; border-left: 4px solid #F59E0B !important; }
-    .row-val-falta { background: #FFFFFF !important; border-left: 4px solid #9CA3AF !important; }
-    .row-val-noshow { background: #FEE2E2 !important; border-left: 4px solid #DC2626 !important; }
-    .row-val-cancelado { background: #FFEDD5 !important; border-left: 4px solid #F97316 !important; }
+    /* ========================================================
+       VISÃO INTELIGENTE (Ergonômica, Foco em Ação, Zero Scroll)
+       ======================================================== */
+    .agente-smart-container { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); }
+    .agente-smart-list { display: flex; flex-direction: column; gap: 6px; padding: 10px; max-height: 68vh; overflow-y: auto; }
+    .agente-smart-row { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; display: grid; grid-template-columns: 85px minmax(180px, 1.3fr) minmax(170px, 1fr) 110px minmax(210px, 220px) minmax(120px, 0.9fr); align-items: center; gap: 12px; transition: transform .12s, box-shadow .12s; }
+    .agente-smart-row:hover { box-shadow: 0 3px 8px rgba(0,0,0,0.04); transform: translateX(2px); }
 
-    /* Botões Táteis de Validação em 1 Toque (Coluna M) */
+    /* Indicadores Sutis de Borda Lateral (60-30-10) */
+    .agente-smart-row.row-val-validado, .agente-table tr.row-val-validado { border-left: 4px solid #10B981 !important; background: rgba(16, 185, 129, 0.03) !important; }
+    .agente-smart-row.row-val-pendente, .agente-table tr.row-val-pendente { border-left: 4px solid #F59E0B !important; background: rgba(245, 158, 11, 0.03) !important; }
+    .agente-smart-row.row-val-falta, .agente-table tr.row-val-falta { border-left: 4px solid #9CA3AF !important; background: #FFFFFF !important; }
+    .agente-smart-row.row-val-noshow, .agente-table tr.row-val-noshow { border-left: 4px solid #EF4444 !important; background: rgba(239, 68, 68, 0.03) !important; }
+    .agente-smart-row.row-val-cancelado, .agente-table tr.row-val-cancelado { border-left: 4px solid #F97316 !important; background: rgba(249, 115, 22, 0.03) !important; }
+
+    /* Células da Visão Inteligente */
+    .smart-cell-time { display: flex; flex-direction: column; gap: 2px; }
+    .smart-time-val { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 13.5px; font-weight: 700; color: var(--text); }
+    .smart-date-sub { font-size: 10.5px; color: var(--text-3); font-weight: 600; }
+
+    .smart-cell-patient { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .smart-patient-name { font-size: 13.5px; font-weight: 700; color: var(--text); font-family: 'Outfit', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .smart-patient-sub { font-size: 11px; color: var(--text-3); display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .smart-cell-convenio { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .smart-conv-badge { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; background: var(--surface-subtle); border: 1px solid var(--line); color: var(--text); width: fit-content; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .smart-serv-sub { font-size: 11px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .smart-cell-session { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+    .smart-session-badge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 6px; background: #EDE9FE; color: #4C1D95; font-family: 'Outfit', sans-serif; }
+
+    .smart-cell-validation { display: flex; flex-direction: column; gap: 5px; }
+    .smart-val-status { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; }
+
+    /* Botões Táteis de Validação em 1 Toque */
     .agente-val-group { display: inline-flex; align-items: center; gap: 4px; }
-    .btn-val { height: 26px; padding: 0 7px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all .12s; display: inline-flex; align-items: center; gap: 3px; }
-    .btn-val-ok { background: #16A34A; color: #fff; }
-    .btn-val-ok:hover { background: #15803D; }
-    .btn-val-ok.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #16A34A; }
-    .btn-val-pendente { background: #F59E0B; color: #fff; }
-    .btn-val-pendente:hover { background: #D97706; }
+    .btn-val { height: 26px; padding: 0 8px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all .12s; display: inline-flex; align-items: center; gap: 3px; }
+    .btn-val:hover { transform: translateY(-1px); }
+    .btn-val-ok { background: #10B981; color: #fff; }
+    .btn-val-ok:hover { background: #059669; }
+    .btn-val-ok.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #10B981; }
     .btn-val-falta { background: #fff; color: #4B5563; border-color: #D1D5DB; }
     .btn-val-falta:hover { background: #F3F4F6; }
-    .btn-val-noshow { background: #DC2626; color: #fff; }
-    .btn-val-noshow:hover { background: #B91C1C; }
+    .btn-val-noshow { background: #EF4444; color: #fff; }
+    .btn-val-noshow:hover { background: #DC2626; }
 
-    .agente-obs-input { width: 100%; min-width: 140px; height: 26px; padding: 0 6px; font-size: 11px; border: 1px solid transparent; background: transparent; border-radius: 4px; font-family: Arial, sans-serif; }
-    .agente-obs-input:focus, .agente-obs-input:hover { border-color: var(--line-strong); background: var(--surface); }
+    .agente-obs-input { width: 100%; height: 28px; padding: 0 8px; font-size: 11.5px; border: 1px solid var(--line); background: var(--surface-subtle); border-radius: 6px; font-family: inherit; color: var(--text); outline: none; transition: all .15s; }
+    .agente-obs-input:focus { border-color: #6b308b; background: #fff; box-shadow: 0 0 0 2px rgba(107, 48, 139, 0.1); }
 
-    /* Alertas Clínicos (Coluna K) */
-    .alerta-nps { display: inline-block; background: #DBEAFE; color: #1E40AF; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10.5px; }
-    .alerta-primeira-sessao { display: inline-block; background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10.5px; }
-    .alerta-fim-ciclo { display: inline-block; background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10.5px; }
+    /* Alertas Clínicos Modernos */
+    .alerta-nps { display: inline-flex; align-items: center; gap: 3px; background: #DBEAFE; color: #1E40AF; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-size: 10.5px; border: 1px solid #BFDBFE; }
+    .alerta-primeira-sessao { display: inline-flex; align-items: center; gap: 3px; background: #FEF3C7; color: #92400E; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-size: 10.5px; border: 1px solid #FDE68A; }
+    .alerta-fim-ciclo { display: inline-flex; align-items: center; gap: 3px; background: #FEE2E2; color: #991B1B; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-size: 10.5px; border: 1px solid #FECACA; }
 
-    .agente-table-foot { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; border-top: 1px solid var(--line); background: var(--surface-subtle); flex-wrap: wrap; gap: 10px; font-size: 12px; }
+    /* Tabela Clássica Refatorada (para quem escolher Visão Completa A:N) */
+    .agente-table-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-sm); overflow: hidden; }
+    .agente-table-wrapper { overflow-x: auto; max-height: 65vh; }
+    .agente-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+    .agente-table th { background: #F5F3FF; color: #4C1D95; padding: 10px 10px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #DDD6FE; white-space: nowrap; font-family: 'Outfit', sans-serif; }
+    .agente-table td { padding: 9px 10px; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: middle; }
+
+    .agente-table-foot { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid var(--line); background: var(--surface-subtle); flex-wrap: wrap; gap: 10px; font-size: 12px; }
     .agente-pagination { display: flex; align-items: center; gap: 5px; }
-    .btn-page { height: 28px; padding: 0 9px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 11.5px; font-weight: 600; cursor: pointer; }
+    .btn-page { height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .15s; }
     .btn-page:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-page:not(:disabled):hover { background: var(--surface-subtle); border-color: #6b308b; color: #6b308b; }
 
@@ -491,7 +525,7 @@
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
     .modal-box-lg { background: var(--surface); border-radius: 14px; width: 100%; max-width: 620px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid var(--line); }
     .modal-header { padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; background: var(--surface-subtle); }
-    .modal-title { font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; font-family: 'Outfit', sans-serif; }
     .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-3); }
     .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
     .dropzone { border: 2px dashed #6b308b; border-radius: 12px; padding: 32px 20px; text-align: center; background: #FAF5FF; cursor: pointer; transition: all .2s; }
@@ -818,6 +852,7 @@
     let agenteSearchQuery = '';
     let agenteCurrentPage = 1;
     const AGENTE_PAGE_SIZE = 50;
+    let agenteViewMode = 'smart'; // 'smart' (ergonômica sem scroll lateral) ou 'table' (completa A:N)
     let view = 'today';
     let boardFilter = 'active'; // 'active', 'all', 'cold'
     let unit = 'all';
@@ -2145,6 +2180,11 @@
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    function setAgenteViewMode(mode) {
+      agenteViewMode = mode;
+      renderAgenteView();
+    }
+
     // Modal de Importação de Arquivos do Ágil (XLSX / CSV)
     function openAgenteImportModal() {
       const modalRoot = document.getElementById('modal-root');
@@ -2446,11 +2486,28 @@
       };
 
       const getAlertBadge = (alerta) => {
-        if (!alerta) return '—';
-        if (alerta.includes('NPS')) return `<span class="alerta-nps">${esc(alerta)}</span>`;
-        if (alerta.includes('1ª SESSÃO')) return `<span class="alerta-primeira-sessao">${esc(alerta)}</span>`;
-        if (alerta.includes('ALERTA FINAL') || alerta.includes('MEDSENIOR')) return `<span class="alerta-fim-ciclo">${esc(alerta)}</span>`;
-        return `<span style="font-size:11px; color:var(--text-2);">${esc(alerta)}</span>`;
+        if (!alerta) return '';
+        if (alerta.includes('NPS')) return `<span class="alerta-nps">⭐ ${esc(alerta)}</span>`;
+        if (alerta.includes('1ª SESSÃO')) return `<span class="alerta-primeira-sessao">⚠️ ${esc(alerta)}</span>`;
+        if (alerta.includes('ALERTA FINAL') || alerta.includes('MEDSENIOR')) return `<span class="alerta-fim-ciclo">🔔 ${esc(alerta)}</span>`;
+        return `<span style="font-size:11px; color:var(--text-2); font-weight:600;">${esc(alerta)}</span>`;
+      };
+
+      const getValStatusBadge = (r) => {
+        const val = (r.validacao || 'Pendente').trim();
+        if (val === 'Validado' || val === 'Finalizado') {
+          return '<span style="color:#059669; font-weight:700;">🟢 Validado</span>';
+        }
+        if (val === 'Falta Justificada') {
+          return '<span style="color:#64748B; font-weight:700;">⚪ Falta Justificada</span>';
+        }
+        if (val.includes('Não compareceu') || val.includes('nao compareceu')) {
+          return '<span style="color:#DC2626; font-weight:700;">🔴 Não Compareceu</span>';
+        }
+        if (val.includes('Cancelado')) {
+          return '<span style="color:#EA580C; font-weight:700;">🟠 Cancelado</span>';
+        }
+        return '<span style="color:#D97706; font-weight:700;">⏳ Pendente</span>';
       };
 
       container.innerHTML = `
@@ -2543,7 +2600,7 @@
 
           <div id="agente-table-anchor"></div>
 
-          <!-- BARRA DE FILTROS & BUSCA RÁPIDA -->
+          <!-- BARRA DE FILTROS & BUSCA RÁPIDA & SELETOR DE MODO -->
           <div class="agente-filter-bar">
             <input type="text" class="agente-search-input" placeholder="🔍 Buscar por paciente, profissional, especialidade, procedimento, observação..." value="${esc(agenteSearchQuery)}" oninput="onAgenteSearch(this.value)">
 
@@ -2561,92 +2618,195 @@
               <option value="nao_compareceu" ${agenteStatusFilter === 'nao_compareceu' ? 'selected' : ''}>🔴 Não Compareceu</option>
               <option value="cancelado" ${agenteStatusFilter === 'cancelado' ? 'selected' : ''}>🟠 Cancelado / Desmarcado</option>
             </select>
+
+            <div class="agente-view-toggle">
+              <button class="agente-view-btn ${agenteViewMode === 'smart' ? 'active' : ''}" onclick="setAgenteViewMode('smart')" title="Visualização moderna sem barra de rolagem horizontal">
+                ⚡ Visão Inteligente
+              </button>
+              <button class="agente-view-btn ${agenteViewMode === 'table' ? 'active' : ''}" onclick="setAgenteViewMode('table')" title="Tabela clássica completa A:N">
+                📋 Tabela A:N
+              </button>
+            </div>
           </div>
 
-          <!-- TABELA OFICIAL (COLUNAS A:N) -->
-          <div class="agente-table-card">
-            <!-- BANNER DE IDENTIFICAÇÃO VISUAL -->
-            <div class="agente-banner-data">
-              <span>📅 DATA: ${agenteDayFilter === 'all' ? 'OUTUBRO DE 2026' : agenteDayFilter}</span>
-              <span>CONVÊNIO: ${agenteConvenioFilter === 'all' ? 'TODOS OS CONVÊNIOS' : esc(agenteConvenioFilter).toUpperCase()}</span>
+          <!-- BANNER MODERNO DE IDENTIFICAÇÃO VISUAL -->
+          <div class="agente-header-modern">
+            <div class="agente-header-title">
+              <span>📅 ${agenteDayFilter === 'all' ? 'OUTUBRO DE 2026' : agenteDayFilter}</span>
+              <span style="opacity:0.4;">•</span>
+              <span class="agente-header-pill">${agenteConvenioFilter === 'all' ? 'TODOS OS CONVÊNIOS' : esc(agenteConvenioFilter).toUpperCase()}</span>
+              ${agenteUnitFilter !== 'all' ? `<span class="agente-header-pill">${agenteUnitFilter === 'paulista' ? '🏙️ AV. PAULISTA' : '🌿 GRANJA VIANA'}</span>` : ''}
             </div>
+            <div class="agente-header-meta">
+              <span>Mostrando <b>${rows.length}</b> de <b>${totalFiltered.toLocaleString('pt-BR')}</b></span>
+            </div>
+          </div>
 
-            <div class="agente-table-wrapper">
-              <table class="agente-table">
-                <thead>
-                  <tr>
-                    <th style="width:85px;">Data</th>
-                    <th>Paciente (A–Z)</th>
-                    <th style="width:75px;">Horário</th>
-                    <th style="width:110px;">Status Ágil</th>
-                    <th>Profissional</th>
-                    <th>Especialidade</th>
-                    <th>Procedimento</th>
-                    <th style="width:65px;">Sessão</th>
-                    <th style="width:90px;">Carteirinha</th>
-                    <th style="width:80px;">Guia</th>
-                    <th>Ação / Lembrete</th>
-                    <th style="width:90px;">Situação</th>
-                    <th style="width:170px;">Validação (1 Toque)</th>
-                    <th style="width:180px;">Observação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rows.length ? rows.map(r => `
-                    <tr class="${getRowClass(r)}">
-                      <td style="font-weight:700; white-space:nowrap;">${esc(r.data)}</td>
-                      <td style="font-weight:700; color:var(--text); white-space:nowrap;">
-                        ${esc(r.paciente)}
-                        <div style="font-size:10px; font-weight:500; color:var(--text-3); margin-top:1px;">
-                          ${r.unidade === 'PAULISTA' ? '🏙️ Paulista' : '🌿 Granja'} • ${esc(r.convenio)}
-                        </div>
-                      </td>
-                      <td style="font-family:monospace; font-weight:600;">${esc(r.horario)}</td>
-                      <td style="font-size:11px;">${esc(r.status_agil)}</td>
-                      <td style="font-size:11px; white-space:nowrap;">${esc(r.profissional || '—')}</td>
-                      <td style="font-size:11px;">${esc(r.especialidade || '—')}</td>
-                      <td style="font-size:11px;">${esc(r.procedimento || '—')}</td>
-                      <td style="font-weight:700; text-align:center;">${esc(r.sessao || '—')}</td>
-                      <td style="font-size:11px; font-family:monospace;">${esc(r.cpf_carteirinha || '—')}</td>
-                      <td style="font-size:11px; font-family:monospace;">${esc(r.guia || '—')}</td>
-                      <td>${getAlertBadge(r.acao_lembrete)}</td>
-                      <td style="font-size:11px; font-weight:600;">${esc(r.situacao || '—')}</td>
-                      <td>
-                        <div class="agente-val-group">
-                          <button class="btn-val btn-val-ok ${r.validacao === 'Finalizado' || r.validacao === 'Validado' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado')" title="Validar Atendimento">✓ Validar</button>
-                          <button class="btn-val btn-val-falta ${r.validacao === 'Falta Justificada' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Falta Justificada')" title="Falta Justificada">⚪ Falta</button>
-                          <button class="btn-val btn-val-noshow ${r.validacao && r.validacao.includes('Não compareceu') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Não compareceu')" title="Não Compareceu">✕ Ausência</button>
-                        </div>
-                      </td>
-                      <td>
-                        <input class="agente-obs-input" type="text" placeholder="Adicionar nota..." value="${esc(r.observacao || '')}" onchange="saveAgenteObservation('${r.id}', this.value)">
-                      </td>
-                    </tr>
-                  `).join('') : `
+          <!-- CORPO DE EXIBIÇÃO: VISÃO INTELIGENTE OU TABELA CLÁSSICA -->
+          ${agenteViewMode === 'smart' ? `
+            <div class="agente-smart-container">
+              <div style="background: var(--surface-subtle); border-bottom: 1px solid var(--line); padding: 9px 14px; display: grid; grid-template-columns: 85px minmax(180px, 1.3fr) minmax(170px, 1fr) 110px minmax(210px, 220px) minmax(120px, 0.9fr); gap: 12px; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px;">
+                <div>Horário</div>
+                <div>Paciente & Documento</div>
+                <div>Convênio & Atendimento</div>
+                <div>Ciclo & Alertas</div>
+                <div>Validação (1 Toque)</div>
+                <div>Observação</div>
+              </div>
+
+              <div class="agente-smart-list">
+                ${rows.length ? rows.map(r => `
+                  <div class="agente-smart-row ${getRowClass(r)}">
+                    <!-- HORÁRIO & DATA -->
+                    <div class="smart-cell-time">
+                      <span class="smart-time-val">${esc(r.horario || '—')}</span>
+                      <span class="smart-date-sub">${esc(r.data ? r.data.substring(0, 5) : '')}</span>
+                    </div>
+
+                    <!-- PACIENTE & IDENTIFICAÇÃO -->
+                    <div class="smart-cell-patient">
+                      <div class="smart-patient-name" title="${esc(r.paciente)}">${esc(r.paciente)}</div>
+                      <div class="smart-patient-sub">
+                        <span style="font-weight:700; color:${r.unidade === 'PAULISTA' ? '#6b308b' : '#0E7490'};">
+                          ${r.unidade === 'PAULISTA' ? '🏙️ Paulista' : '🌿 Granja'}
+                        </span>
+                        ${r.guia ? `<span>• Guia: <b style="font-family:monospace;">${esc(r.guia)}</b></span>` : ''}
+                        ${r.cpf_carteirinha ? `<span>• Doc: <b style="font-family:monospace;">${esc(r.cpf_carteirinha)}</b></span>` : ''}
+                      </div>
+                    </div>
+
+                    <!-- CONVÊNIO & ATENDIMENTO -->
+                    <div class="smart-cell-convenio">
+                      <div class="smart-conv-badge" title="${esc(r.convenio)}">${esc(r.convenio)}</div>
+                      <div class="smart-serv-sub" title="${esc(r.especialidade || '')} • ${esc(r.procedimento || '')}">
+                        <b>${esc(r.especialidade || 'Consulta')}</b> • ${esc(r.profissional ? r.profissional.split(' ')[0] : '—')}
+                      </div>
+                    </div>
+
+                    <!-- SESSÃO & ALERTAS -->
+                    <div class="smart-cell-session">
+                      <span class="smart-session-badge">Sessão ${esc(r.sessao || '—')}</span>
+                      ${r.acao_lembrete ? getAlertBadge(r.acao_lembrete) : ''}
+                    </div>
+
+                    <!-- VALIDAÇÃO 1 TOQUE -->
+                    <div class="smart-cell-validation">
+                      <div class="smart-val-status">
+                        ${getValStatusBadge(r)}
+                      </div>
+                      <div class="agente-val-group">
+                        <button class="btn-val btn-val-ok ${r.validacao === 'Finalizado' || r.validacao === 'Validado' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado')" title="Validar Atendimento">✓ Validar</button>
+                        <button class="btn-val btn-val-falta ${r.validacao === 'Falta Justificada' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Falta Justificada')" title="Falta Justificada">⚪ Falta</button>
+                        <button class="btn-val btn-val-noshow ${r.validacao && r.validacao.includes('Não compareceu') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Não compareceu')" title="Não Compareceu">✕ Ausência</button>
+                      </div>
+                    </div>
+
+                    <!-- OBSERVAÇÃO -->
+                    <div>
+                      <input class="agente-obs-input" type="text" placeholder="Nota..." value="${esc(r.observacao || '')}" onchange="saveAgenteObservation('${r.id}', this.value)">
+                    </div>
+                  </div>
+                `).join('') : `
+                  <div style="text-align:center; padding:40px 20px; color:var(--text-3);">
+                    Nenhum atendimento encontrado com os filtros selecionados.
+                  </div>
+                `}
+              </div>
+
+              <!-- RODAPÉ & PAGINAÇÃO -->
+              <div class="agente-table-foot">
+                <div style="color:var(--text-2);">
+                  Mostrando página <b>${agenteCurrentPage}</b> de <b>${totalPages}</b> (Total de <b>${totalFiltered.toLocaleString('pt-BR')}</b> atendimentos auditados no Supabase)
+                </div>
+                <div class="agente-pagination">
+                  <button class="btn-page" onclick="setAgentePage(1)" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>« Primeiro</button>
+                  <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage - 1})" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>‹ Anterior</button>
+                  <span style="padding:0 8px; font-weight:700; color:var(--text); font-size:11.5px;">${agenteCurrentPage} / ${totalPages}</span>
+                  <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage + 1})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Próxima ›</button>
+                  <button class="btn-page" onclick="setAgentePage(${totalPages})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Última »</button>
+                </div>
+              </div>
+            </div>
+          ` : `
+            <div class="agente-table-card">
+              <div class="agente-table-wrapper">
+                <table class="agente-table">
+                  <thead>
                     <tr>
-                      <td colspan="14" style="text-align:center; padding:40px 20px; color:var(--text-3);">
-                        Nenhum atendimento encontrado com os filtros selecionados.
-                      </td>
+                      <th style="width:85px;">Data</th>
+                      <th>Paciente (A–Z)</th>
+                      <th style="width:75px;">Horário</th>
+                      <th style="width:110px;">Status Ágil</th>
+                      <th>Profissional</th>
+                      <th>Especialidade</th>
+                      <th>Procedimento</th>
+                      <th style="width:65px;">Sessão</th>
+                      <th style="width:90px;">Carteirinha</th>
+                      <th style="width:80px;">Guia</th>
+                      <th>Ação / Lembrete</th>
+                      <th style="width:90px;">Situação</th>
+                      <th style="width:170px;">Validação (1 Toque)</th>
+                      <th style="width:180px;">Observação</th>
                     </tr>
-                  `}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    ${rows.length ? rows.map(r => `
+                      <tr class="${getRowClass(r)}">
+                        <td style="font-weight:700; white-space:nowrap;">${esc(r.data)}</td>
+                        <td style="font-weight:700; color:var(--text); white-space:nowrap;">
+                          ${esc(r.paciente)}
+                          <div style="font-size:10px; font-weight:500; color:var(--text-3); margin-top:1px;">
+                            ${r.unidade === 'PAULISTA' ? '🏙️ Paulista' : '🌿 Granja'} • ${esc(r.convenio)}
+                          </div>
+                        </td>
+                        <td style="font-family:monospace; font-weight:600;">${esc(r.horario)}</td>
+                        <td style="font-size:11px;">${esc(r.status_agil)}</td>
+                        <td style="font-size:11px; white-space:nowrap;">${esc(r.profissional || '—')}</td>
+                        <td style="font-size:11px;">${esc(r.especialidade || '—')}</td>
+                        <td style="font-size:11px;">${esc(r.procedimento || '—')}</td>
+                        <td style="font-weight:700; text-align:center;">${esc(r.sessao || '—')}</td>
+                        <td style="font-size:11px; font-family:monospace;">${esc(r.cpf_carteirinha || '—')}</td>
+                        <td style="font-size:11px; font-family:monospace;">${esc(r.guia || '—')}</td>
+                        <td>${getAlertBadge(r.acao_lembrete)}</td>
+                        <td style="font-size:11px; font-weight:600;">${esc(r.situacao || '—')}</td>
+                        <td>
+                          <div class="agente-val-group">
+                            <button class="btn-val btn-val-ok ${r.validacao === 'Finalizado' || r.validacao === 'Validado' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado')" title="Validar Atendimento">✓ Validar</button>
+                            <button class="btn-val btn-val-falta ${r.validacao === 'Falta Justificada' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Falta Justificada')" title="Falta Justificada">⚪ Falta</button>
+                            <button class="btn-val btn-val-noshow ${r.validacao && r.validacao.includes('Não compareceu') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Não compareceu')" title="Não Compareceu">✕ Ausência</button>
+                          </div>
+                        </td>
+                        <td>
+                          <input class="agente-obs-input" type="text" placeholder="Adicionar nota..." value="${esc(r.observacao || '')}" onchange="saveAgenteObservation('${r.id}', this.value)">
+                        </td>
+                      </tr>
+                    `).join('') : `
+                      <tr>
+                        <td colspan="14" style="text-align:center; padding:40px 20px; color:var(--text-3);">
+                          Nenhum atendimento encontrado com os filtros selecionados.
+                        </td>
+                      </tr>
+                    `}
+                  </tbody>
+                </table>
+              </div>
 
-            <!-- RODAPÉ & PAGINAÇÃO -->
-            <div class="agente-table-foot">
-              <div style="color:var(--text-2);">
-                Mostrando página <b>${agenteCurrentPage}</b> de <b>${totalPages}</b> (Total de <b>${totalFiltered.toLocaleString('pt-BR')}</b> atendimentos auditados no Supabase)
-              </div>
-              <div class="agente-pagination">
-                <button class="btn-page" onclick="setAgentePage(1)" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>« Primeiro</button>
-                <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage - 1})" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>‹ Anterior</button>
-                <span style="padding:0 8px; font-weight:700; color:var(--text); font-size:11.5px;">${agenteCurrentPage} / ${totalPages}</span>
-                <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage + 1})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Próxima ›</button>
-                <button class="btn-page" onclick="setAgentePage(${totalPages})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Última »</button>
+              <!-- RODAPÉ & PAGINAÇÃO -->
+              <div class="agente-table-foot">
+                <div style="color:var(--text-2);">
+                  Mostrando página <b>${agenteCurrentPage}</b> de <b>${totalPages}</b> (Total de <b>${totalFiltered.toLocaleString('pt-BR')}</b> atendimentos auditados no Supabase)
+                </div>
+                <div class="agente-pagination">
+                  <button class="btn-page" onclick="setAgentePage(1)" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>« Primeiro</button>
+                  <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage - 1})" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>‹ Anterior</button>
+                  <span style="padding:0 8px; font-weight:700; color:var(--text); font-size:11.5px;">${agenteCurrentPage} / ${totalPages}</span>
+                  <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage + 1})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Próxima ›</button>
+                  <button class="btn-page" onclick="setAgentePage(${totalPages})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Última »</button>
+                </div>
               </div>
             </div>
-          </div>
+          `}
+        </div>
         </div>
       `;
     }
