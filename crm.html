@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
       --brand: #6b308b;
@@ -396,58 +397,109 @@
     .btn-nps-wa:hover { background: #178a48; }
 
     /* ---------- Agente Outubro Consolidado ---------- */
-    .agente-container { display: flex; flex-direction: column; gap: 18px; }
+    .agente-container { display: flex; flex-direction: column; gap: 16px; }
     .agente-hero { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow-sm); }
     .agente-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
     .agente-live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: rgba(16, 185, 129, 0.12); color: #059669; font-size: 12px; font-weight: 700; }
     .agente-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3); animation: pulseDot 2s infinite; }
     @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
     .agente-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .btn-agente { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; border: 1px solid var(--line); background: var(--surface); color: var(--text); text-decoration: none; }
+    .btn-agente { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; border: 1px solid var(--line); background: var(--surface); color: var(--text); text-decoration: none; }
     .btn-agente:hover { background: var(--surface-subtle); border-color: var(--line-strong); }
-    .btn-agente-primary { background: #4F46E5; color: #fff; border-color: #4F46E5; }
-    .btn-agente-primary:hover { background: #4338CA; border-color: #4338CA; }
-    .btn-agente-sheets { background: #0F9D58; color: #fff; border-color: #0F9D58; }
-    .btn-agente-sheets:hover { background: #0B8043; border-color: #0B8043; }
+    .btn-agente-primary { background: #6b308b; color: #fff; border-color: #6b308b; }
+    .btn-agente-primary:hover { background: #5a2775; border-color: #5a2775; }
+    .btn-agente-import { background: #0E7490; color: #fff; border-color: #0E7490; }
+    .btn-agente-import:hover { background: #155E75; border-color: #155E75; }
+    .btn-agente-sheets { background: #059669; color: #fff; border-color: #059669; }
+    .btn-agente-sheets:hover { background: #047857; border-color: #047857; }
 
-    .agente-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
-    @media (max-width: 1100px) { .agente-kpis { grid-template-columns: repeat(3, 1fr); } }
+    .agente-kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+    @media (max-width: 1200px) { .agente-kpis { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 700px) { .agente-kpis { grid-template-columns: 1fr 1fr; } }
-    .agente-kpi-card { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
-    .agente-kpi-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.5px; }
-    .agente-kpi-value { font-size: 24px; font-weight: 800; color: var(--text); font-family: 'Outfit', sans-serif; line-height: 1.1; }
-    .agente-kpi-sub { font-size: 11.5px; color: var(--text-3); margin-top: 2px; }
+    .agente-kpi-card { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .agente-kpi-title { font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.5px; }
+    .agente-kpi-value { font-size: 22px; font-weight: 800; color: var(--text); font-family: 'Outfit', sans-serif; line-height: 1.1; }
+    .agente-kpi-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-    .agente-days-bar { display: flex; gap: 6px; overflow-x: auto; padding: 10px 0 2px; }
-    .agente-day-chip { flex-shrink: 0; padding: 5px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .15s; }
-    .agente-day-chip:hover { border-color: #4F46E5; color: #4F46E5; }
-    .agente-day-chip.active { background: #4F46E5; color: #fff; border-color: #4F46E5; }
+    /* Barra de Convênios Oficiais */
+    .agente-convenio-bar { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px; scrollbar-width: thin; }
+    .agente-conv-pill { flex-shrink: 0; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+    .agente-conv-pill:hover { border-color: #6b308b; color: #6b308b; }
+    .agente-conv-pill.active { background: #6b308b; color: #fff; border-color: #6b308b; }
+    .agente-conv-pill .count { font-size: 10px; padding: 1px 6px; border-radius: 999px; background: rgba(0,0,0,0.08); font-weight: 700; }
+    .agente-conv-pill.active .count { background: rgba(255,255,255,0.25); color: #fff; }
 
-    .agente-filter-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
-    .agente-filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .agente-select { height: 35px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 12px; font-weight: 500; outline: none; }
-    .agente-select:focus { border-color: #4F46E5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15); }
-    .agente-search-box { position: relative; min-width: 220px; flex: 1; max-width: 360px; }
-    .agente-search-box input { width: 100%; height: 35px; padding: 0 12px 0 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 12px; }
-    .agente-search-box span { position: absolute; left: 10px; top: 9px; color: var(--text-3); pointer-events: none; }
+    /* Barra de Dias */
+    .agente-days-bar { display: flex; gap: 6px; overflow-x: auto; padding: 6px 0; }
+    .agente-day-chip { flex-shrink: 0; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .agente-day-chip:hover { border-color: #0E7490; color: #0E7490; }
+    .agente-day-chip.active { background: #0E7490; color: #fff; border-color: #0E7490; }
 
+    /* Filtros & Busca */
+    .agente-filter-bar { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .agente-search-input { flex: 1; min-width: 220px; height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-subtle); color: var(--text); font-size: 12px; outline: none; }
+    .agente-search-input:focus { border-color: #6b308b; background: #fff; }
+    .agente-filter-select { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 12px; font-weight: 500; outline: none; }
+    .agente-filter-select:focus { border-color: #6b308b; }
+
+    /* Banners de Seção Oficiais (Roxo da Data & Turquesa da Unidade) */
+    .agente-banner-data { background: #581C87; color: #fff; font-size: 13px; font-weight: 700; padding: 10px 16px; border-radius: 8px 8px 0 0; display: flex; align-items: center; justify-content: space-between; letter-spacing: 0.5px; }
+    .agente-banner-unidade { background: #0E7490; color: #fff; font-size: 12px; font-weight: 700; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; letter-spacing: 0.5px; }
+
+    /* Tabela Oficial Creabily (Fonte Arial, Cabeçalho Lilás Claro) */
     .agente-table-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
-    .agente-table-wrapper { overflow-x: auto; max-height: 60vh; }
-    .agente-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px; }
-    .agente-table th { background: var(--surface-subtle); padding: 11px 13px; font-weight: 700; color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line); }
-    .agente-table td { padding: 10px 13px; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: middle; }
-    .agente-table tr:hover td { background: rgba(79, 70, 229, 0.03); }
-    .badge-unit-paulista { background: rgba(59, 130, 246, 0.12); color: #1D4ED8; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; }
-    .badge-unit-granja { background: rgba(16, 185, 129, 0.12); color: #047857; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; }
-    .badge-status-finalizado { background: rgba(16, 185, 129, 0.12); color: #065F46; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; display: inline-flex; align-items: center; gap: 4px; }
-    .badge-status-pendente { background: rgba(245, 158, 11, 0.12); color: #92400E; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; display: inline-flex; align-items: center; gap: 4px; }
-    .badge-status-falta { background: rgba(239, 68, 68, 0.12); color: #991B1B; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; display: inline-flex; align-items: center; gap: 4px; }
+    .agente-table-wrapper { overflow-x: auto; max-height: 65vh; }
+    .agente-table { width: 100%; border-collapse: collapse; text-align: left; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+    .agente-table th { background: #EDE9FE; color: #4C1D95; padding: 9px 10px; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #DDD6FE; white-space: nowrap; }
+    .agente-table td { padding: 8px 10px; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: middle; }
 
-    .agente-table-foot { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid var(--line); background: var(--surface-subtle); flex-wrap: wrap; gap: 10px; font-size: 12px; }
-    .agente-pagination { display: flex; align-items: center; gap: 6px; }
-    .btn-page { height: 30px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 11.5px; font-weight: 600; cursor: pointer; }
+    /* Cores de Validação Oficiais do Prompt Mestre */
+    .row-val-validado { background: #DCFCE7 !important; border-left: 4px solid #16A34A !important; }
+    .row-val-pendente { background: #FEF3C7 !important; border-left: 4px solid #F59E0B !important; }
+    .row-val-falta { background: #FFFFFF !important; border-left: 4px solid #9CA3AF !important; }
+    .row-val-noshow { background: #FEE2E2 !important; border-left: 4px solid #DC2626 !important; }
+    .row-val-cancelado { background: #FFEDD5 !important; border-left: 4px solid #F97316 !important; }
+
+    /* Botões Táteis de Validação em 1 Toque (Coluna M) */
+    .agente-val-group { display: inline-flex; align-items: center; gap: 4px; }
+    .btn-val { height: 26px; padding: 0 7px; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid transparent; transition: all .12s; display: inline-flex; align-items: center; gap: 3px; }
+    .btn-val-ok { background: #16A34A; color: #fff; }
+    .btn-val-ok:hover { background: #15803D; }
+    .btn-val-ok.active { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #16A34A; }
+    .btn-val-pendente { background: #F59E0B; color: #fff; }
+    .btn-val-pendente:hover { background: #D97706; }
+    .btn-val-falta { background: #fff; color: #4B5563; border-color: #D1D5DB; }
+    .btn-val-falta:hover { background: #F3F4F6; }
+    .btn-val-noshow { background: #DC2626; color: #fff; }
+    .btn-val-noshow:hover { background: #B91C1C; }
+
+    .agente-obs-input { width: 100%; min-width: 140px; height: 26px; padding: 0 6px; font-size: 11px; border: 1px solid transparent; background: transparent; border-radius: 4px; font-family: Arial, sans-serif; }
+    .agente-obs-input:focus, .agente-obs-input:hover { border-color: var(--line-strong); background: var(--surface); }
+
+    /* Alertas Clínicos (Coluna K) */
+    .alerta-nps { display: inline-block; background: #DBEAFE; color: #1E40AF; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10.5px; }
+    .alerta-primeira-sessao { display: inline-block; background: #FEF3C7; color: #92400E; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10.5px; }
+    .alerta-fim-ciclo { display: inline-block; background: #FEE2E2; color: #991B1B; padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 10.5px; }
+
+    .agente-table-foot { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; border-top: 1px solid var(--line); background: var(--surface-subtle); flex-wrap: wrap; gap: 10px; font-size: 12px; }
+    .agente-pagination { display: flex; align-items: center; gap: 5px; }
+    .btn-page { height: 28px; padding: 0 9px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 11.5px; font-weight: 600; cursor: pointer; }
     .btn-page:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-page:not(:disabled):hover { background: var(--surface-subtle); border-color: #4F46E5; color: #4F46E5; }
+    .btn-page:not(:disabled):hover { background: var(--surface-subtle); border-color: #6b308b; color: #6b308b; }
+
+    /* Modal de Importação Drag & Drop */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
+    .modal-box-lg { background: var(--surface); border-radius: 14px; width: 100%; max-width: 620px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); overflow: hidden; border: 1px solid var(--line); }
+    .modal-header { padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; background: var(--surface-subtle); }
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-3); }
+    .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+    .dropzone { border: 2px dashed #6b308b; border-radius: 12px; padding: 32px 20px; text-align: center; background: #FAF5FF; cursor: pointer; transition: all .2s; }
+    .dropzone:hover, .dropzone.dragover { background: #F3E8FF; border-color: #581C87; }
+    .dropzone-icon { font-size: 40px; margin-bottom: 8px; }
+    .dropzone-text { font-size: 14px; font-weight: 600; color: var(--text); }
+    .dropzone-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+    .preview-import { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; font-size: 12.5px; }
 
     /* ---------- Funil (kanban) ---------- */
     .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(180px, 1fr); gap: 14px; overflow-x: auto; padding-bottom: 12px; align-items: start; }
@@ -1139,7 +1191,7 @@
         recovery: ['Recuperador Ativo de Leads', 'Resgate imediato pós-quiz, retomada de turno e reaquecimento ativo'],
         cold: ['Perdidos & No-Show', 'Contatos frios e ausências prontos para o plano de reaquecimento'],
         nps: ['Satisfação & NPS da Creabily', 'Mural de avaliações, score de qualidade e direcionamento para o Google Maps'],
-        agente: ['Agente Creabily — Outubro 2026', 'Sincronização em tempo real da planilha de agendamentos, faltas e conferência'],
+        agente: ['Agente de Conferência Diária — Outubro 2026', 'Gestão, auditoria e validação administrativa integrada ao Supabase (PostgreSQL)'],
         b2b: ['Mentoria B2B', 'Aplicações para a mentoria']
       };
       const curTitle = titles[view] || titles.board;
@@ -1963,17 +2015,28 @@
     }
 
     // =========================================================
-    // Agente Creabily Outubro 2026 (Planilha Google Sheets Live)
+    // Agente de Conferência Diária Creabily — Outubro 2026 (Supabase PostgreSQL)
     // =========================================================
+    let agenteImportPendingRows = [];
+
     async function loadAgenteData(forceRefresh = false) {
       if (!sessionPassword) return;
       agenteLoading = true;
       if (view === 'agente') renderAgenteView();
       try {
-        const r = await api('get-agente-sheets', { forceRefresh });
+        const r = await api('agendamentos', {
+          action: 'list',
+          dataFilter: agenteDayFilter,
+          unidadeFilter: agenteUnitFilter,
+          convenioFilter: agenteConvenioFilter,
+          validacaoFilter: agenteStatusFilter,
+          search: agenteSearchQuery,
+          page: agenteCurrentPage,
+          limit: AGENTE_PAGE_SIZE
+        });
         if (r.ok && r.data) {
           agenteData = r.data;
-          const totalVal = (agenteData.kpis && agenteData.kpis.totalAgendamentos) || agenteData.totalRegistros || 0;
+          const totalVal = (agenteData.kpis && agenteData.kpis.totalAgendamentos) || agenteData.total || 0;
           const badge = document.getElementById('nav-agente');
           if (badge) badge.textContent = totalVal;
           const tabBadge = document.getElementById('tab-agente');
@@ -1981,57 +2044,362 @@
             tabBadge.textContent = totalVal;
             tabBadge.classList.toggle('hidden', !totalVal);
           }
-          if (forceRefresh) toast('Planilha sincronizada ao vivo com Google Sheets!');
+          if (forceRefresh) toast('Dados atualizados do Supabase!');
         } else {
           console.warn('Erro ao carregar dados do Agente:', r.error);
-          if (forceRefresh) toast(r.error || 'Erro ao sincronizar planilha', true);
+          if (forceRefresh) toast(r.error || 'Erro ao sincronizar', true);
         }
       } catch (e) {
         console.warn('Exceção ao carregar Agente:', e);
-        if (forceRefresh) toast('Falha de conexão com a planilha', true);
+        if (forceRefresh) toast('Falha de conexão com o banco de dados', true);
       } finally {
         agenteLoading = false;
         if (view === 'agente') renderAgenteView();
       }
     }
 
+    async function validateAgenteRow(id, validacao) {
+      if (!sessionPassword) return;
+      try {
+        const r = await api('agendamentos', {
+          action: 'validate',
+          id: id,
+          validacao: validacao,
+          validado_por: 'Camila (Coordenação)'
+        });
+        if (r.ok) {
+          if (agenteData && agenteData.rows) {
+            const row = agenteData.rows.find(x => String(x.id) === String(id));
+            if (row) {
+              row.validacao = validacao;
+              row.validado_por = 'Camila (Coordenação)';
+              row.validado_em = new Date().toISOString();
+            }
+          }
+          toast(`Validado: ${validacao}`);
+          renderAgenteView();
+        } else {
+          toast(r.error || 'Erro ao validar', true);
+        }
+      } catch (e) {
+        toast('Erro ao validar atendimento', true);
+      }
+    }
+
+    async function saveAgenteObservation(id, obs) {
+      if (!sessionPassword) return;
+      try {
+        const currentRow = (agenteData && agenteData.rows) ? agenteData.rows.find(x => String(x.id) === String(id)) : null;
+        await api('agendamentos', {
+          action: 'validate',
+          id: id,
+          validacao: currentRow ? currentRow.validacao : 'Pendente',
+          observacao: obs,
+          validado_por: 'Camila (Coordenação)'
+        });
+        if (currentRow) currentRow.observacao = obs;
+        toast('Observação salva no banco');
+      } catch (e) {
+        console.warn('Erro ao salvar observação:', e);
+      }
+    }
+
     function setAgenteUnitFilter(val) {
       agenteUnitFilter = val;
       agenteCurrentPage = 1;
-      renderAgenteView();
+      loadAgenteData();
     }
 
     function setAgenteConvenioFilter(val) {
       agenteConvenioFilter = val;
       agenteCurrentPage = 1;
-      renderAgenteView();
+      loadAgenteData();
     }
 
     function setAgenteStatusFilter(val) {
       agenteStatusFilter = val;
       agenteCurrentPage = 1;
-      renderAgenteView();
+      loadAgenteData();
     }
 
     function setAgenteDayFilter(val) {
       agenteDayFilter = val;
       agenteCurrentPage = 1;
-      renderAgenteView();
+      loadAgenteData();
     }
 
+    let _searchAgenteTimer = null;
     function onAgenteSearch(val) {
-      agenteSearchQuery = (val || '').toLowerCase().trim();
-      agenteCurrentPage = 1;
-      renderAgenteView();
+      agenteSearchQuery = val || '';
+      clearTimeout(_searchAgenteTimer);
+      _searchAgenteTimer = setTimeout(() => {
+        agenteCurrentPage = 1;
+        loadAgenteData();
+      }, 300);
     }
 
     function setAgentePage(p) {
       agenteCurrentPage = p;
-      renderAgenteView();
+      loadAgenteData();
       const el = document.getElementById('agente-table-anchor');
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    // Modal de Importação de Arquivos do Ágil (XLSX / CSV)
+    function openAgenteImportModal() {
+      const modalRoot = document.getElementById('modal-root');
+      if (!modalRoot) return;
+      agenteImportPendingRows = [];
+
+      modalRoot.innerHTML = `
+        <div class="modal-backdrop" id="import-modal-backdrop" onclick="if(event.target === this) closeAgenteImportModal()">
+          <div class="modal-box-lg">
+            <div class="modal-header">
+              <div class="modal-title">
+                ${ic('calendar', 'icon-sm')}
+                <span>Importar Relatório Diário do Ágil</span>
+              </div>
+              <button class="modal-close" onclick="closeAgenteImportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+              <p style="font-size:13px; color:var(--text-2); margin:0;">
+                Selecione ou arraste a planilha diária exportada do sistema Ágil (ex: <code>21-10-26.xlsx</code> ou <code>22-10-26.xlsx</code>). 
+                O sistema identificará automaticamente os atendimentos, calculará os alertas clínicos e integrará ao Supabase preservando as validações anteriores.
+              </p>
+
+              <div class="dropzone" id="agente-dropzone" onclick="document.getElementById('agente-file-input').click()">
+                <div class="dropzone-icon">📥</div>
+                <div class="dropzone-text">Clique aqui ou arraste a planilha do Ágil (.xlsx ou .csv)</div>
+                <div class="dropzone-sub">Suporte a relatórios diários de atendimento e consolidados</div>
+                <input type="file" id="agente-file-input" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleAgilFileSelect(this.files[0])">
+              </div>
+
+              <div id="agente-import-preview" class="preview-import hidden"></div>
+
+              <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                <button class="btn btn-ghost" onclick="closeAgenteImportModal()">Cancelar</button>
+                <button class="btn btn-primary" id="btn-confirm-import" disabled onclick="submitAgilImport()">Confirmar Importação no Supabase</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const dz = document.getElementById('agente-dropzone');
+      dz.ondragover = (e) => { e.preventDefault(); dz.classList.add('dragover'); };
+      dz.ondragleave = () => dz.classList.remove('dragover');
+      dz.ondrop = (e) => {
+        e.preventDefault();
+        dz.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length) {
+          handleAgilFileSelect(e.dataTransfer.files[0]);
+        }
+      };
+    }
+
+    function closeAgenteImportModal() {
+      const modalRoot = document.getElementById('modal-root');
+      if (modalRoot) modalRoot.innerHTML = '';
+      agenteImportPendingRows = [];
+    }
+
+    function handleAgilFileSelect(file) {
+      if (!file) return;
+      if (typeof XLSX === 'undefined') {
+        alert('Biblioteca XLSX ainda carregando. Aguarde 2 segundos e tente novamente.');
+        return;
+      }
+
+      const preview = document.getElementById('agente-import-preview');
+      preview.classList.remove('hidden');
+      preview.innerHTML = `<div style="display:flex; align-items:center; gap:8px;">🔄 Lendo e processando <b>${esc(file.name)}</b>...</div>`;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array' });
+          const rowsToImport = [];
+          let detectedDate = '';
+          let countPaulista = 0;
+          let countGranja = 0;
+
+          // Percorrer todas as abas
+          for (const sheetName of wb.SheetNames) {
+            const ws = wb.Sheets[sheetName];
+            const rawRows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+            let curUnidade = '';
+            let curDate = '';
+
+            for (let i = 0; i < rawRows.length; i++) {
+              const r = rawRows[i];
+              if (!r || !r.length) continue;
+              const c0 = String(r[0] || '').trim();
+
+              if (c0.toUpperCase().startsWith('DATA ')) {
+                const m = c0.match(/\d{2}\/\d{2}\/\d{4}/);
+                if (m) { curDate = m[0]; if (!detectedDate) detectedDate = m[0]; }
+                continue;
+              }
+              if (c0.toUpperCase().includes('UNIDADE PAULISTA')) { curUnidade = 'PAULISTA'; continue; }
+              if (c0.toUpperCase().includes('UNIDADE GRANJA')) { curUnidade = 'GRANJA VIANA'; continue; }
+
+              // Cabeçalho
+              if (c0.toLowerCase() === 'data') continue;
+
+              // Linha com data DD/MM/AAAA
+              if (c0.match(/\d{2}\/\d{2}\/\d{4}/)) {
+                const paciente = String(r[1] || '').trim();
+                if (!paciente) continue;
+                const un = curUnidade || (c0.includes('GRANJA') ? 'GRANJA VIANA' : 'PAULISTA');
+                if (un === 'PAULISTA') countPaulista++; else countGranja++;
+                if (!detectedDate) detectedDate = c0;
+
+                rowsToImport.push({
+                  data: c0,
+                  paciente: paciente,
+                  horario: String(r[2] || '').trim(),
+                  status_agil: String(r[3] || '').trim(),
+                  profissional: String(r[4] || '').trim(),
+                  especialidade: String(r[5] || '').trim(),
+                  procedimento: String(r[6] || '').trim(),
+                  sessao: String(r[7] || '').trim(),
+                  cpf_carteirinha: String(r[8] || '').trim(),
+                  guia: String(r[9] || '').trim(),
+                  acao_lembrete: String(r[10] || '').trim(),
+                  situacao: String(r[11] || '').trim(),
+                  validacao: String(r[12] || 'Pendente').trim(),
+                  observacao: String(r[13] || '').trim(),
+                  unidade: un,
+                  convenio: sheetName.includes('BASE') || sheetName.includes('TOTAL') ? 'SEM CONVÊNIO' : sheetName
+                });
+              }
+            }
+          }
+
+          agenteImportPendingRows = rowsToImport;
+          const btnConfirm = document.getElementById('btn-confirm-import');
+
+          if (rowsToImport.length > 0) {
+            btnConfirm.disabled = false;
+            preview.innerHTML = `
+              <div style="color:#059669; font-weight:700; font-size:14px; margin-bottom:6px;">✓ Planilha processada com sucesso!</div>
+              <div><b>Arquivo:</b> ${esc(file.name)}</div>
+              <div><b>Data Identificada:</b> ${detectedDate || 'Várias datas'}</div>
+              <div><b>Total de Atendimentos:</b> ${rowsToImport.length}</div>
+              <div><b>Distribuição:</b> ${countPaulista} Unidade Paulista | ${countGranja} Unidade Granja Viana</div>
+              <div style="margin-top:8px; font-size:11.5px; color:var(--text-3);">
+                Ao confirmar, todos os agendamentos serão salvos no Supabase com integridade total de colunas A:N e alertas clínicos calculados.
+              </div>
+            `;
+          } else {
+            btnConfirm.disabled = true;
+            preview.innerHTML = `
+              <div style="color:#DC2626; font-weight:600;">Nenhum atendimento no formato reconhecido pelo Ágil foi encontrado na planilha.</div>
+              <div style="font-size:11.5px; color:var(--text-3); margin-top:4px;">Verifique se a primeira coluna contém as datas (DD/MM/AAAA) e a segunda os nomes dos pacientes.</div>
+            `;
+          }
+        } catch (err) {
+          preview.innerHTML = `<div style="color:#DC2626; font-weight:600;">Erro ao ler o arquivo: ${esc(err.message)}</div>`;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    async function submitAgilImport() {
+      if (!agenteImportPendingRows.length) return;
+      const btn = document.getElementById('btn-confirm-import');
+      btn.disabled = true;
+      btn.textContent = 'Gravando no Supabase...';
+
+      try {
+        const r = await api('agendamentos', {
+          action: 'import',
+          rows: agenteImportPendingRows,
+          loteNome: 'Upload_Manual_' + new Date().toISOString().substring(0, 10)
+        });
+
+        if (r.ok) {
+          toast(r.data.message || 'Importação realizada com sucesso!');
+          closeAgenteImportModal();
+          loadAgenteData(true);
+        } else {
+          toast(r.error || 'Erro na importação', true);
+          btn.disabled = false;
+          btn.textContent = 'Tentar Novamente';
+        }
+      } catch (e) {
+        toast('Erro de comunicação com o servidor', true);
+        btn.disabled = false;
+        btn.textContent = 'Tentar Novamente';
+      }
+    }
+
+    // Exportação Oficial em Excel (17 Abas)
+    async function exportAgenteExcel() {
+      if (typeof XLSX === 'undefined') {
+        toast('Biblioteca XLSX carregando...', true);
+        return;
+      }
+      toast('Gerando planilha oficial de auditoria...');
+
+      try {
+        const r = await api('agendamentos', { action: 'list', limit: 3000, page: 1 });
+        if (!r.ok || !r.data.rows) {
+          toast('Erro ao buscar dados para exportação', true);
+          return;
+        }
+
+        const wb = XLSX.utils.book_new();
+        const allRows = r.data.rows;
+
+        // Abas por Convênio
+        const convList = r.data.conveniosList || [
+          'Afresp Saúde', 'Amil Black, Amil One, Lincx', 'Care Plus', 'Medsenior',
+          'Omint Skill', 'Omint Premium', 'Convênio Creabily Especial',
+          'Creabily Particular', 'Omint Corporate', 'SEM CONVÊNIO', 'Total Pass'
+        ];
+
+        for (const cName of convList) {
+          const convRows = allRows.filter(x => x.convenio === cName);
+          const sheetData = [
+            [`${cName.toUpperCase()} — OUTUBRO 2026   |   🔤 A–Z   🕐 HORÁRIO   👤 PROFISSIONAL   📋 STATUS`],
+            [],
+            ['Data', 'Paciente', 'Horário', 'Status Ágil', 'Profissional', 'Especialidade', 'Procedimento', 'Sessão', 'CPF/Carteirinha', 'Guia', 'Ação / Lembrete', 'Situação', 'Validação', 'Observação']
+          ];
+
+          convRows.forEach(row => {
+            sheetData.push([
+              row.data, row.paciente, row.horario, row.status_agil, row.profissional,
+              row.especialidade, row.procedimento, row.sessao, row.cpf_carteirinha,
+              row.guia, row.acao_lembrete, row.situacao, row.validacao, row.observacao
+            ]);
+          });
+
+          const ws = XLSX.utils.aoa_to_sheet(sheetData);
+          XLSX.utils.book_append_sheet(wb, ws, cName.substring(0, 31));
+        }
+
+        // Aba BASE AUDITORIA
+        const auditData = [
+          ['Data', 'Unidade', 'Convênio', 'Horário', 'Status Ágil', 'Validação', 'Profissional']
+        ];
+        allRows.forEach(row => {
+          auditData.push([
+            row.data, row.unidade, row.convenio, row.horario, row.status_agil, row.validacao, row.profissional
+          ]);
+        });
+        const wsAudit = XLSX.utils.aoa_to_sheet(auditData);
+        XLSX.utils.book_append_sheet(wb, wsAudit, 'BASE AUDITORIA');
+
+        XLSX.writeFile(wb, `Agente_Creabily_Conferencia_${new Date().toISOString().substring(0, 10)}.xlsx`);
+        toast('Planilha exportada com sucesso!');
+      } catch (err) {
+        toast('Erro ao exportar Excel: ' + err.message, true);
+      }
+    }
+
+    // Renderizador Principal da Interface do Agente
     function renderAgenteView() {
       const container = document.getElementById('view-agente');
       if (!container) return;
@@ -2040,8 +2408,8 @@
         container.innerHTML = `
           <div style="text-align:center; padding:60px 20px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);">
             <div style="font-size:32px; animation:spin 1s linear infinite; display:inline-block;">🔄</div>
-            <h3 style="margin-top:16px; font-size:16px; color:var(--text);">Sincronizando com o Google Sheets...</h3>
-            <p style="color:var(--text-3); font-size:13px; margin-top:4px;">Carregando os dados de Agente_Creabily_Outubro_2026_consolidado.xlsx</p>
+            <h3 style="margin-top:16px; font-size:16px; color:var(--text);">Carregando dados do Supabase...</h3>
+            <p style="color:var(--text-3); font-size:13px; margin-top:4px;">Conectando ao banco de dados PostgreSQL corporativo</p>
           </div>
         `;
         return;
@@ -2051,142 +2419,122 @@
         container.innerHTML = `
           <div style="text-align:center; padding:50px 20px; background:var(--surface); border:1px dashed var(--line); border-radius:var(--radius);">
             <div style="font-size:32px;">📊</div>
-            <h3 style="margin-top:14px; font-size:16px; color:var(--text);">Nenhum dado sincronizado da planilha ainda</h3>
-            <p style="color:var(--text-3); font-size:13px; margin:6px 0 16px;">Clique no botão abaixo para forçar o download e processamento ao vivo da planilha.</p>
-            <button class="btn btn-primary" onclick="loadAgenteData(true)">🔄 Sincronizar Agora com Google Sheets</button>
+            <h3 style="margin-top:14px; font-size:16px; color:var(--text);">Nenhum dado encontrado no banco</h3>
+            <p style="color:var(--text-3); font-size:13px; margin:6px 0 16px;">Clique no botão abaixo para carregar os agendamentos auditados.</p>
+            <button class="btn btn-primary" onclick="loadAgenteData(true)">🔄 Conectar ao Supabase</button>
           </div>
         `;
         return;
       }
 
       const k = agenteData.kpis || {};
-      const allRows = agenteData.auditoria || [];
+      const rows = agenteData.rows || [];
       const dias = agenteData.dias || [];
       const convenios = agenteData.convenios || [];
+      const totalFiltered = agenteData.total || 0;
+      const totalPages = agenteData.totalPages || 1;
 
-      // Filtragem
-      const q = agenteSearchQuery;
-      const filteredRows = allRows.filter(r => {
-        // Unidade
-        if (agenteUnitFilter === 'paulista' && !r.unidade.includes('PAULISTA')) return false;
-        if (agenteUnitFilter === 'granja' && !r.unidade.includes('GRANJA')) return false;
-
-        // Convênio
-        if (agenteConvenioFilter !== 'all' && r.convenio !== agenteConvenioFilter) return false;
-
-        // Status
-        if (agenteStatusFilter !== 'all') {
-          const s = ((r.status_agil || '') + ' ' + (r.validacao || '')).toLowerCase();
-          if (agenteStatusFilter === 'concluido' && !s.includes('finalizado')) return false;
-          if (agenteStatusFilter === 'pendente' && (!s.includes('pendente') && !s.includes('agendado'))) return false;
-          if (agenteStatusFilter === 'falta' && (!s.includes('falta') && !s.includes('não compareceu') && !s.includes('nao compareceu'))) return false;
-          if (agenteStatusFilter === 'cancelado' && (!s.includes('desmarcado') && !s.includes('cancelado'))) return false;
-        }
-
-        // Dia
-        if (agenteDayFilter !== 'all' && r.data !== agenteDayFilter) return false;
-
-        // Busca
-        if (q) {
-          const rowStr = `${r.data} ${r.horario} ${r.unidade} ${r.convenio} ${r.profissional} ${r.status_agil} ${r.validacao}`.toLowerCase();
-          if (!rowStr.includes(q)) return false;
-        }
-
-        return true;
-      });
-
-      // Paginação
-      const totalFiltered = filteredRows.length;
-      const totalPages = Math.max(1, Math.ceil(totalFiltered / AGENTE_PAGE_SIZE));
-      if (agenteCurrentPage > totalPages) agenteCurrentPage = totalPages;
-      if (agenteCurrentPage < 1) agenteCurrentPage = 1;
-      const startIdx = (agenteCurrentPage - 1) * AGENTE_PAGE_SIZE;
-      const pageRows = filteredRows.slice(startIdx, startIdx + AGENTE_PAGE_SIZE);
-
-      // Status Badge Helper
-      const getStatusBadge = (status, val) => {
-        const text = (status || val || '—');
-        const low = text.toLowerCase();
-        if (low.includes('finalizado')) {
-          return `<span class="badge-status-concluido">✓ ${esc(text)}</span>`;
-        }
-        if (low.includes('pendente') || low.includes('agendado')) {
-          return `<span class="badge-status-pendente">⏳ ${esc(text)}</span>`;
-        }
-        if (low.includes('falta') || low.includes('não compareceu') || low.includes('nao compareceu')) {
-          return `<span class="badge-status-falta">✕ ${esc(text)}</span>`;
-        }
-        return `<span style="font-size:11px; padding:2px 6px; border-radius:4px; background:var(--surface-subtle); color:var(--text-2); font-weight:600;">${esc(text)}</span>`;
+      // Mapeamento de Cores Oficiais do Prompt Mestre
+      const getRowClass = (r) => {
+        const val = (r.validacao || '').toLowerCase();
+        const st = (r.status_agil || '').toLowerCase();
+        if (val.includes('finalizado') || val.includes('validado')) return 'row-val-validado';
+        if (val.includes('justificada') || st.includes('justificada')) return 'row-val-falta';
+        if (val.includes('não compareceu') || val.includes('nao compareceu') || st.includes('não compareceu') || st.includes('nao compareceu')) return 'row-val-noshow';
+        if (val.includes('cancelado') || val.includes('desmarcado') || st.includes('desmarcado')) return 'row-val-cancelado';
+        return 'row-val-pendente';
       };
 
-      const sourceLabel = agenteData.source === 'google_sheets_live' 
-        ? '🟢 Sincronizado ao vivo do Google Sheets' 
-        : (agenteData.source === 'google_sheets_cache' ? '⚡ Cache inteligente (Google Sheets)' : '💾 Cópia local de contingência');
-
-      const updatedStr = agenteData.updatedAt ? new Date(agenteData.updatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+      const getAlertBadge = (alerta) => {
+        if (!alerta) return '—';
+        if (alerta.includes('NPS')) return `<span class="alerta-nps">${esc(alerta)}</span>`;
+        if (alerta.includes('1ª SESSÃO')) return `<span class="alerta-primeira-sessao">${esc(alerta)}</span>`;
+        if (alerta.includes('ALERTA FINAL') || alerta.includes('MEDSENIOR')) return `<span class="alerta-fim-ciclo">${esc(alerta)}</span>`;
+        return `<span style="font-size:11px; color:var(--text-2);">${esc(alerta)}</span>`;
+      };
 
       container.innerHTML = `
         <div class="agente-container">
-          <!-- HERO GERENCIAL -->
+          <!-- HERO GERENCIAL & AÇÕES -->
           <div class="agente-hero">
             <div class="agente-hero-top">
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <div class="agente-live-badge">
                   <span class="agente-live-dot"></span>
-                  <span>${sourceLabel}</span>
+                  <span>🟢 Supabase PostgreSQL Ativo</span>
                 </div>
-                ${updatedStr ? `<span style="font-size:11.5px; color:var(--text-3);">Última sincronização: ${updatedStr}</span>` : ''}
+                <span style="font-size:11.5px; color:var(--text-3);">Instância Corporativa • 100% Blindado</span>
               </div>
               <div class="agente-actions">
-                <button class="btn-agente btn-agente-primary" onclick="loadAgenteData(true)" ${agenteLoading ? 'disabled' : ''}>
-                  <span style="${agenteLoading ? 'animation:spin 1s linear infinite; display:inline-block;' : ''}">🔄</span>
-                  ${agenteLoading ? 'Sincronizando...' : 'Sincronizar Agora'}
+                <button class="btn-agente btn-agente-import" onclick="openAgenteImportModal()">
+                  📥 Importar Relatório do Ágil
                 </button>
-                <a href="${agenteData.sheetUrl || 'https://docs.google.com/spreadsheets/d/1wjNWNjYG_7O2k2nVGuXOmd7WXQOWdcyS/edit?gid=816342701#gid=816342701'}" target="_blank" rel="noopener noreferrer" class="btn-agente btn-agente-sheets">
-                  📊 Abrir no Google Sheets
-                </a>
+                <button class="btn-agente btn-agente-sheets" onclick="exportAgenteExcel()">
+                  📊 Exportar Excel Oficial (17 Abas)
+                </button>
+                <button class="btn-agente" onclick="loadAgenteData(true)">
+                  🔄 Atualizar Dados
+                </button>
               </div>
             </div>
 
-            <!-- KPIS GRID -->
+            <!-- KPIS GRID DO PAINEL GERENCIAL -->
             <div class="agente-kpis">
               <div class="agente-kpi-card">
-                <div class="agente-kpi-title">Agendamentos Totais</div>
+                <div class="agente-kpi-title">Total Atendimentos</div>
                 <div class="agente-kpi-value">${(k.totalAgendamentos || 0).toLocaleString('pt-BR')}</div>
-                <div class="agente-kpi-sub">Paulista: <b>${(k.paulistaTotal || 1306).toLocaleString('pt-BR')}</b> | Granja: <b>${(k.granjaTotal || 352).toLocaleString('pt-BR')}</b></div>
+                <div class="agente-kpi-sub">Paulista: <b>${(k.paulistaTotal || 0).toLocaleString('pt-BR')}</b> | Granja: <b>${(k.granjaTotal || 0).toLocaleString('pt-BR')}</b></div>
               </div>
-              <div class="agente-kpi-card">
-                <div class="agente-kpi-title">Concluídos / Realizados</div>
-                <div class="agente-kpi-value" style="color:#059669;">${(k.concluidos || 0).toLocaleString('pt-BR')}</div>
-                <div class="agente-kpi-sub">Taxa de conferência: <b>${k.taxaConclusao || 92.5}%</b></div>
+              <div class="agente-kpi-card" style="border-left: 3px solid #16A34A;">
+                <div class="agente-kpi-title" style="color:#16A34A;">Validados / Concluídos</div>
+                <div class="agente-kpi-value" style="color:#16A34A;">${(k.validados || 0).toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">Taxa: <b>${k.taxaConclusao || 0}%</b> auditado</div>
               </div>
-              <div class="agente-kpi-card">
-                <div class="agente-kpi-title">Pendentes de Validação</div>
+              <div class="agente-kpi-card" style="border-left: 3px solid #F59E0B;">
+                <div class="agente-kpi-title" style="color:#D97706;">Pendentes em Aberto</div>
                 <div class="agente-kpi-value" style="color:#D97706;">${(k.pendentes || 0).toLocaleString('pt-BR')}</div>
-                <div class="agente-kpi-sub">Auditoria em andamento</div>
+                <div class="agente-kpi-sub">Exigem ação da recepção</div>
               </div>
-              <div class="agente-kpi-card">
-                <div class="agente-kpi-title">Faltas / Não Compareceu</div>
-                <div class="agente-kpi-value" style="color:#DC2626;">${((k.naoCompareceu || 0) + (k.faltasJustificadas || 0)).toLocaleString('pt-BR')}</div>
-                <div class="agente-kpi-sub">${k.naoCompareceu || 0} ausências + ${k.faltasJustificadas || 0} justificadas</div>
+              <div class="agente-kpi-card" style="border-left: 3px solid #9CA3AF;">
+                <div class="agente-kpi-title">Faltas Justificadas</div>
+                <div class="agente-kpi-value" style="color:#4B5563;">${(k.faltasJustificadas || 0).toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">Sem cobrança / resolvidas</div>
               </div>
-              <div class="agente-kpi-card">
-                <div class="agente-kpi-title">Cancelamentos</div>
-                <div class="agente-kpi-value" style="color:var(--text-3);">${k.cancelamentos || 0}</div>
-                <div class="agente-kpi-sub">Baixa taxa de desistência</div>
+              <div class="agente-kpi-card" style="border-left: 3px solid #DC2626;">
+                <div class="agente-kpi-title" style="color:#DC2626;">Não Compareceu</div>
+                <div class="agente-kpi-value" style="color:#DC2626;">${(k.naoCompareceu || 0).toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">Verificar token/assinatura</div>
               </div>
+              <div class="agente-kpi-card" style="border-left: 3px solid #F97316;">
+                <div class="agente-kpi-title" style="color:#EA580C;">Cancelamentos</div>
+                <div class="agente-kpi-value" style="color:#EA580C;">${(k.cancelamentos || 0).toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">Auditoria de autorizações</div>
+              </div>
+            </div>
+
+            <!-- BARRA DAS 11 ABAS DE CONVÊNIOS (PROMPT MESTRE ITEM 4) -->
+            <div style="margin-top:16px; font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px;">Abas Oficiais de Convênio:</div>
+            <div class="agente-convenio-bar">
+              <button class="agente-conv-pill ${agenteConvenioFilter === 'all' ? 'active' : ''}" onclick="setAgenteConvenioFilter('all')">
+                🏥 Todos os Convênios <span class="count">${k.totalAgendamentos || 0}</span>
+              </button>
+              ${convenios.map(c => `
+                <button class="agente-conv-pill ${agenteConvenioFilter === c.convenio ? 'active' : ''}" onclick="setAgenteConvenioFilter('${esc(c.convenio)}')">
+                  ${esc(c.convenio)} <span class="count">${c.count}</span>
+                </button>
+              `).join('')}
             </div>
 
             <!-- BARRA DE SELEÇÃO POR DIA -->
             ${dias.length ? `
-              <div style="margin-top:16px; font-size:11.5px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px;">Navegar por dia de Outubro/2026:</div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">Navegar por Dia:</div>
               <div class="agente-days-bar">
                 <button class="agente-day-chip ${agenteDayFilter === 'all' ? 'active' : ''}" onclick="setAgenteDayFilter('all')">
-                  Todos os Dias (${(k.totalAgendamentos || 0)})
+                  Todos os Dias (${k.totalAgendamentos || 0})
                 </button>
                 ${dias.map(d => `
                   <button class="agente-day-chip ${agenteDayFilter === d.data ? 'active' : ''}" onclick="setAgenteDayFilter('${d.data}')">
-                    ${d.data.substring(0, 5)} (${d.total})
+                    ${d.data.substring(0, 5)} (${d.count})
                   </button>
                 `).join('')}
               </div>
@@ -2195,66 +2543,89 @@
 
           <div id="agente-table-anchor"></div>
 
-          <!-- BARRA DE FILTROS & BUSCA -->
+          <!-- BARRA DE FILTROS & BUSCA RÁPIDA -->
           <div class="agente-filter-bar">
-            <input type="text" class="agente-search-input" placeholder="🔍 Buscar por profissional, especialidade, horário, convênio..." value="${esc(agenteSearchQuery)}" oninput="onAgenteSearch(this.value)">
+            <input type="text" class="agente-search-input" placeholder="🔍 Buscar por paciente, profissional, especialidade, procedimento, observação..." value="${esc(agenteSearchQuery)}" oninput="onAgenteSearch(this.value)">
 
             <select class="agente-filter-select" onchange="setAgenteUnitFilter(this.value)">
               <option value="all" ${agenteUnitFilter === 'all' ? 'selected' : ''}>📍 Todas as Unidades</option>
-              <option value="paulista" ${agenteUnitFilter === 'paulista' ? 'selected' : ''}>🏙️ Av. Paulista (${k.paulistaTotal || 1306})</option>
-              <option value="granja" ${agenteUnitFilter === 'granja' ? 'selected' : ''}>🌿 Granja Viana (${k.granjaTotal || 352})</option>
-            </select>
-
-            <select class="agente-filter-select" onchange="setAgenteConvenioFilter(this.value)">
-              <option value="all" ${agenteConvenioFilter === 'all' ? 'selected' : ''}>🏥 Todos os Convênios (${convenios.length})</option>
-              ${convenios.map(c => `
-                <option value="${esc(c)}" ${agenteConvenioFilter === c ? 'selected' : ''}>${esc(c)}</option>
-              `).join('')}
+              <option value="paulista" ${agenteUnitFilter === 'paulista' ? 'selected' : ''}>🏙️ Av. Paulista (${k.paulistaTotal || 0})</option>
+              <option value="granja" ${agenteUnitFilter === 'granja' ? 'selected' : ''}>🌿 Granja Viana (${k.granjaTotal || 0})</option>
             </select>
 
             <select class="agente-filter-select" onchange="setAgenteStatusFilter(this.value)">
               <option value="all" ${agenteStatusFilter === 'all' ? 'selected' : ''}>⚡ Todos os Status</option>
-              <option value="concluido" ${agenteStatusFilter === 'concluido' ? 'selected' : ''}>✓ Concluído / Finalizado</option>
-              <option value="pendente" ${agenteStatusFilter === 'pendente' ? 'selected' : ''}>⏳ Pendente / Agendado</option>
-              <option value="falta" ${agenteStatusFilter === 'falta' ? 'selected' : ''}>✕ Falta / Não compareceu</option>
-              <option value="cancelado" ${agenteStatusFilter === 'cancelado' ? 'selected' : ''}>⊘ Cancelado / Desmarcado</option>
+              <option value="validado" ${agenteStatusFilter === 'validado' ? 'selected' : ''}>🟢 Validado / Finalizado</option>
+              <option value="pendente" ${agenteStatusFilter === 'pendente' ? 'selected' : ''}>🟠 Pendente em Aberto</option>
+              <option value="falta_justificada" ${agenteStatusFilter === 'falta_justificada' ? 'selected' : ''}>⚪ Falta Justificada</option>
+              <option value="nao_compareceu" ${agenteStatusFilter === 'nao_compareceu' ? 'selected' : ''}>🔴 Não Compareceu</option>
+              <option value="cancelado" ${agenteStatusFilter === 'cancelado' ? 'selected' : ''}>🟠 Cancelado / Desmarcado</option>
             </select>
           </div>
 
-          <!-- TABELA DE AUDITORIA -->
+          <!-- TABELA OFICIAL (COLUNAS A:N) -->
           <div class="agente-table-card">
-            <div style="overflow-x:auto;">
+            <!-- BANNER DE IDENTIFICAÇÃO VISUAL -->
+            <div class="agente-banner-data">
+              <span>📅 DATA: ${agenteDayFilter === 'all' ? 'OUTUBRO DE 2026' : agenteDayFilter}</span>
+              <span>CONVÊNIO: ${agenteConvenioFilter === 'all' ? 'TODOS OS CONVÊNIOS' : esc(agenteConvenioFilter).toUpperCase()}</span>
+            </div>
+
+            <div class="agente-table-wrapper">
               <table class="agente-table">
                 <thead>
                   <tr>
-                    <th style="width:100px;">Data</th>
-                    <th style="width:85px;">Horário</th>
-                    <th style="width:130px;">Unidade</th>
-                    <th>Convênio</th>
-                    <th>Profissional / Especialidade</th>
-                    <th style="width:170px;">Status Ágil</th>
-                    <th style="width:140px;">Validação</th>
+                    <th style="width:85px;">Data</th>
+                    <th>Paciente (A–Z)</th>
+                    <th style="width:75px;">Horário</th>
+                    <th style="width:110px;">Status Ágil</th>
+                    <th>Profissional</th>
+                    <th>Especialidade</th>
+                    <th>Procedimento</th>
+                    <th style="width:65px;">Sessão</th>
+                    <th style="width:90px;">Carteirinha</th>
+                    <th style="width:80px;">Guia</th>
+                    <th>Ação / Lembrete</th>
+                    <th style="width:90px;">Situação</th>
+                    <th style="width:170px;">Validação (1 Toque)</th>
+                    <th style="width:180px;">Observação</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${pageRows.length ? pageRows.map(r => `
-                    <tr>
-                      <td style="font-weight:600; color:var(--text); white-space:nowrap;">${esc(r.data)}</td>
-                      <td style="color:var(--text-2); font-family:monospace; font-size:12px;">${esc(r.horario)}</td>
-                      <td>
-                        <span class="${r.unidade.includes('GRANJA') ? 'badge-unit-granja' : 'badge-unit-paulista'}">
-                          ${r.unidade.includes('GRANJA') ? '🌿 Granja' : '🏙️ Paulista'}
-                        </span>
+                  ${rows.length ? rows.map(r => `
+                    <tr class="${getRowClass(r)}">
+                      <td style="font-weight:700; white-space:nowrap;">${esc(r.data)}</td>
+                      <td style="font-weight:700; color:var(--text); white-space:nowrap;">
+                        ${esc(r.paciente)}
+                        <div style="font-size:10px; font-weight:500; color:var(--text-3); margin-top:1px;">
+                          ${r.unidade === 'PAULISTA' ? '🏙️ Paulista' : '🌿 Granja'} • ${esc(r.convenio)}
+                        </div>
                       </td>
-                      <td style="font-weight:600; color:var(--text);">${esc(r.convenio || '—')}</td>
-                      <td style="color:var(--text-2); font-size:12px;">${esc(r.profissional || '—')}</td>
-                      <td>${getStatusBadge(r.status_agil, '')}</td>
-                      <td>${getStatusBadge('', r.validacao)}</td>
+                      <td style="font-family:monospace; font-weight:600;">${esc(r.horario)}</td>
+                      <td style="font-size:11px;">${esc(r.status_agil)}</td>
+                      <td style="font-size:11px; white-space:nowrap;">${esc(r.profissional || '—')}</td>
+                      <td style="font-size:11px;">${esc(r.especialidade || '—')}</td>
+                      <td style="font-size:11px;">${esc(r.procedimento || '—')}</td>
+                      <td style="font-weight:700; text-align:center;">${esc(r.sessao || '—')}</td>
+                      <td style="font-size:11px; font-family:monospace;">${esc(r.cpf_carteirinha || '—')}</td>
+                      <td style="font-size:11px; font-family:monospace;">${esc(r.guia || '—')}</td>
+                      <td>${getAlertBadge(r.acao_lembrete)}</td>
+                      <td style="font-size:11px; font-weight:600;">${esc(r.situacao || '—')}</td>
+                      <td>
+                        <div class="agente-val-group">
+                          <button class="btn-val btn-val-ok ${r.validacao === 'Finalizado' || r.validacao === 'Validado' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado')" title="Validar Atendimento">✓ Validar</button>
+                          <button class="btn-val btn-val-falta ${r.validacao === 'Falta Justificada' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Falta Justificada')" title="Falta Justificada">⚪ Falta</button>
+                          <button class="btn-val btn-val-noshow ${r.validacao && r.validacao.includes('Não compareceu') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Não compareceu')" title="Não Compareceu">✕ Ausência</button>
+                        </div>
+                      </td>
+                      <td>
+                        <input class="agente-obs-input" type="text" placeholder="Adicionar nota..." value="${esc(r.observacao || '')}" onchange="saveAgenteObservation('${r.id}', this.value)">
+                      </td>
                     </tr>
                   `).join('') : `
                     <tr>
-                      <td colspan="7" style="text-align:center; padding:40px 20px; color:var(--text-3);">
-                        Nenhum agendamento encontrado com os filtros selecionados.
+                      <td colspan="14" style="text-align:center; padding:40px 20px; color:var(--text-3);">
+                        Nenhum atendimento encontrado com os filtros selecionados.
                       </td>
                     </tr>
                   `}
@@ -2265,13 +2636,12 @@
             <!-- RODAPÉ & PAGINAÇÃO -->
             <div class="agente-table-foot">
               <div style="color:var(--text-2);">
-                Mostrando <b>${totalFiltered > 0 ? startIdx + 1 : 0}</b> a <b>${Math.min(startIdx + AGENTE_PAGE_SIZE, totalFiltered)}</b> de <b>${totalFiltered.toLocaleString('pt-BR')}</b> registros
-                ${totalFiltered !== allRows.length ? `<span style="color:var(--text-3); font-size:11px; margin-left:6px;">(filtrados do total de ${allRows.length})</span>` : ''}
+                Mostrando página <b>${agenteCurrentPage}</b> de <b>${totalPages}</b> (Total de <b>${totalFiltered.toLocaleString('pt-BR')}</b> atendimentos auditados no Supabase)
               </div>
               <div class="agente-pagination">
                 <button class="btn-page" onclick="setAgentePage(1)" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>« Primeiro</button>
                 <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage - 1})" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>‹ Anterior</button>
-                <span style="padding:0 8px; font-weight:700; color:var(--text);">Página ${agenteCurrentPage} de ${totalPages}</span>
+                <span style="padding:0 8px; font-weight:700; color:var(--text); font-size:11.5px;">${agenteCurrentPage} / ${totalPages}</span>
                 <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage + 1})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Próxima ›</button>
                 <button class="btn-page" onclick="setAgentePage(${totalPages})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Última »</button>
               </div>

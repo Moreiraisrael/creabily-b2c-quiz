@@ -23,7 +23,7 @@ exports.handler = async (event, context) => {
 
         if (body.tableType === 'agente') {
             try {
-                const agenteHandler = require('./get-agente-sheets.js');
+                const agenteHandler = require('./agendamentos.js');
                 return await agenteHandler.handler(event, context);
             } catch (err) {
                 console.error('[Agente Proxy Error]:', err);
