@@ -395,6 +395,60 @@
     .btn-nps-wa { display: inline-flex; align-items: center; gap: 5px; background: #1faa59; color: #fff; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; text-decoration: none; }
     .btn-nps-wa:hover { background: #178a48; }
 
+    /* ---------- Agente Outubro Consolidado ---------- */
+    .agente-container { display: flex; flex-direction: column; gap: 18px; }
+    .agente-hero { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow-sm); }
+    .agente-hero-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+    .agente-live-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; background: rgba(16, 185, 129, 0.12); color: #059669; font-size: 12px; font-weight: 700; }
+    .agente-live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3); animation: pulseDot 2s infinite; }
+    @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
+    .agente-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .btn-agente { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; border: 1px solid var(--line); background: var(--surface); color: var(--text); text-decoration: none; }
+    .btn-agente:hover { background: var(--surface-subtle); border-color: var(--line-strong); }
+    .btn-agente-primary { background: #4F46E5; color: #fff; border-color: #4F46E5; }
+    .btn-agente-primary:hover { background: #4338CA; border-color: #4338CA; }
+    .btn-agente-sheets { background: #0F9D58; color: #fff; border-color: #0F9D58; }
+    .btn-agente-sheets:hover { background: #0B8043; border-color: #0B8043; }
+
+    .agente-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    @media (max-width: 1100px) { .agente-kpis { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 700px) { .agente-kpis { grid-template-columns: 1fr 1fr; } }
+    .agente-kpi-card { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; }
+    .agente-kpi-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-3); letter-spacing: 0.5px; }
+    .agente-kpi-value { font-size: 24px; font-weight: 800; color: var(--text); font-family: 'Outfit', sans-serif; line-height: 1.1; }
+    .agente-kpi-sub { font-size: 11.5px; color: var(--text-3); margin-top: 2px; }
+
+    .agente-days-bar { display: flex; gap: 6px; overflow-x: auto; padding: 10px 0 2px; }
+    .agente-day-chip { flex-shrink: 0; padding: 5px 11px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 11.5px; font-weight: 600; cursor: pointer; transition: all .15s; }
+    .agente-day-chip:hover { border-color: #4F46E5; color: #4F46E5; }
+    .agente-day-chip.active { background: #4F46E5; color: #fff; border-color: #4F46E5; }
+
+    .agente-filter-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+    .agente-filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .agente-select { height: 35px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 12px; font-weight: 500; outline: none; }
+    .agente-select:focus { border-color: #4F46E5; box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15); }
+    .agente-search-box { position: relative; min-width: 220px; flex: 1; max-width: 360px; }
+    .agente-search-box input { width: 100%; height: 35px; padding: 0 12px 0 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 12px; }
+    .agente-search-box span { position: absolute; left: 10px; top: 9px; color: var(--text-3); pointer-events: none; }
+
+    .agente-table-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .agente-table-wrapper { overflow-x: auto; max-height: 60vh; }
+    .agente-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px; }
+    .agente-table th { background: var(--surface-subtle); padding: 11px 13px; font-weight: 700; color: var(--text-2); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--line); }
+    .agente-table td { padding: 10px 13px; border-bottom: 1px solid var(--line); color: var(--text); vertical-align: middle; }
+    .agente-table tr:hover td { background: rgba(79, 70, 229, 0.03); }
+    .badge-unit-paulista { background: rgba(59, 130, 246, 0.12); color: #1D4ED8; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; }
+    .badge-unit-granja { background: rgba(16, 185, 129, 0.12); color: #047857; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; }
+    .badge-status-finalizado { background: rgba(16, 185, 129, 0.12); color: #065F46; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; display: inline-flex; align-items: center; gap: 4px; }
+    .badge-status-pendente { background: rgba(245, 158, 11, 0.12); color: #92400E; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; display: inline-flex; align-items: center; gap: 4px; }
+    .badge-status-falta { background: rgba(239, 68, 68, 0.12); color: #991B1B; font-weight: 700; font-size: 11px; padding: 2px 7px; border-radius: 5px; display: inline-flex; align-items: center; gap: 4px; }
+
+    .agente-table-foot { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-top: 1px solid var(--line); background: var(--surface-subtle); flex-wrap: wrap; gap: 10px; font-size: 12px; }
+    .agente-pagination { display: flex; align-items: center; gap: 6px; }
+    .btn-page { height: 30px; padding: 0 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 11.5px; font-weight: 600; cursor: pointer; }
+    .btn-page:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-page:not(:disabled):hover { background: var(--surface-subtle); border-color: #4F46E5; color: #4F46E5; }
+
     /* ---------- Funil (kanban) ---------- */
     .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(180px, 1fr); gap: 14px; overflow-x: auto; padding-bottom: 12px; align-items: start; }
     .col { background: #efedf4; border-radius: var(--radius); padding: 10px; min-height: 60vh; display: flex; flex-direction: column; gap: 8px; transition: background .15s, box-shadow .15s; }
@@ -565,6 +619,8 @@
       <button class="nav-item" data-view="cold" onclick="setView('cold')"><span data-ic="archive"></span>Perdidos &amp; No-Show<span class="count" id="nav-cold">0</span></button>
       <div class="nav-label">Qualidade &amp; Reputação</div>
       <button class="nav-item" data-view="nps" onclick="setView('nps')"><span data-ic="star"></span>Satisfação &amp; NPS<span class="count" id="nav-nps" style="background:#0D9488; color:#fff;">0</span></button>
+      <div class="nav-label">Operação &amp; Auditoria</div>
+      <button class="nav-item" data-view="agente" onclick="setView('agente')"><span data-ic="calendar"></span>Agente Outubro<span class="count" id="nav-agente" style="background:#4F46E5; color:#fff;">1658</span></button>
       <div class="nav-label">Outros</div>
       <button class="nav-item" data-view="b2b" onclick="setView('b2b')"><span data-ic="briefcase"></span>Mentoria B2B<span class="count" id="nav-b2b">–</span></button>
       <div class="spacer"></div>
@@ -621,6 +677,7 @@
         <div id="view-today"></div>
         <div id="view-recovery" class="hidden"></div>
         <div id="view-nps" class="hidden"></div>
+        <div id="view-agente" class="hidden"></div>
         <div id="view-board" class="hidden">
           <div class="board-toolbar" id="board-toolbar">
             <div class="board-tabs" id="board-tabs">
@@ -640,6 +697,7 @@
       <button data-view="today" class="active" onclick="setView('today')"><span data-ic="sun"></span>Hoje<span class="badge hidden" id="tab-today"></span></button>
       <button data-view="board" onclick="setView('board')"><span data-ic="columns"></span>Funil</button>
       <button data-view="nps" onclick="setView('nps')"><span data-ic="star"></span>NPS<span class="badge hidden" id="tab-nps"></span></button>
+      <button data-view="agente" onclick="setView('agente')"><span data-ic="calendar"></span>Agente<span class="badge hidden" id="tab-agente"></span></button>
       <button data-view="recovery" onclick="setView('recovery')"><span data-ic="target"></span>Recuperar<span class="badge hidden" id="tab-recovery"></span></button>
       <button data-view="cold" onclick="setView('cold')"><span data-ic="archive"></span>Perdidos<span class="badge hidden" id="tab-cold"></span></button>
       <button data-view="b2b" onclick="setView('b2b')"><span data-ic="briefcase"></span>B2B</button>
@@ -699,6 +757,15 @@
     let npsFeedbacks = [];
     let npsCategoryFilter = 'all';
     let npsUnitFilter = 'all';
+    let agenteData = null;
+    let agenteLoading = false;
+    let agenteUnitFilter = 'all';
+    let agenteConvenioFilter = 'all';
+    let agenteStatusFilter = 'all';
+    let agenteDayFilter = 'all';
+    let agenteSearchQuery = '';
+    let agenteCurrentPage = 1;
+    const AGENTE_PAGE_SIZE = 50;
     let view = 'today';
     let boardFilter = 'active'; // 'active', 'all', 'cold'
     let unit = 'all';
@@ -906,6 +973,8 @@
       document.getElementById('login-view').classList.add('hidden');
       document.getElementById('app').classList.remove('hidden');
       render();
+      loadNpsFeedbacks(true);
+      loadAgenteData(false);
       clearInterval(window._auto);
       window._auto = setInterval(() => { if (!openLeadId && document.visibilityState === 'visible') refreshData(true); }, 60000);
     }
@@ -938,6 +1007,7 @@
       if (!r.ok) { if (!silent) toast(r.error, true); return; }
       if (view === 'b2b') leadsB2B = r.data.leads || []; else leadsB2C = r.data.leads || [];
       loadNpsFeedbacks(true);
+      loadAgenteData(false);
       lastSync = new Date();
       render();
       if (!silent) toast('Lista atualizada');
@@ -972,8 +1042,9 @@
       else if (v === 'board' && boardFilter === 'cold') boardFilter = 'active';
       document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === v));
       if (v === 'b2b' && !leadsB2B.length) refreshData(true);
-      if (v !== 'b2b' && !leadsB2C.length) refreshData(true);
+      if (v !== 'b2b' && v !== 'agente' && !leadsB2C.length) refreshData(true);
       if (v === 'nps') loadNpsFeedbacks(true);
+      if (v === 'agente') loadAgenteData();
       render();
       window.scrollTo({ top: 0 });
     }
@@ -1068,12 +1139,13 @@
         recovery: ['Recuperador Ativo de Leads', 'Resgate imediato pós-quiz, retomada de turno e reaquecimento ativo'],
         cold: ['Perdidos & No-Show', 'Contatos frios e ausências prontos para o plano de reaquecimento'],
         nps: ['Satisfação & NPS da Creabily', 'Mural de avaliações, score de qualidade e direcionamento para o Google Maps'],
+        agente: ['Agente Creabily — Outubro 2026', 'Sincronização em tempo real da planilha de agendamentos, faltas e conferência'],
         b2b: ['Mentoria B2B', 'Aplicações para a mentoria']
       };
       const curTitle = titles[view] || titles.board;
       document.getElementById('page-title').textContent = curTitle[0];
       document.getElementById('page-sub').textContent = curTitle[1];
-      document.getElementById('unit-seg').classList.toggle('hidden', isB2B);
+      document.getElementById('unit-seg').classList.toggle('hidden', isB2B || view === 'agente');
 
       renderKpis(isB2B ? list : all, b, isB2B);
 
@@ -1081,23 +1153,27 @@
       const isRecoveryView = view === 'recovery';
       const isBoardView = view === 'board' || view === 'cold';
       const isNpsView = view === 'nps';
+      const isAgenteView = view === 'agente';
 
       document.getElementById('view-today').classList.toggle('hidden', !isTodayView);
       document.getElementById('view-recovery').classList.toggle('hidden', !isRecoveryView);
       document.getElementById('view-board').classList.toggle('hidden', !isBoardView);
       document.getElementById('view-nps').classList.toggle('hidden', !isNpsView);
-      document.getElementById('kpis').classList.toggle('hidden', isNpsView);
+      const viewAgenteEl = document.getElementById('view-agente');
+      if (viewAgenteEl) viewAgenteEl.classList.toggle('hidden', !isAgenteView);
+      document.getElementById('kpis').classList.toggle('hidden', isNpsView || isAgenteView);
 
       // Barra de filtros rápidos é exibida nas visualizações relevantes
       const filterBar = document.getElementById('global-filter-bar');
-      if (filterBar) filterBar.classList.toggle('hidden', isB2B || isNpsView);
+      if (filterBar) filterBar.classList.toggle('hidden', isB2B || isNpsView || isAgenteView);
 
       // Banner de leads parados (> 7 dias)
-      renderStaleBanner(all, isB2B || isNpsView);
+      renderStaleBanner(all, isB2B || isNpsView || isAgenteView);
 
       if (isTodayView) renderToday(b, isB2B ? list : all);
       else if (isRecoveryView) renderRecovery(list, recQueues);
       else if (isNpsView) renderNpsView();
+      else if (isAgenteView) renderAgenteView();
       else renderBoard(list);
 
       if (openLeadId) { const l = findLead(openLeadId); if (l) fillDrawer(l); }
@@ -1882,6 +1958,325 @@
               <div style="font-weight:600; margin-top:8px;">Nenhuma avaliação encontrada com os filtros selecionados.</div>
             </div>
           `}
+        </div>
+      `;
+    }
+
+    // =========================================================
+    // Agente Creabily Outubro 2026 (Planilha Google Sheets Live)
+    // =========================================================
+    async function loadAgenteData(forceRefresh = false) {
+      if (!sessionPassword) return;
+      agenteLoading = true;
+      if (view === 'agente') renderAgenteView();
+      try {
+        const r = await api('get-agente-sheets', { forceRefresh });
+        if (r.ok && r.data) {
+          agenteData = r.data;
+          const totalVal = (agenteData.kpis && agenteData.kpis.totalAgendamentos) || agenteData.totalRegistros || 0;
+          const badge = document.getElementById('nav-agente');
+          if (badge) badge.textContent = totalVal;
+          const tabBadge = document.getElementById('tab-agente');
+          if (tabBadge) {
+            tabBadge.textContent = totalVal;
+            tabBadge.classList.toggle('hidden', !totalVal);
+          }
+          if (forceRefresh) toast('Planilha sincronizada ao vivo com Google Sheets!');
+        } else {
+          console.warn('Erro ao carregar dados do Agente:', r.error);
+          if (forceRefresh) toast(r.error || 'Erro ao sincronizar planilha', true);
+        }
+      } catch (e) {
+        console.warn('Exceção ao carregar Agente:', e);
+        if (forceRefresh) toast('Falha de conexão com a planilha', true);
+      } finally {
+        agenteLoading = false;
+        if (view === 'agente') renderAgenteView();
+      }
+    }
+
+    function setAgenteUnitFilter(val) {
+      agenteUnitFilter = val;
+      agenteCurrentPage = 1;
+      renderAgenteView();
+    }
+
+    function setAgenteConvenioFilter(val) {
+      agenteConvenioFilter = val;
+      agenteCurrentPage = 1;
+      renderAgenteView();
+    }
+
+    function setAgenteStatusFilter(val) {
+      agenteStatusFilter = val;
+      agenteCurrentPage = 1;
+      renderAgenteView();
+    }
+
+    function setAgenteDayFilter(val) {
+      agenteDayFilter = val;
+      agenteCurrentPage = 1;
+      renderAgenteView();
+    }
+
+    function onAgenteSearch(val) {
+      agenteSearchQuery = (val || '').toLowerCase().trim();
+      agenteCurrentPage = 1;
+      renderAgenteView();
+    }
+
+    function setAgentePage(p) {
+      agenteCurrentPage = p;
+      renderAgenteView();
+      const el = document.getElementById('agente-table-anchor');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderAgenteView() {
+      const container = document.getElementById('view-agente');
+      if (!container) return;
+
+      if (!agenteData && agenteLoading) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:60px 20px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);">
+            <div style="font-size:32px; animation:spin 1s linear infinite; display:inline-block;">🔄</div>
+            <h3 style="margin-top:16px; font-size:16px; color:var(--text);">Sincronizando com o Google Sheets...</h3>
+            <p style="color:var(--text-3); font-size:13px; margin-top:4px;">Carregando os dados de Agente_Creabily_Outubro_2026_consolidado.xlsx</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (!agenteData) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:50px 20px; background:var(--surface); border:1px dashed var(--line); border-radius:var(--radius);">
+            <div style="font-size:32px;">📊</div>
+            <h3 style="margin-top:14px; font-size:16px; color:var(--text);">Nenhum dado sincronizado da planilha ainda</h3>
+            <p style="color:var(--text-3); font-size:13px; margin:6px 0 16px;">Clique no botão abaixo para forçar o download e processamento ao vivo da planilha.</p>
+            <button class="btn btn-primary" onclick="loadAgenteData(true)">🔄 Sincronizar Agora com Google Sheets</button>
+          </div>
+        `;
+        return;
+      }
+
+      const k = agenteData.kpis || {};
+      const allRows = agenteData.auditoria || [];
+      const dias = agenteData.dias || [];
+      const convenios = agenteData.convenios || [];
+
+      // Filtragem
+      const q = agenteSearchQuery;
+      const filteredRows = allRows.filter(r => {
+        // Unidade
+        if (agenteUnitFilter === 'paulista' && !r.unidade.includes('PAULISTA')) return false;
+        if (agenteUnitFilter === 'granja' && !r.unidade.includes('GRANJA')) return false;
+
+        // Convênio
+        if (agenteConvenioFilter !== 'all' && r.convenio !== agenteConvenioFilter) return false;
+
+        // Status
+        if (agenteStatusFilter !== 'all') {
+          const s = ((r.status_agil || '') + ' ' + (r.validacao || '')).toLowerCase();
+          if (agenteStatusFilter === 'concluido' && !s.includes('finalizado')) return false;
+          if (agenteStatusFilter === 'pendente' && (!s.includes('pendente') && !s.includes('agendado'))) return false;
+          if (agenteStatusFilter === 'falta' && (!s.includes('falta') && !s.includes('não compareceu') && !s.includes('nao compareceu'))) return false;
+          if (agenteStatusFilter === 'cancelado' && (!s.includes('desmarcado') && !s.includes('cancelado'))) return false;
+        }
+
+        // Dia
+        if (agenteDayFilter !== 'all' && r.data !== agenteDayFilter) return false;
+
+        // Busca
+        if (q) {
+          const rowStr = `${r.data} ${r.horario} ${r.unidade} ${r.convenio} ${r.profissional} ${r.status_agil} ${r.validacao}`.toLowerCase();
+          if (!rowStr.includes(q)) return false;
+        }
+
+        return true;
+      });
+
+      // Paginação
+      const totalFiltered = filteredRows.length;
+      const totalPages = Math.max(1, Math.ceil(totalFiltered / AGENTE_PAGE_SIZE));
+      if (agenteCurrentPage > totalPages) agenteCurrentPage = totalPages;
+      if (agenteCurrentPage < 1) agenteCurrentPage = 1;
+      const startIdx = (agenteCurrentPage - 1) * AGENTE_PAGE_SIZE;
+      const pageRows = filteredRows.slice(startIdx, startIdx + AGENTE_PAGE_SIZE);
+
+      // Status Badge Helper
+      const getStatusBadge = (status, val) => {
+        const text = (status || val || '—');
+        const low = text.toLowerCase();
+        if (low.includes('finalizado')) {
+          return `<span class="badge-status-concluido">✓ ${esc(text)}</span>`;
+        }
+        if (low.includes('pendente') || low.includes('agendado')) {
+          return `<span class="badge-status-pendente">⏳ ${esc(text)}</span>`;
+        }
+        if (low.includes('falta') || low.includes('não compareceu') || low.includes('nao compareceu')) {
+          return `<span class="badge-status-falta">✕ ${esc(text)}</span>`;
+        }
+        return `<span style="font-size:11px; padding:2px 6px; border-radius:4px; background:var(--surface-subtle); color:var(--text-2); font-weight:600;">${esc(text)}</span>`;
+      };
+
+      const sourceLabel = agenteData.source === 'google_sheets_live' 
+        ? '🟢 Sincronizado ao vivo do Google Sheets' 
+        : (agenteData.source === 'google_sheets_cache' ? '⚡ Cache inteligente (Google Sheets)' : '💾 Cópia local de contingência');
+
+      const updatedStr = agenteData.updatedAt ? new Date(agenteData.updatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+
+      container.innerHTML = `
+        <div class="agente-container">
+          <!-- HERO GERENCIAL -->
+          <div class="agente-hero">
+            <div class="agente-hero-top">
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div class="agente-live-badge">
+                  <span class="agente-live-dot"></span>
+                  <span>${sourceLabel}</span>
+                </div>
+                ${updatedStr ? `<span style="font-size:11.5px; color:var(--text-3);">Última sincronização: ${updatedStr}</span>` : ''}
+              </div>
+              <div class="agente-actions">
+                <button class="btn-agente btn-agente-primary" onclick="loadAgenteData(true)" ${agenteLoading ? 'disabled' : ''}>
+                  <span style="${agenteLoading ? 'animation:spin 1s linear infinite; display:inline-block;' : ''}">🔄</span>
+                  ${agenteLoading ? 'Sincronizando...' : 'Sincronizar Agora'}
+                </button>
+                <a href="${agenteData.sheetUrl || 'https://docs.google.com/spreadsheets/d/1wjNWNjYG_7O2k2nVGuXOmd7WXQOWdcyS/edit?gid=816342701#gid=816342701'}" target="_blank" rel="noopener noreferrer" class="btn-agente btn-agente-sheets">
+                  📊 Abrir no Google Sheets
+                </a>
+              </div>
+            </div>
+
+            <!-- KPIS GRID -->
+            <div class="agente-kpis">
+              <div class="agente-kpi-card">
+                <div class="agente-kpi-title">Agendamentos Totais</div>
+                <div class="agente-kpi-value">${(k.totalAgendamentos || 0).toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">Paulista: <b>${(k.paulistaTotal || 1306).toLocaleString('pt-BR')}</b> | Granja: <b>${(k.granjaTotal || 352).toLocaleString('pt-BR')}</b></div>
+              </div>
+              <div class="agente-kpi-card">
+                <div class="agente-kpi-title">Concluídos / Realizados</div>
+                <div class="agente-kpi-value" style="color:#059669;">${(k.concluidos || 0).toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">Taxa de conferência: <b>${k.taxaConclusao || 92.5}%</b></div>
+              </div>
+              <div class="agente-kpi-card">
+                <div class="agente-kpi-title">Pendentes de Validação</div>
+                <div class="agente-kpi-value" style="color:#D97706;">${(k.pendentes || 0).toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">Auditoria em andamento</div>
+              </div>
+              <div class="agente-kpi-card">
+                <div class="agente-kpi-title">Faltas / Não Compareceu</div>
+                <div class="agente-kpi-value" style="color:#DC2626;">${((k.naoCompareceu || 0) + (k.faltasJustificadas || 0)).toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">${k.naoCompareceu || 0} ausências + ${k.faltasJustificadas || 0} justificadas</div>
+              </div>
+              <div class="agente-kpi-card">
+                <div class="agente-kpi-title">Cancelamentos</div>
+                <div class="agente-kpi-value" style="color:var(--text-3);">${k.cancelamentos || 0}</div>
+                <div class="agente-kpi-sub">Baixa taxa de desistência</div>
+              </div>
+            </div>
+
+            <!-- BARRA DE SELEÇÃO POR DIA -->
+            ${dias.length ? `
+              <div style="margin-top:16px; font-size:11.5px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px;">Navegar por dia de Outubro/2026:</div>
+              <div class="agente-days-bar">
+                <button class="agente-day-chip ${agenteDayFilter === 'all' ? 'active' : ''}" onclick="setAgenteDayFilter('all')">
+                  Todos os Dias (${(k.totalAgendamentos || 0)})
+                </button>
+                ${dias.map(d => `
+                  <button class="agente-day-chip ${agenteDayFilter === d.data ? 'active' : ''}" onclick="setAgenteDayFilter('${d.data}')">
+                    ${d.data.substring(0, 5)} (${d.total})
+                  </button>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
+
+          <div id="agente-table-anchor"></div>
+
+          <!-- BARRA DE FILTROS & BUSCA -->
+          <div class="agente-filter-bar">
+            <input type="text" class="agente-search-input" placeholder="🔍 Buscar por profissional, especialidade, horário, convênio..." value="${esc(agenteSearchQuery)}" oninput="onAgenteSearch(this.value)">
+
+            <select class="agente-filter-select" onchange="setAgenteUnitFilter(this.value)">
+              <option value="all" ${agenteUnitFilter === 'all' ? 'selected' : ''}>📍 Todas as Unidades</option>
+              <option value="paulista" ${agenteUnitFilter === 'paulista' ? 'selected' : ''}>🏙️ Av. Paulista (${k.paulistaTotal || 1306})</option>
+              <option value="granja" ${agenteUnitFilter === 'granja' ? 'selected' : ''}>🌿 Granja Viana (${k.granjaTotal || 352})</option>
+            </select>
+
+            <select class="agente-filter-select" onchange="setAgenteConvenioFilter(this.value)">
+              <option value="all" ${agenteConvenioFilter === 'all' ? 'selected' : ''}>🏥 Todos os Convênios (${convenios.length})</option>
+              ${convenios.map(c => `
+                <option value="${esc(c)}" ${agenteConvenioFilter === c ? 'selected' : ''}>${esc(c)}</option>
+              `).join('')}
+            </select>
+
+            <select class="agente-filter-select" onchange="setAgenteStatusFilter(this.value)">
+              <option value="all" ${agenteStatusFilter === 'all' ? 'selected' : ''}>⚡ Todos os Status</option>
+              <option value="concluido" ${agenteStatusFilter === 'concluido' ? 'selected' : ''}>✓ Concluído / Finalizado</option>
+              <option value="pendente" ${agenteStatusFilter === 'pendente' ? 'selected' : ''}>⏳ Pendente / Agendado</option>
+              <option value="falta" ${agenteStatusFilter === 'falta' ? 'selected' : ''}>✕ Falta / Não compareceu</option>
+              <option value="cancelado" ${agenteStatusFilter === 'cancelado' ? 'selected' : ''}>⊘ Cancelado / Desmarcado</option>
+            </select>
+          </div>
+
+          <!-- TABELA DE AUDITORIA -->
+          <div class="agente-table-card">
+            <div style="overflow-x:auto;">
+              <table class="agente-table">
+                <thead>
+                  <tr>
+                    <th style="width:100px;">Data</th>
+                    <th style="width:85px;">Horário</th>
+                    <th style="width:130px;">Unidade</th>
+                    <th>Convênio</th>
+                    <th>Profissional / Especialidade</th>
+                    <th style="width:170px;">Status Ágil</th>
+                    <th style="width:140px;">Validação</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pageRows.length ? pageRows.map(r => `
+                    <tr>
+                      <td style="font-weight:600; color:var(--text); white-space:nowrap;">${esc(r.data)}</td>
+                      <td style="color:var(--text-2); font-family:monospace; font-size:12px;">${esc(r.horario)}</td>
+                      <td>
+                        <span class="${r.unidade.includes('GRANJA') ? 'badge-unit-granja' : 'badge-unit-paulista'}">
+                          ${r.unidade.includes('GRANJA') ? '🌿 Granja' : '🏙️ Paulista'}
+                        </span>
+                      </td>
+                      <td style="font-weight:600; color:var(--text);">${esc(r.convenio || '—')}</td>
+                      <td style="color:var(--text-2); font-size:12px;">${esc(r.profissional || '—')}</td>
+                      <td>${getStatusBadge(r.status_agil, '')}</td>
+                      <td>${getStatusBadge('', r.validacao)}</td>
+                    </tr>
+                  `).join('') : `
+                    <tr>
+                      <td colspan="7" style="text-align:center; padding:40px 20px; color:var(--text-3);">
+                        Nenhum agendamento encontrado com os filtros selecionados.
+                      </td>
+                    </tr>
+                  `}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- RODAPÉ & PAGINAÇÃO -->
+            <div class="agente-table-foot">
+              <div style="color:var(--text-2);">
+                Mostrando <b>${totalFiltered > 0 ? startIdx + 1 : 0}</b> a <b>${Math.min(startIdx + AGENTE_PAGE_SIZE, totalFiltered)}</b> de <b>${totalFiltered.toLocaleString('pt-BR')}</b> registros
+                ${totalFiltered !== allRows.length ? `<span style="color:var(--text-3); font-size:11px; margin-left:6px;">(filtrados do total de ${allRows.length})</span>` : ''}
+              </div>
+              <div class="agente-pagination">
+                <button class="btn-page" onclick="setAgentePage(1)" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>« Primeiro</button>
+                <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage - 1})" ${agenteCurrentPage <= 1 ? 'disabled' : ''}>‹ Anterior</button>
+                <span style="padding:0 8px; font-weight:700; color:var(--text);">Página ${agenteCurrentPage} de ${totalPages}</span>
+                <button class="btn-page" onclick="setAgentePage(${agenteCurrentPage + 1})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Próxima ›</button>
+                <button class="btn-page" onclick="setAgentePage(${totalPages})" ${agenteCurrentPage >= totalPages ? 'disabled' : ''}>Última »</button>
+              </div>
+            </div>
+          </div>
         </div>
       `;
     }

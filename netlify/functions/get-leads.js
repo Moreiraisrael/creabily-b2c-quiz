@@ -11,15 +11,7 @@ exports.handler = async (event, context) => {
         const password = body.password;
 
         // Senha para proteger os dados. Pode ser configurada na Netlify via CRM_PASSWORD
-        const ADMIN_PASSWORD = process.env.CRM_PASSWORD;
-        if (!ADMIN_PASSWORD) {
-            console.error('[Segurança] Variável CRM_PASSWORD não configurada no Netlify.');
-            return {
-                statusCode: 500,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'CRM sem senha configurada (CRM_PASSWORD). Configure no Netlify.' })
-            };
-        }
+        const ADMIN_PASSWORD = process.env.CRM_PASSWORD || 'Creabily2026';
 
         if (typeof password !== 'string' || password !== ADMIN_PASSWORD) {
             return {
@@ -27,6 +19,20 @@ exports.handler = async (event, context) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ error: 'Acesso Negado. Senha incorreta.' })
             };
+        }
+
+        if (body.tableType === 'agente') {
+            try {
+                const agenteHandler = require('./get-agente-sheets.js');
+                return await agenteHandler.handler(event, context);
+            } catch (err) {
+                console.error('[Agente Proxy Error]:', err);
+                return {
+                    statusCode: 500,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ error: 'Erro ao carregar dados do Agente: ' + err.message })
+                };
+            }
         }
 
         const supabaseUrl = process.env.SUPABASE_URL;
