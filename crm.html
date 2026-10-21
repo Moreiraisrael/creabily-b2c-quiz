@@ -443,60 +443,49 @@
     .agente-filter-select { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text); font-size: 12px; font-weight: 500; outline: none; }
     .agente-filter-select:focus { border-color: #6b308b; }
 
-    /* ---------- Gráficos & UX avançada ---------- */
-    .agente-kpi-card { position: relative; overflow: hidden; }
-    .agente-charts-head { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; color: var(--text); }
-    .agente-charts-grid { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(300px, 1.3fr) minmax(260px, 1fr); gap: 12px; margin-top: 12px; }
-    @media (max-width: 1100px) { .agente-charts-grid { grid-template-columns: 1fr; } }
+    /* ---------- Painel de Gráficos (SVG puro) ---------- */
+    .agente-charts-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .agente-charts-title { font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .agente-charts-grid { display: grid; grid-template-columns: 1.05fr 1.3fr 1.5fr; gap: 14px; margin-top: 14px; }
+    @media (max-width: 1280px) { .agente-charts-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 760px) { .agente-charts-grid { grid-template-columns: 1fr; } }
     .chart-card { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-    .chart-title { font-size: 12px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: .5px; display: flex; justify-content: space-between; align-items: baseline; }
-    .chart-hint { font-size: 10px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--text-3); }
-    .donut-wrap { display: flex; align-items: center; gap: 14px; }
-    .donut { width: 128px; height: 128px; flex-shrink: 0; }
-    .donut circle { transition: stroke-dasharray .6s ease; }
-    .donut-num { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; fill: var(--text); }
-    .donut-sub { font-size: 9px; fill: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
-    .donut-legend { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-    .legend-row { display: flex; align-items: center; gap: 7px; padding: 4px 6px; border-radius: 6px; border: none; background: transparent; cursor: pointer; font-size: 11.5px; color: var(--text-2); text-align: left; transition: background .12s; }
-    .legend-row:hover, .legend-row.active { background: var(--surface); box-shadow: 0 0 0 1px var(--line); }
-    .legend-dot { width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
-    .legend-label { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .legend-row b { color: var(--text); font-family: 'Outfit', sans-serif; }
-    .legend-pct { width: 32px; text-align: right; color: var(--text-3); font-size: 10.5px; }
-    .bars-v { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding-top: 14px; }
-    .bar-v { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; border: none; background: transparent; cursor: pointer; padding: 0; position: relative; }
-    .bar-v-fill { width: 100%; max-width: 22px; background: linear-gradient(180deg, #8B5CF6, #6b308b); border-radius: 4px 4px 0 0; transition: all .2s; }
-    .bar-v:hover .bar-v-fill { filter: brightness(1.15); transform: scaleY(1.03); }
-    .bar-v.active .bar-v-fill { background: linear-gradient(180deg, #22D3EE, #0E7490); box-shadow: 0 0 0 2px rgba(14,116,144,.25); }
-    .bar-v-val { font-size: 9px; color: var(--text-3); font-weight: 700; opacity: 0; transition: opacity .12s; position: absolute; top: -2px; }
-    .bar-v:hover .bar-v-val, .bar-v.active .bar-v-val { opacity: 1; }
-    .bar-v-lbl { font-size: 9.5px; color: var(--text-3); font-weight: 600; }
-    .unit-split { margin-top: 2px; }
-    .unit-split-bar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--line); }
-    .unit-split-bar span { transition: width .5s; }
-    .unit-split-lbl { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-3); margin-top: 5px; }
-    .unit-split-lbl b { color: var(--text); }
-    .bars-h { display: flex; flex-direction: column; gap: 3px; max-height: 190px; overflow-y: auto; padding-right: 2px; }
-    .bar-h { display: grid; grid-template-columns: minmax(80px, 38%) 1fr 34px; align-items: center; gap: 8px; border: none; background: transparent; cursor: pointer; padding: 4px 6px; border-radius: 6px; font-size: 11px; color: var(--text-2); text-align: left; }
-    .bar-h:hover, .bar-h.active { background: var(--surface); box-shadow: 0 0 0 1px var(--line); }
-    .bar-h-lbl { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
-    .bar-h-track { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; }
-    .bar-h-fill { display: block; height: 100%; background: linear-gradient(90deg, #6b308b, #A855F7); border-radius: 999px; transition: width .5s; }
-    .bar-h.active .bar-h-fill { background: linear-gradient(90deg, #0E7490, #22D3EE); }
-    .bar-h-val { text-align: right; color: var(--text); font-family: 'Outfit', sans-serif; }
-
-    .agente-quick-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; position: sticky; top: 0; z-index: 20; background: var(--bg, var(--surface)); padding: 6px 0; }
-    .quick-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
-    .quick-chip b { font-family: 'Outfit', sans-serif; color: var(--text); }
-    .quick-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--qc); }
-    .quick-chip:hover { border-color: var(--qc); transform: translateY(-1px); }
-    .quick-chip.active { background: var(--qc); border-color: var(--qc); color: #fff; box-shadow: 0 3px 8px rgba(0,0,0,.15); }
-    .quick-chip.active b { color: #fff; }
-    .quick-chip.active .quick-dot { background: #fff; }
-    .quick-sep { width: 1px; height: 20px; background: var(--line-strong); margin: 0 4px; }
-    .active-filter { padding: 4px 10px; border-radius: 6px; border: 1px solid #DDD6FE; background: #F5F3FF; color: #5B21B6; font-size: 11px; font-weight: 600; cursor: pointer; }
-    .active-filter:hover { background: #EDE9FE; }
-    .active-filter.clear { background: transparent; border-color: transparent; color: var(--text-3); text-decoration: underline; }
+    .chart-card h4 { margin: 0; font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); }
+    .chart-card.wide { grid-column: span 2; }
+    @media (max-width: 760px) { .chart-card.wide { grid-column: span 1; } }
+    .donut-wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .donut-wrap svg { flex-shrink: 0; }
+    .donut-center { font-family: 'Outfit', sans-serif; }
+    .donut-legend { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 130px; }
+    .legend-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; padding: 4px 8px; border-radius: 6px; cursor: pointer; border: 1px solid transparent; background: transparent; color: var(--text-2); font-weight: 600; transition: all .12s; }
+    .legend-item:hover { background: var(--surface); border-color: var(--line); }
+    .legend-item.active { background: var(--surface); border-color: var(--line-strong); color: var(--text); }
+    .legend-dot { width: 9px; height: 9px; border-radius: 3px; display: inline-block; margin-right: 6px; }
+    .hbar-list { display: flex; flex-direction: column; gap: 6px; max-height: 210px; overflow-y: auto; padding-right: 4px; }
+    .hbar-row { display: grid; grid-template-columns: minmax(90px, 140px) 1fr 34px; align-items: center; gap: 8px; font-size: 11px; cursor: pointer; border-radius: 6px; padding: 2px 4px; }
+    .hbar-row:hover { background: var(--surface); }
+    .hbar-row.active .hbar-label { color: #6b308b; font-weight: 800; }
+    .hbar-label { color: var(--text-2); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hbar-track { height: 9px; background: var(--line); border-radius: 999px; overflow: hidden; display: flex; }
+    .hbar-seg { height: 100%; transition: width .4s ease; }
+    .hbar-val { text-align: right; font-weight: 700; color: var(--text); font-family: 'Outfit', sans-serif; }
+    .col-chart { display: flex; align-items: flex-end; gap: 5px; height: 130px; padding-top: 6px; overflow-x: auto; }
+    .col-item { flex: 1 0 22px; max-width: 44px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 3px; height: 100%; cursor: pointer; }
+    .col-bar-wrap { width: 100%; flex: 1; display: flex; align-items: flex-end; }
+    .col-bar { width: 100%; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, #8B5CF6, #6b308b); transition: height .4s ease, filter .15s; min-height: 3px; }
+    .col-item:hover .col-bar { filter: brightness(1.15); }
+    .col-item.active .col-bar { background: linear-gradient(180deg, #22D3EE, #0E7490); }
+    .col-num { font-size: 9.5px; font-weight: 700; color: var(--text-2); }
+    .col-lbl { font-size: 9.5px; color: var(--text-3); font-weight: 600; }
+    .unit-split { display: flex; flex-direction: column; gap: 8px; }
+    .unit-bar { display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: var(--line); }
+    .unit-legend { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 600; color: var(--text-2); }
+    .progress-ring-row { display: flex; align-items: center; gap: 12px; }
+    .active-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 11px; }
+    .filter-chip { background: #EDE9FE; color: #4C1D95; border-radius: 999px; padding: 3px 10px; font-weight: 700; }
+    .btn-clear-filters { background: none; border: none; color: #DC2626; font-weight: 700; font-size: 11px; cursor: pointer; padding: 3px 6px; border-radius: 6px; }
+    .btn-clear-filters:hover { background: rgba(220,38,38,0.08); }
+    .agente-filter-bar { position: sticky; top: 0; z-index: 20; }
 
     /* Switch de Visualização: Inteligente vs Tabela Completa */
     .agente-view-toggle { display: inline-flex; align-items: center; background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
@@ -907,7 +896,7 @@
     let agenteSearchQuery = '';
     let agenteCurrentPage = 1;
     const AGENTE_PAGE_SIZE = 50;
-    let agenteShowCharts = true;
+    let agenteChartsOpen = true;
     let agenteViewMode = 'smart'; // 'smart' (ergonômica sem scroll lateral) ou 'table' (completa A:N)
     let view = 'today';
     let boardFilter = 'active'; // 'active', 'all', 'cold'
@@ -2237,7 +2226,7 @@
     }
 
     function toggleAgenteCharts() {
-      agenteShowCharts = !agenteShowCharts;
+      agenteChartsOpen = !agenteChartsOpen;
       renderAgenteView();
     }
 
@@ -2560,6 +2549,118 @@
         return `<span style="font-size:11px; color:var(--text-2); font-weight:600;">${esc(alerta)}</span>`;
       };
 
+      // ===== Gráficos (SVG puro, sem dependências) =====
+      const statusSegs = [
+        { key: 'validado', label: 'Validados', val: k.validados || 0, color: '#10B981' },
+        { key: 'pendente', label: 'Pendentes', val: k.pendentes || 0, color: '#F59E0B' },
+        { key: 'falta_justificada', label: 'Falta justificada', val: k.faltasJustificadas || 0, color: '#9CA3AF' },
+        { key: 'nao_compareceu', label: 'Não compareceu', val: k.naoCompareceu || 0, color: '#EF4444' },
+        { key: 'cancelado', label: 'Cancelados', val: k.cancelamentos || 0, color: '#F97316' }
+      ];
+      const statusTotal = statusSegs.reduce((a, s) => a + s.val, 0) || 1;
+      const R = 52, CIRC = 2 * Math.PI * R;
+      let offAcc = 0;
+      const donutCircles = statusSegs.map(s => {
+        const len = (s.val / statusTotal) * CIRC;
+        const c = `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${s.color}" stroke-width="16" stroke-dasharray="${len} ${CIRC - len}" stroke-dashoffset="${-offAcc}" transform="rotate(-90 70 70)"><title>${s.label}: ${s.val}</title></circle>`;
+        offAcc += len;
+        return c;
+      }).join('');
+      const donutSvg = `<svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--line)" stroke-width="16"/>
+        ${donutCircles}
+        <text x="70" y="68" text-anchor="middle" font-size="22" font-weight="800" fill="currentColor" class="donut-center">${k.taxaConclusao || 0}%</text>
+        <text x="70" y="86" text-anchor="middle" font-size="9.5" font-weight="700" fill="#94A3B8">CONCLUÍDO</text>
+      </svg>`;
+
+      const maxConv = Math.max(1, ...convenios.map(c => c.count));
+      const convBars = convenios.map(c => `
+        <div class="hbar-row ${agenteConvenioFilter === c.convenio ? 'active' : ''}" onclick="setAgenteConvenioFilter('${agenteConvenioFilter === c.convenio ? 'all' : esc(c.convenio)}')" title="${esc(c.convenio)}: ${c.count}">
+          <span class="hbar-label">${esc(c.convenio)}</span>
+          <div class="hbar-track"><div class="hbar-seg" style="width:${(c.count / maxConv) * 100}%; background:linear-gradient(90deg,#8B5CF6,#6b308b);"></div></div>
+          <span class="hbar-val">${c.count}</span>
+        </div>`).join('');
+
+      const parseD = (s) => { const p = String(s).split('/'); return new Date(+p[2], +p[1] - 1, +p[0]).getTime() || 0; };
+      const diasAsc = [...dias].sort((a, b) => parseD(a.data) - parseD(b.data));
+      const maxDia = Math.max(1, ...diasAsc.map(d => d.count));
+      const dayCols = diasAsc.map(d => `
+        <div class="col-item ${agenteDayFilter === d.data ? 'active' : ''}" onclick="setAgenteDayFilter('${agenteDayFilter === d.data ? 'all' : d.data}')" title="${d.data}: ${d.count} atendimentos">
+          <span class="col-num">${d.count}</span>
+          <div class="col-bar-wrap"><div class="col-bar" style="height:${Math.max(4, (d.count / maxDia) * 100)}%"></div></div>
+          <span class="col-lbl">${d.data.substring(0, 2)}</span>
+        </div>`).join('');
+
+      const pTot = k.paulistaTotal || 0, gTot = k.granjaTotal || 0;
+      const pPct = (pTot + gTot) ? Math.round((pTot / (pTot + gTot)) * 100) : 0;
+      const openRate = k.totalAgendamentos ? Math.round(((k.pendentes || 0) / k.totalAgendamentos) * 100) : 0;
+
+      const chartsHtml = `
+        <div class="agente-hero" style="padding:16px 20px;">
+          <div class="agente-charts-head">
+            <div class="agente-charts-title">📈 Visão Gráfica da Conferência <span style="font-size:11px; font-weight:600; color:var(--text-3);">(clique nos gráficos para filtrar)</span></div>
+            <button class="btn-agente" onclick="toggleAgenteCharts()">${agenteChartsOpen ? '▾ Recolher' : '▸ Expandir'}</button>
+          </div>
+          ${agenteChartsOpen ? `
+          <div class="agente-charts-grid">
+            <div class="chart-card">
+              <h4>Situação dos atendimentos</h4>
+              <div class="donut-wrap">
+                ${donutSvg}
+                <div class="donut-legend">
+                  ${statusSegs.map(s => `
+                    <button class="legend-item ${agenteStatusFilter === s.key ? 'active' : ''}" onclick="setAgenteStatusFilter('${agenteStatusFilter === s.key ? 'all' : s.key}')">
+                      <span><span class="legend-dot" style="background:${s.color};"></span>${s.label}</span><b>${s.val.toLocaleString('pt-BR')}</b>
+                    </button>`).join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-card">
+              <h4>Atendimentos por convênio</h4>
+              <div class="hbar-list">${convBars || '<span style="font-size:12px;color:var(--text-3);">Sem dados</span>'}</div>
+            </div>
+
+            <div class="chart-card">
+              <h4>Unidades & pendências</h4>
+              <div class="unit-split">
+                <div class="unit-bar">
+                  <div style="width:${pPct}%; background:#6b308b;" title="Paulista ${pTot}"></div>
+                  <div style="width:${100 - pPct}%; background:#0E7490;" title="Granja ${gTot}"></div>
+                </div>
+                <div class="unit-legend">
+                  <span><span class="legend-dot" style="background:#6b308b;"></span>🏙️ Paulista · ${pTot.toLocaleString('pt-BR')} (${pPct}%)</span>
+                  <span><span class="legend-dot" style="background:#0E7490;"></span>🌿 Granja · ${gTot.toLocaleString('pt-BR')}</span>
+                </div>
+              </div>
+              <div style="margin-top:6px;">
+                <div style="display:flex; justify-content:space-between; font-size:11.5px; font-weight:700; color:var(--text-2); margin-bottom:5px;">
+                  <span>⏳ Em aberto na recepção</span><span style="color:#D97706;">${(k.pendentes || 0).toLocaleString('pt-BR')} (${openRate}%)</span>
+                </div>
+                <div class="hbar-track" style="height:12px;"><div class="hbar-seg" style="width:${openRate}%; background:linear-gradient(90deg,#FBBF24,#F59E0B);"></div></div>
+              </div>
+            </div>
+
+            <div class="chart-card wide">
+              <h4>Volume diário de atendimentos</h4>
+              <div class="col-chart">${dayCols || '<span style="font-size:12px;color:var(--text-3);">Sem dados</span>'}</div>
+            </div>
+          </div>` : ''}
+        </div>`;
+
+      const hasActiveFilters = agenteUnitFilter !== 'all' || agenteConvenioFilter !== 'all' || agenteStatusFilter !== 'all' || agenteDayFilter !== 'all' || agenteSearchQuery;
+      const statusLabels = { validado: 'Validados', pendente: 'Pendentes', falta_justificada: 'Falta justificada', nao_compareceu: 'Não compareceu', cancelado: 'Cancelados' };
+      const activeFiltersHtml = hasActiveFilters ? `
+        <div class="active-filters">
+          <span style="color:var(--text-3); font-weight:700;">Filtros ativos:</span>
+          ${agenteDayFilter !== 'all' ? `<span class="filter-chip">📅 ${esc(agenteDayFilter)}</span>` : ''}
+          ${agenteConvenioFilter !== 'all' ? `<span class="filter-chip">🏥 ${esc(agenteConvenioFilter)}</span>` : ''}
+          ${agenteUnitFilter !== 'all' ? `<span class="filter-chip">${agenteUnitFilter === 'paulista' ? '🏙️ Paulista' : '🌿 Granja'}</span>` : ''}
+          ${agenteStatusFilter !== 'all' ? `<span class="filter-chip">${statusLabels[agenteStatusFilter] || esc(agenteStatusFilter)}</span>` : ''}
+          ${agenteSearchQuery ? `<span class="filter-chip">🔍 ${esc(agenteSearchQuery)}</span>` : ''}
+          <button class="btn-clear-filters" onclick="clearAgenteFilters()">✕ Limpar tudo</button>
+        </div>` : '';
+
       const getValStatusBadge = (r) => {
         const val = (r.validacao || 'Pendente').trim();
         if (val === 'Validado' || val === 'Finalizado') {
@@ -2576,44 +2677,6 @@
         }
         return '<span style="color:#D97706; font-weight:700;">⏳ Pendente</span>';
       };
-
-      // ---- Dados dos gráficos (SVG/CSS puro, sem bibliotecas) ----
-      const statusSlices = [
-        { label: 'Validados', filter: 'validado', value: k.validados || 0, color: '#10B981' },
-        { label: 'Pendentes', filter: 'pendente', value: k.pendentes || 0, color: '#F59E0B' },
-        { label: 'Faltas justificadas', filter: 'falta_justificada', value: k.faltasJustificadas || 0, color: '#9CA3AF' },
-        { label: 'Não compareceu', filter: 'nao_compareceu', value: k.naoCompareceu || 0, color: '#EF4444' },
-        { label: 'Cancelamentos', filter: 'cancelado', value: k.cancelamentos || 0, color: '#F97316' }
-      ];
-      const statusTotal = statusSlices.reduce((a, s) => a + s.value, 0);
-      const R = 52, CIRC = 2 * Math.PI * R;
-      let offAcc = 0;
-      const donutSegs = statusSlices.map(s => {
-        const len = statusTotal ? (s.value / statusTotal) * CIRC : 0;
-        const seg = `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${s.color}" stroke-width="16" stroke-dasharray="${len} ${CIRC - len}" stroke-dashoffset="${-offAcc}" transform="rotate(-90 70 70)"/>`;
-        offAcc += len;
-        return seg;
-      }).join('');
-      const donutPct = statusTotal ? Math.round(((k.validados || 0) / statusTotal) * 100) : 0;
-      const donutSvg = `<svg class="donut" viewBox="0 0 140 140" aria-hidden="true"><circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--line)" stroke-width="16"/>${donutSegs}<text x="70" y="68" text-anchor="middle" class="donut-num">${donutPct}%</text><text x="70" y="86" text-anchor="middle" class="donut-sub">conferido</text></svg>`;
-      const maxDia = Math.max(1, ...dias.map(d => d.count));
-      const maxConv = Math.max(1, ...convenios.map(c => c.count));
-      const unitSum = (k.paulistaTotal || 0) + (k.granjaTotal || 0);
-      const unitPctP = unitSum ? Math.round((k.paulistaTotal || 0) / unitSum * 100) : 50;
-      const quickChips = [
-        { f: 'all', l: 'Todos', n: k.totalAgendamentos || 0, c: '#6b308b' },
-        { f: 'pendente', l: 'Pendentes', n: k.pendentes || 0, c: '#F59E0B' },
-        { f: 'nao_compareceu', l: 'Não compareceu', n: k.naoCompareceu || 0, c: '#EF4444' },
-        { f: 'validado', l: 'Validados', n: k.validados || 0, c: '#10B981' },
-        { f: 'falta_justificada', l: 'Faltas', n: k.faltasJustificadas || 0, c: '#9CA3AF' },
-        { f: 'cancelado', l: 'Cancelados', n: k.cancelamentos || 0, c: '#F97316' }
-      ];
-      const activeFilters = [
-        agenteDayFilter !== 'all' ? { l: '📅 ' + agenteDayFilter, fn: "setAgenteDayFilter('all')" } : null,
-        agenteConvenioFilter !== 'all' ? { l: '🏥 ' + esc(agenteConvenioFilter), fn: "setAgenteConvenioFilter('all')" } : null,
-        agenteUnitFilter !== 'all' ? { l: agenteUnitFilter === 'paulista' ? '🏙️ Paulista' : '🌿 Granja', fn: "setAgenteUnitFilter('all')" } : null,
-        agenteStatusFilter !== 'all' ? { l: '⚡ ' + agenteStatusFilter.replace(/_/g, ' '), fn: "setAgenteStatusFilter('all')" } : null
-      ].filter(Boolean);
 
       container.innerHTML = `
         <div class="agente-container">
@@ -2674,75 +2737,38 @@
               </div>
             </div>
 
-            <!-- PAINEL DE GRÁFICOS INTERATIVOS (clique filtra a lista) -->
-            <div class="agente-charts-head">
-              <span>📈 Análise Visual</span>
-              <button class="agente-view-btn" onclick="toggleAgenteCharts()">${agenteShowCharts ? '▲ Recolher gráficos' : '▼ Mostrar gráficos'}</button>
+            <!-- BARRA DAS 11 ABAS DE CONVÊNIOS (PROMPT MESTRE ITEM 4) -->
+            <div style="margin-top:16px; font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px;">Abas Oficiais de Convênio:</div>
+            <div class="agente-convenio-bar">
+              <button class="agente-conv-pill ${agenteConvenioFilter === 'all' ? 'active' : ''}" onclick="setAgenteConvenioFilter('all')">
+                🏥 Todos os Convênios <span class="count">${k.totalAgendamentos || 0}</span>
+              </button>
+              ${convenios.map(c => `
+                <button class="agente-conv-pill ${agenteConvenioFilter === c.convenio ? 'active' : ''}" onclick="setAgenteConvenioFilter('${esc(c.convenio)}')">
+                  ${esc(c.convenio)} <span class="count">${c.count}</span>
+                </button>
+              `).join('')}
             </div>
-            ${agenteShowCharts ? `
-            <div class="agente-charts-grid">
-              <!-- DONUT: STATUS -->
-              <div class="chart-card">
-                <div class="chart-title">Situação da Conferência</div>
-                <div class="donut-wrap">
-                  ${donutSvg}
-                  <div class="donut-legend">
-                    ${statusSlices.map(s => `
-                      <button class="legend-row ${agenteStatusFilter === s.filter ? 'active' : ''}" onclick="setAgenteStatusFilter('${agenteStatusFilter === s.filter ? 'all' : s.filter}')">
-                        <span class="legend-dot" style="background:${s.color}"></span>
-                        <span class="legend-label">${s.label}</span>
-                        <b>${s.value.toLocaleString('pt-BR')}</b>
-                        <span class="legend-pct">${statusTotal ? Math.round(s.value / statusTotal * 100) : 0}%</span>
-                      </button>`).join('')}
-                  </div>
-                </div>
-              </div>
 
-              <!-- BARRAS: ATENDIMENTOS POR DIA -->
-              <div class="chart-card">
-                <div class="chart-title">Atendimentos por Dia <span class="chart-hint">clique para filtrar</span></div>
-                <div class="bars-v">
-                  ${dias.map(d => `
-                    <button class="bar-v ${agenteDayFilter === d.data ? 'active' : ''}" onclick="setAgenteDayFilter('${agenteDayFilter === d.data ? 'all' : d.data}')" title="${d.data}: ${d.count} atendimentos">
-                      <span class="bar-v-val">${d.count}</span>
-                      <span class="bar-v-fill" style="height:${Math.max(4, Math.round(d.count / maxDia * 100))}%"></span>
-                      <span class="bar-v-lbl">${d.data.substring(0, 2)}</span>
-                    </button>`).join('')}
-                </div>
-                <div class="unit-split">
-                  <div class="unit-split-bar">
-                    <span style="width:${unitPctP}%; background:#6b308b;"></span>
-                    <span style="width:${100 - unitPctP}%; background:#0E7490;"></span>
-                  </div>
-                  <div class="unit-split-lbl"><span>🏙️ Paulista <b>${(k.paulistaTotal || 0).toLocaleString('pt-BR')}</b> (${unitPctP}%)</span><span>🌿 Granja <b>${(k.granjaTotal || 0).toLocaleString('pt-BR')}</b> (${100 - unitPctP}%)</span></div>
-                </div>
+            <!-- BARRA DE SELEÇÃO POR DIA -->
+            ${dias.length ? `
+              <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px;">Navegar por Dia:</div>
+              <div class="agente-days-bar">
+                <button class="agente-day-chip ${agenteDayFilter === 'all' ? 'active' : ''}" onclick="setAgenteDayFilter('all')">
+                  Todos os Dias (${k.totalAgendamentos || 0})
+                </button>
+                ${dias.map(d => `
+                  <button class="agente-day-chip ${agenteDayFilter === d.data ? 'active' : ''}" onclick="setAgenteDayFilter('${d.data}')">
+                    ${d.data.substring(0, 5)} (${d.count})
+                  </button>
+                `).join('')}
               </div>
-
-              <!-- BARRAS HORIZONTAIS: CONVÊNIOS -->
-              <div class="chart-card">
-                <div class="chart-title">Por Convênio <span class="chart-hint">clique para filtrar</span></div>
-                <div class="bars-h">
-                  ${convenios.map(c => `
-                    <button class="bar-h ${agenteConvenioFilter === c.convenio ? 'active' : ''}" onclick="setAgenteConvenioFilter('${agenteConvenioFilter === c.convenio ? 'all' : esc(c.convenio)}')">
-                      <span class="bar-h-lbl" title="${esc(c.convenio)}">${esc(c.convenio)}</span>
-                      <span class="bar-h-track"><span class="bar-h-fill" style="width:${Math.max(3, Math.round(c.count / maxConv * 100))}%"></span></span>
-                      <b class="bar-h-val">${c.count}</b>
-                    </button>`).join('')}
-                </div>
-              </div>
-            </div>` : ''}
+            ` : ''}
           </div>
+
+          ${chartsHtml}
 
           <div id="agente-table-anchor"></div>
-
-          <!-- ATALHOS RÁPIDOS DE STATUS + FILTROS ATIVOS -->
-          <div class="agente-quick-bar">
-            ${quickChips.map(q => `
-              <button class="quick-chip ${agenteStatusFilter === q.f ? 'active' : ''}" style="--qc:${q.c}" onclick="setAgenteStatusFilter('${q.f}')">
-                <span class="quick-dot"></span>${q.l} <b>${q.n.toLocaleString('pt-BR')}</b>
-              </button>`).join('')}
-            ${activeFilters.length ? `<span class="quick-sep"></span>${activeFilters.map(a => `<button class="active-filter" onclick="${a.fn}">${a.l} ✕</button>`).join('')}<button class="active-filter clear" onclick="clearAgenteFilters()">Limpar tudo</button>` : ''}
-          </div>
 
           <!-- BARRA DE FILTROS & BUSCA RÁPIDA & SELETOR DE MODO -->
           <div class="agente-filter-bar">
@@ -2772,6 +2798,7 @@
               </button>
             </div>
           </div>
+          ${activeFiltersHtml}
 
           <!-- BANNER MODERNO DE IDENTIFICAÇÃO VISUAL -->
           <div class="agente-header-modern">
