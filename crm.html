@@ -413,8 +413,8 @@
     .btn-agente-sheets { background: #059669; color: #fff; border-color: #059669; }
     .btn-agente-sheets:hover { background: #047857; border-color: #047857; }
 
-    .agente-kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
-    @media (max-width: 1200px) { .agente-kpis { grid-template-columns: repeat(3, 1fr); } }
+    .agente-kpis { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    @media (max-width: 1320px) { .agente-kpis { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 700px) { .agente-kpis { grid-template-columns: 1fr 1fr; } }
     .agente-kpi-card { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; transition: transform .15s; }
     .agente-kpi-card:hover { transform: translateY(-1px); }
@@ -507,11 +507,12 @@
     .agente-smart-row:hover { box-shadow: 0 3px 8px rgba(0,0,0,0.04); transform: translateX(2px); }
 
     /* Indicadores Sutis de Borda Lateral (60-30-10) */
-    .agente-smart-row.row-val-validado, .agente-table tr.row-val-validado { border-left: 4px solid #10B981 !important; background: rgba(16, 185, 129, 0.03) !important; }
-    .agente-smart-row.row-val-pendente, .agente-table tr.row-val-pendente { border-left: 4px solid #F59E0B !important; background: rgba(245, 158, 11, 0.03) !important; }
+    .agente-smart-row.row-val-validado, .agente-table tr.row-val-validado { border-left: 4px solid #16A34A !important; background: rgba(22, 163, 74, 0.04) !important; }
+    .agente-smart-row.row-val-pendente, .agente-table tr.row-val-pendente { border-left: 4px solid #F59E0B !important; background: rgba(245, 158, 11, 0.04) !important; }
     .agente-smart-row.row-val-falta, .agente-table tr.row-val-falta { border-left: 4px solid #9CA3AF !important; background: #FFFFFF !important; }
-    .agente-smart-row.row-val-noshow, .agente-table tr.row-val-noshow { border-left: 4px solid #EF4444 !important; background: rgba(239, 68, 68, 0.03) !important; }
-    .agente-smart-row.row-val-cancelado, .agente-table tr.row-val-cancelado { border-left: 4px solid #F97316 !important; background: rgba(249, 115, 22, 0.03) !important; }
+    .agente-smart-row.row-val-noshow, .agente-table tr.row-val-noshow { border-left: 4px solid #DC2626 !important; background: rgba(220, 38, 38, 0.05) !important; }
+    .agente-smart-row.row-val-cancelado, .agente-table tr.row-val-cancelado { border-left: 4px solid #F97316 !important; background: rgba(249, 115, 22, 0.04) !important; }
+    .agente-smart-row.row-val-nps, .agente-table tr.row-val-nps { border-left: 4px solid #2563EB !important; background: rgba(37, 99, 235, 0.07) !important; }
 
     /* Células da Visão Inteligente */
     .smart-cell-time { display: flex; flex-direction: column; gap: 2px; }
@@ -548,7 +549,10 @@
     .agente-obs-input:focus { border-color: #6b308b; background: #fff; box-shadow: 0 0 0 2px rgba(107, 48, 139, 0.1); }
 
     /* Alertas Clínicos Modernos */
-    .alerta-nps { display: inline-flex; align-items: center; gap: 3px; background: #DBEAFE; color: #1E40AF; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-size: 10.5px; border: 1px solid #BFDBFE; }
+    .alerta-nps { display: inline-flex; align-items: center; gap: 4px; background: #DBEAFE; color: #1E40AF; padding: 3px 8px; border-radius: 6px; font-weight: 800; font-size: 10.5px; border: 1px solid #60A5FA; box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15); }
+    .alerta-novo-paciente { display: inline-flex; align-items: center; gap: 3px; background: #EFF6FF; color: #1D4ED8; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-size: 10px; border: 1px solid #BFDBFE; }
+    .btn-nps-inline { display: inline-flex; align-items: center; gap: 3px; background: #2563EB; color: #fff; padding: 2px 8px; border-radius: 5px; font-size: 10px; font-weight: 700; border: none; cursor: pointer; transition: all .15s; text-decoration: none; }
+    .btn-nps-inline:hover { background: #1D4ED8; transform: translateY(-1px); }
     .alerta-primeira-sessao { display: inline-flex; align-items: center; gap: 3px; background: #FEF3C7; color: #92400E; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-size: 10.5px; border: 1px solid #FDE68A; }
     .alerta-fim-ciclo { display: inline-flex; align-items: center; gap: 3px; background: #FEE2E2; color: #991B1B; padding: 2px 7px; border-radius: 5px; font-weight: 700; font-size: 10.5px; border: 1px solid #FECACA; }
 
@@ -652,7 +656,7 @@
     .modal p { margin: 0 0 14px; color: var(--text-2); }
     .modal .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px); background: #24202e; color: #fff; padding: 11px 16px;
-      border-radius: 10px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 80; opacity: 0; transition: all .2s; pointer-events: none; display: flex; gap: 8px; align-items: center; }
+      border-radius: 10px; font-weight: 500; box-shadow: var(--shadow-lg); z-index: 100000; opacity: 0; transition: all .2s; pointer-events: none; display: flex; gap: 8px; align-items: center; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.err { background: var(--red); }
 
@@ -2241,7 +2245,7 @@
       renderAgenteView();
     }
 
-    // Modal de Importação de Arquivos do Ágil (XLSX / CSV)
+    // Modal de Importação de Arquivos do Ágil (XLSX / XLS / CSV)
     function openAgenteImportModal() {
       const modalRoot = document.getElementById('modal-root');
       if (!modalRoot) return;
@@ -2249,7 +2253,7 @@
 
       modalRoot.innerHTML = `
         <div class="modal-backdrop" id="import-modal-backdrop" onclick="if(event.target === this) closeAgenteImportModal()">
-          <div class="modal-box-lg">
+          <div class="modal-box-lg" style="max-width:740px;">
             <div class="modal-header">
               <div class="modal-title">
                 ${ic('calendar', 'icon-sm')}
@@ -2259,20 +2263,21 @@
             </div>
             <div class="modal-body">
               <p style="font-size:13px; color:var(--text-2); margin:0;">
-                Selecione ou arraste a planilha diária exportada do sistema Ágil (ex: <code>21-10-26.xlsx</code> ou <code>22-10-26.xlsx</code>). 
-                O sistema identificará automaticamente os atendimentos, calculará os alertas clínicos e integrará ao Supabase preservando as validações anteriores.
+                Selecione ou arraste a planilha exportada diretamente do sistema Ágil (ex: <code>atendimentos-9.xlsx</code>, <code>21-10-26.xlsx</code> ou consolidado). 
+                O sistema reconhece automaticamente a ordem das colunas, separa <b>Paulista</b> e <b>Granja Viana</b>, preserva validações anteriores e ativa o <b>Alerta NPS em Azul na 10ª sessão para pacientes novos</b>.
               </p>
 
               <div class="dropzone" id="agente-dropzone" onclick="document.getElementById('agente-file-input').click()">
                 <div class="dropzone-icon">📥</div>
-                <div class="dropzone-text">Clique aqui ou arraste a planilha do Ágil (.xlsx ou .csv)</div>
-                <div class="dropzone-sub">Suporte a relatórios diários de atendimento e consolidados</div>
+                <div class="dropzone-text">Clique aqui ou arraste a planilha do Ágil (.xlsx, .xls ou .csv)</div>
+                <div class="dropzone-sub">Reconhecimento inteligente de colunas (Relatório Bruto do Ágil ou Planilha Consolidada)</div>
                 <input type="file" id="agente-file-input" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleAgilFileSelect(this.files[0])">
               </div>
 
-              <div id="agente-import-preview" class="preview-import hidden"></div>
+              <div id="agente-import-preview" class="preview-import hidden" style="max-height:280px; overflow-y:auto;"></div>
+              <div id="agente-import-error" class="hidden" style="background:#FEE2E2; border:1px solid #FCA5A5; color:#991B1B; padding:10px 14px; border-radius:8px; font-size:12.5px; font-weight:600;"></div>
 
-              <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+              <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:4px;">
                 <button class="btn btn-ghost" onclick="closeAgenteImportModal()">Cancelar</button>
                 <button class="btn btn-primary" id="btn-confirm-import" disabled onclick="submitAgilImport()">Confirmar Importação no Supabase</button>
               </div>
@@ -2299,6 +2304,101 @@
       agenteImportPendingRows = [];
     }
 
+    function formatCellDate(val) {
+      if (!val && val !== 0) return '';
+      if (val instanceof Date && !isNaN(val.getTime())) {
+        const dd = String(val.getDate()).padStart(2, '0');
+        const mm = String(val.getMonth() + 1).padStart(2, '0');
+        const yyyy = val.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      }
+      if (typeof val === 'number' && val > 35000 && val < 60000) {
+        const utcDays = Math.floor(val - 25569);
+        const d = new Date(utcDays * 86400 * 1000);
+        const dd = String(d.getUTCDate()).padStart(2, '0');
+        const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const yyyy = d.getUTCFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      }
+      const s = String(val).trim();
+      const m1 = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+      if (m1) {
+        const dd = m1[1].padStart(2, '0');
+        const mm = m1[2].padStart(2, '0');
+        let yyyy = m1[3];
+        if (yyyy.length === 2) yyyy = '20' + yyyy;
+        return `${dd}/${mm}/${yyyy}`;
+      }
+      const m2 = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (m2) {
+        return `${m2[3].padStart(2, '0')}/${m2[2].padStart(2, '0')}/${m2[1]}`;
+      }
+      return '';
+    }
+
+    function formatCellTime(val) {
+      if (!val && val !== 0) return '';
+      if (val instanceof Date && !isNaN(val.getTime())) {
+        return `${String(val.getHours()).padStart(2, '0')}:${String(val.getMinutes()).padStart(2, '0')}`;
+      }
+      if (typeof val === 'number' && val >= 0 && val < 1) {
+        const totalMins = Math.round(val * 24 * 60);
+        const hh = Math.floor(totalMins / 60);
+        const mm = totalMins % 60;
+        return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`;
+      }
+      const s = String(val).trim();
+      const m = s.match(/^(\d{1,2}):(\d{2})/);
+      if (m) return `${m[1].padStart(2, '0')}:${m[2]}`;
+      return '';
+    }
+
+    function inferUnidadeAgil(rawUnidade, profissional, especialidade, procedimento) {
+      const u = String(rawUnidade || '').toUpperCase();
+      if (u.includes('GRANJA')) return 'GRANJA VIANA';
+      if (u.includes('PAULISTA')) return 'PAULISTA';
+      const combined = `${profissional || ''} ${especialidade || ''} ${procedimento || ''}`.toLowerCase();
+      if (
+        combined.includes('granja') ||
+        combined.includes('angela oliveira') ||
+        combined.includes('giovanna barros') ||
+        combined.includes('jessica oliveira') ||
+        combined.includes('piero antonaccio') ||
+        combined.includes('camila (fisio')
+      ) {
+        return 'GRANJA VIANA';
+      }
+      return 'PAULISTA';
+    }
+
+    function inferConvenioAgil(rawConv, sheetName, procedimento, guia) {
+      const OFFICIAL = [
+        'Afresp Saúde', 'Amil Black, Amil One, Lincx', 'Care Plus', 'Medsenior',
+        'Convênio Creabily Especial', 'Creabily Particular', 'Omint Premium',
+        'Omint Skill', 'Omint Corporate', 'SEM CONVÊNIO', 'Total Pass'
+      ];
+      const c = String(rawConv || '').trim();
+      const sh = String(sheetName || '').trim();
+      const matchOfficial = (str) => {
+        if (!str) return null;
+        const low = str.toLowerCase();
+        const exact = OFFICIAL.find(o => o.toLowerCase() === low);
+        if (exact) return exact;
+        if (low.includes('afresp')) return 'Afresp Saúde';
+        if (low.includes('amil') || low.includes('lincx') || low.includes('one')) return 'Amil Black, Amil One, Lincx';
+        if (low.includes('care plus') || low.includes('careplus')) return 'Care Plus';
+        if (low.includes('medsenior') || low.includes('medsênior') || low.includes('med senior')) return 'Medsenior';
+        if (low.includes('especial')) return 'Convênio Creabily Especial';
+        if (low.includes('particular')) return 'Creabily Particular';
+        if (low.includes('omint') && low.includes('premium')) return 'Omint Premium';
+        if (low.includes('omint') && low.includes('corporate')) return 'Omint Corporate';
+        if (low.includes('omint')) return 'Omint Skill';
+        if (low.includes('total pass') || low.includes('totalpass')) return 'Total Pass';
+        return null;
+      };
+      return matchOfficial(c) || matchOfficial(sh) || matchOfficial(`${procedimento || ''} ${guia || ''}`) || 'SEM CONVÊNIO';
+    }
+
     function handleAgilFileSelect(file) {
       if (!file) return;
       if (typeof XLSX === 'undefined') {
@@ -2307,92 +2407,250 @@
       }
 
       const preview = document.getElementById('agente-import-preview');
+      const errBox = document.getElementById('agente-import-error');
+      if (errBox) { errBox.classList.add('hidden'); errBox.innerHTML = ''; }
       preview.classList.remove('hidden');
-      preview.innerHTML = `<div style="display:flex; align-items:center; gap:8px;">🔄 Lendo e processando <b>${esc(file.name)}</b>...</div>`;
+      preview.innerHTML = `<div style="display:flex; align-items:center; gap:8px;">🔄 Lendo e analisando estrutura de <b>${esc(file.name)}</b>...</div>`;
+
+      // Tentar extrair data do nome do arquivo caso seja 21-10-26.xlsx
+      let fileFallbackDate = '';
+      const fnMatch = file.name.match(/(\d{2})[\/\-_](\d{2})[\/\-_](\d{2,4})/);
+      if (fnMatch) {
+        let yy = fnMatch[3];
+        if (yy.length === 2) yy = '20' + yy;
+        fileFallbackDate = `${fnMatch[1]}/${fnMatch[2]}/${yy}`;
+      }
 
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
           const data = new Uint8Array(e.target.result);
-          const wb = XLSX.read(data, { type: 'array' });
+          const wb = XLSX.read(data, { type: 'array', cellDates: true });
           const rowsToImport = [];
-          let detectedDate = '';
+          const datesSet = new Set();
           let countPaulista = 0;
           let countGranja = 0;
 
-          // Percorrer todas as abas
-          for (const sheetName of wb.SheetNames) {
+          const skipTabs = ['REGRAS DO AGENTE', 'TOTAL OUTUBRO', 'RESUMO CONFERÊNCIA', 'RESUMO CONFERENCIA', 'BASE AUDITORIA', 'PAINEL GERENCIAL', 'AÇÕES ADMINISTRATIVAS', 'ACOES ADMINISTRATIVAS'];
+          const targetSheets = wb.SheetNames.filter(n => !skipTabs.includes(n.toUpperCase().trim()));
+          const sheetsToRead = targetSheets.length > 0 ? targetSheets : wb.SheetNames;
+
+          for (const sheetName of sheetsToRead) {
             const ws = wb.Sheets[sheetName];
-            const rawRows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+            const rawRows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
             let curUnidade = '';
-            let curDate = '';
+            let curDate = fileFallbackDate;
+            let colMap = null;
 
             for (let i = 0; i < rawRows.length; i++) {
               const r = rawRows[i];
               if (!r || !r.length) continue;
-              const c0 = String(r[0] || '').trim();
+              const nonEmpty = r.filter(c => String(c || '').trim() !== '');
+              if (!nonEmpty.length) continue;
 
-              if (c0.toUpperCase().startsWith('DATA ')) {
-                const m = c0.match(/\d{2}\/\d{2}\/\d{4}/);
-                if (m) { curDate = m[0]; if (!detectedDate) detectedDate = m[0]; }
+              const c0 = String(r[0] || '').trim();
+              const rowJoined = r.map(x => String(x || '').trim()).join(' ').toUpperCase();
+
+              // Detectar banners de seção
+              if (c0.toUpperCase().startsWith('DATA ') || (nonEmpty.length <= 2 && rowJoined.includes('DATA '))) {
+                const m = rowJoined.match(/(\d{2}\/\d{2}\/\d{4})/);
+                if (m) curDate = m[1];
                 continue;
               }
-              if (c0.toUpperCase().includes('UNIDADE PAULISTA')) { curUnidade = 'PAULISTA'; continue; }
-              if (c0.toUpperCase().includes('UNIDADE GRANJA')) { curUnidade = 'GRANJA VIANA'; continue; }
+              if (nonEmpty.length <= 3 && rowJoined.includes('UNIDADE PAULISTA')) { curUnidade = 'PAULISTA'; continue; }
+              if (nonEmpty.length <= 3 && rowJoined.includes('UNIDADE GRANJA')) { curUnidade = 'GRANJA VIANA'; continue; }
 
-              // Cabeçalho
-              if (c0.toLowerCase() === 'data') continue;
+              // Detectar linha de cabeçalho dinamicamente
+              const lowerCells = r.map(c => String(c || '').trim().toLowerCase());
+              const hasPacienteCol = lowerCells.some(c => c === 'paciente' || c === 'nome do paciente' || c === 'cliente' || c === 'nome');
+              const hasDataOrHoraCol = lowerCells.some(c => c === 'data' || c.startsWith('hor') || c === 'hora' || c.includes('status') || c.includes('profissional'));
 
-              // Linha com data DD/MM/AAAA
-              if (c0.match(/\d{2}\/\d{2}\/\d{4}/)) {
-                const paciente = String(r[1] || '').trim();
-                if (!paciente) continue;
-                const un = curUnidade || (c0.includes('GRANJA') ? 'GRANJA VIANA' : 'PAULISTA');
-                if (un === 'PAULISTA') countPaulista++; else countGranja++;
-                if (!detectedDate) detectedDate = c0;
-
-                rowsToImport.push({
-                  data: c0,
-                  paciente: paciente,
-                  horario: String(r[2] || '').trim(),
-                  status_agil: String(r[3] || '').trim(),
-                  profissional: String(r[4] || '').trim(),
-                  especialidade: String(r[5] || '').trim(),
-                  procedimento: String(r[6] || '').trim(),
-                  sessao: String(r[7] || '').trim(),
-                  cpf_carteirinha: String(r[8] || '').trim(),
-                  guia: String(r[9] || '').trim(),
-                  acao_lembrete: String(r[10] || '').trim(),
-                  situacao: String(r[11] || '').trim(),
-                  validacao: String(r[12] || 'Pendente').trim(),
-                  observacao: String(r[13] || '').trim(),
-                  unidade: un,
-                  convenio: sheetName.includes('BASE') || sheetName.includes('TOTAL') ? 'SEM CONVÊNIO' : sheetName
+              if (hasPacienteCol && hasDataOrHoraCol) {
+                colMap = {};
+                lowerCells.forEach((lbl, idx) => {
+                  if (!lbl) return;
+                  if ((lbl === 'data' || lbl.includes('data atend') || lbl.includes('dt')) && colMap.data === undefined) colMap.data = idx;
+                  else if ((lbl === 'paciente' || lbl === 'nome do paciente' || lbl === 'cliente' || lbl === 'nome') && colMap.paciente === undefined) colMap.paciente = idx;
+                  else if ((lbl.startsWith('hor') || lbl === 'hora' || lbl === 'início' || lbl === 'inicio') && colMap.horario === undefined) colMap.horario = idx;
+                  else if ((lbl.includes('status') || lbl === 'estado') && colMap.status_agil === undefined) colMap.status_agil = idx;
+                  else if ((lbl.includes('profissional') || lbl.includes('fisioterapeuta') || lbl.includes('prestador') || lbl.includes('agenda')) && colMap.profissional === undefined) colMap.profissional = idx;
+                  else if ((lbl.includes('especialidade') || lbl.includes('serviço') || lbl.includes('servico')) && colMap.especialidade === undefined) colMap.especialidade = idx;
+                  else if ((lbl.includes('procedimento') || lbl.includes('item') || lbl.includes('tratamento')) && colMap.procedimento === undefined) colMap.procedimento = idx;
+                  else if ((lbl.includes('sessão') || lbl.includes('sessao') || lbl.includes('qtde')) && colMap.sessao === undefined) colMap.sessao = idx;
+                  else if ((lbl.includes('cpf') || lbl.includes('carteirinha') || lbl.includes('documento') || lbl.includes('matricula')) && colMap.cpf_carteirinha === undefined) colMap.cpf_carteirinha = idx;
+                  else if ((lbl.includes('guia') || lbl.includes('senha') || lbl.includes('autoriza')) && colMap.guia === undefined) colMap.guia = idx;
+                  else if ((lbl.includes('ação') || lbl.includes('acao') || lbl.includes('lembrete') || lbl.includes('alerta')) && colMap.acao_lembrete === undefined) colMap.acao_lembrete = idx;
+                  else if ((lbl === 'situação' || lbl === 'situacao') && colMap.situacao === undefined) colMap.situacao = idx;
+                  else if ((lbl.includes('valida')) && colMap.validacao === undefined) colMap.validacao = idx;
+                  else if ((lbl.includes('observa') || lbl === 'obs') && colMap.observacao === undefined) colMap.observacao = idx;
+                  else if ((lbl.includes('convênio') || lbl.includes('convenio') || lbl.includes('plano') || lbl.includes('operadora')) && colMap.convenio === undefined) colMap.convenio = idx;
+                  else if ((lbl.includes('unidade') || lbl.includes('filial') || lbl.includes('local') || lbl.includes('clínica')) && colMap.unidade === undefined) colMap.unidade = idx;
                 });
+                continue;
               }
+
+              // Tentar extrair registro da linha
+              let rowDate = '';
+              let paciente = '';
+              let horario = '';
+              let status_agil = '';
+              let profissional = '';
+              let especialidade = '';
+              let procedimento = '';
+              let sessao = '';
+              let cpf_carteirinha = '';
+              let guia = '';
+              let acao_lembrete = '';
+              let situacao = '';
+              let validacao = '';
+              let observacao = '';
+              let rawConv = '';
+              let rawUnid = '';
+
+              if (colMap) {
+                rowDate = colMap.data !== undefined ? formatCellDate(r[colMap.data]) : curDate;
+                paciente = colMap.paciente !== undefined ? String(r[colMap.paciente] || '').trim() : '';
+                horario = colMap.horario !== undefined ? formatCellTime(r[colMap.horario]) : '';
+                status_agil = colMap.status_agil !== undefined ? String(r[colMap.status_agil] || '').trim() : '';
+                profissional = colMap.profissional !== undefined ? String(r[colMap.profissional] || '').trim() : '';
+                especialidade = colMap.especialidade !== undefined ? String(r[colMap.especialidade] || '').trim() : '';
+                procedimento = colMap.procedimento !== undefined ? String(r[colMap.procedimento] || '').trim() : '';
+                sessao = colMap.sessao !== undefined ? String(r[colMap.sessao] || '').trim() : '';
+                cpf_carteirinha = colMap.cpf_carteirinha !== undefined ? String(r[colMap.cpf_carteirinha] || '').trim() : '';
+                guia = colMap.guia !== undefined ? String(r[colMap.guia] || '').trim() : '';
+                acao_lembrete = colMap.acao_lembrete !== undefined ? String(r[colMap.acao_lembrete] || '').trim() : '';
+                situacao = colMap.situacao !== undefined ? String(r[colMap.situacao] || '').trim() : '';
+                validacao = colMap.validacao !== undefined ? String(r[colMap.validacao] || '').trim() : '';
+                observacao = colMap.observacao !== undefined ? String(r[colMap.observacao] || '').trim() : '';
+                rawConv = colMap.convenio !== undefined ? String(r[colMap.convenio] || '').trim() : '';
+                rawUnid = colMap.unidade !== undefined ? String(r[colMap.unidade] || '').trim() : '';
+              } else {
+                // Heurística sem cabeçalho explícito: verificar se r[0] é data
+                rowDate = formatCellDate(r[0]) || curDate;
+                if (!rowDate) continue;
+                const cell1Time = formatCellTime(r[1]);
+                const cell2Time = formatCellTime(r[2]);
+                if (cell1Time && !cell2Time && String(r[2] || '').trim().length > 2) {
+                  // Formato Ágil onde Col 1 = Horário e Col 2 = Paciente
+                  horario = cell1Time;
+                  paciente = String(r[2] || '').trim();
+                  status_agil = String(r[3] || '').trim();
+                  profissional = String(r[4] || '').trim();
+                  especialidade = String(r[5] || '').trim();
+                  procedimento = String(r[6] || '').trim();
+                  sessao = String(r[7] || '').trim();
+                  cpf_carteirinha = String(r[8] || '').trim();
+                  guia = String(r[9] || '').trim();
+                  rawConv = String(r[10] || '').trim();
+                  rawUnid = String(r[11] || '').trim();
+                } else {
+                  // Formato Consolidado A:N onde Col 1 = Paciente e Col 2 = Horário
+                  paciente = String(r[1] || '').trim();
+                  horario = cell2Time || String(r[2] || '').trim();
+                  status_agil = String(r[3] || '').trim();
+                  profissional = String(r[4] || '').trim();
+                  especialidade = String(r[5] || '').trim();
+                  procedimento = String(r[6] || '').trim();
+                  sessao = String(r[7] || '').trim();
+                  cpf_carteirinha = String(r[8] || '').trim();
+                  guia = String(r[9] || '').trim();
+                  acao_lembrete = String(r[10] || '').trim();
+                  situacao = String(r[11] || '').trim();
+                  validacao = String(r[12] || '').trim();
+                  observacao = String(r[13] || '').trim();
+                }
+              }
+
+              // Proteção extra contra inversão entre Paciente e Horário
+              if (/^\d{1,2}:\d{2}/.test(paciente) && horario && !/^\d{1,2}:\d{2}/.test(horario)) {
+                const tmp = paciente;
+                paciente = horario;
+                horario = tmp;
+              }
+
+              if (!rowDate || !paciente) continue;
+              const pUpper = paciente.toUpperCase();
+              if (pUpper === 'PACIENTE' || pUpper === 'TOTAL' || pUpper.startsWith('UNIDADE ') || pUpper.startsWith('DATA ')) continue;
+
+              // Se sessão não veio em coluna própria, extrair de Status Ágil ou Procedimento ex: "Finalizado (10/10)"
+              if (!sessao) {
+                const mSess = `${status_agil} ${procedimento}`.match(/\((\d{1,2}\/\d{1,2})\)|\b(\d{1,2}\/\d{1,2})\b/);
+                if (mSess) sessao = mSess[1] || mSess[2] || '';
+              }
+
+              const un = curUnidade || inferUnidadeAgil(rawUnid, profissional, especialidade, procedimento);
+              const conv = inferConvenioAgil(rawConv, sheetName, procedimento, guia);
+
+              if (un === 'PAULISTA') countPaulista++; else countGranja++;
+              datesSet.add(rowDate);
+
+              rowsToImport.push({
+                data: rowDate,
+                paciente,
+                horario: horario.slice(0, 20),
+                status_agil: status_agil || 'Agendado',
+                profissional,
+                especialidade,
+                procedimento,
+                sessao,
+                cpf_carteirinha,
+                guia,
+                acao_lembrete,
+                situacao,
+                validacao: validacao || 'Pendente',
+                observacao,
+                unidade: un,
+                convenio: conv
+              });
             }
           }
 
           agenteImportPendingRows = rowsToImport;
           const btnConfirm = document.getElementById('btn-confirm-import');
+          const datesArr = [...datesSet];
 
           if (rowsToImport.length > 0) {
             btnConfirm.disabled = false;
+            btnConfirm.textContent = `Confirmar Importação (${rowsToImport.length} atendimentos)`;
+            const sampleRows = rowsToImport.slice(0, 5).map(x => `
+              <tr>
+                <td style="padding:4px 6px; border-bottom:1px solid var(--line);">${esc(x.data)}</td>
+                <td style="padding:4px 6px; border-bottom:1px solid var(--line); font-family:monospace;">${esc(x.horario)}</td>
+                <td style="padding:4px 6px; border-bottom:1px solid var(--line); font-weight:700;">${esc(x.paciente)}</td>
+                <td style="padding:4px 6px; border-bottom:1px solid var(--line);">${x.unidade === 'GRANJA VIANA' ? '🌿 Granja' : '🏙️ Paulista'}</td>
+                <td style="padding:4px 6px; border-bottom:1px solid var(--line);">${esc(x.convenio)}</td>
+                <td style="padding:4px 6px; border-bottom:1px solid var(--line); font-weight:700;">${esc(x.sessao || '—')}</td>
+              </tr>
+            `).join('');
+
             preview.innerHTML = `
-              <div style="color:#059669; font-weight:700; font-size:14px; margin-bottom:6px;">✓ Planilha processada com sucesso!</div>
-              <div><b>Arquivo:</b> ${esc(file.name)}</div>
-              <div><b>Data Identificada:</b> ${detectedDate || 'Várias datas'}</div>
-              <div><b>Total de Atendimentos:</b> ${rowsToImport.length}</div>
-              <div><b>Distribuição:</b> ${countPaulista} Unidade Paulista | ${countGranja} Unidade Granja Viana</div>
-              <div style="margin-top:8px; font-size:11.5px; color:var(--text-3);">
-                Ao confirmar, todos os agendamentos serão salvos no Supabase com integridade total de colunas A:N e alertas clínicos calculados.
+              <div style="color:#059669; font-weight:700; font-size:14px; margin-bottom:6px;">✓ Planilha validada e pronta para importação!</div>
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-bottom:10px;">
+                <div><b>Arquivo:</b> ${esc(file.name)}</div>
+                <div><b>Data(s):</b> ${esc(datesArr.join(', ') || 'Identificada')}</div>
+                <div><b>Total de Atendimentos:</b> ${rowsToImport.length}</div>
+                <div><b>Unidades:</b> 🏙️ ${countPaulista} Paulista | 🌿 ${countGranja} Granja Viana</div>
               </div>
+              <div style="font-size:11px; font-weight:700; color:var(--text-3); margin-bottom:4px; text-transform:uppercase;">Pré-visualização dos primeiros registros:</div>
+              <table style="width:100%; border-collapse:collapse; font-size:11px; background:var(--surface); border:1px solid var(--line); border-radius:6px; overflow:hidden;">
+                <thead>
+                  <tr style="background:#F5F3FF; color:#4C1D95; text-align:left;">
+                    <th style="padding:5px 6px;">Data</th>
+                    <th style="padding:5px 6px;">Hora</th>
+                    <th style="padding:5px 6px;">Paciente</th>
+                    <th style="padding:5px 6px;">Unidade</th>
+                    <th style="padding:5px 6px;">Convênio</th>
+                    <th style="padding:5px 6px;">Sessão</th>
+                  </tr>
+                </thead>
+                <tbody>${sampleRows}</tbody>
+              </table>
             `;
           } else {
             btnConfirm.disabled = true;
             preview.innerHTML = `
-              <div style="color:#DC2626; font-weight:600;">Nenhum atendimento no formato reconhecido pelo Ágil foi encontrado na planilha.</div>
-              <div style="font-size:11.5px; color:var(--text-3); margin-top:4px;">Verifique se a primeira coluna contém as datas (DD/MM/AAAA) e a segunda os nomes dos pacientes.</div>
+              <div style="color:#DC2626; font-weight:600;">Nenhum atendimento válido foi encontrado na planilha.</div>
+              <div style="font-size:11.5px; color:var(--text-3); margin-top:4px;">Verifique se a planilha possui colunas de Data e Paciente ou se o arquivo não está vazio.</div>
             `;
           }
         } catch (err) {
@@ -2405,91 +2663,325 @@
     async function submitAgilImport() {
       if (!agenteImportPendingRows.length) return;
       const btn = document.getElementById('btn-confirm-import');
+      const errBox = document.getElementById('agente-import-error');
+      if (errBox) { errBox.classList.add('hidden'); errBox.innerHTML = ''; }
       btn.disabled = true;
-      btn.textContent = 'Gravando no Supabase...';
+
+      const BATCH_SIZE = 200;
+      const totalRows = agenteImportPendingRows.length;
+      const totalBatches = Math.ceil(totalRows / BATCH_SIZE);
+      let totalInserted = 0;
+      let totalUpdated = 0;
+      let totalNps = 0;
+      let importedDates = [];
 
       try {
-        const r = await api('agendamentos', {
-          action: 'import',
-          rows: agenteImportPendingRows,
-          loteNome: 'Upload_Manual_' + new Date().toISOString().substring(0, 10)
-        });
+        for (let b = 0; b < totalBatches; b++) {
+          const chunk = agenteImportPendingRows.slice(b * BATCH_SIZE, (b + 1) * BATCH_SIZE);
+          btn.textContent = totalBatches > 1 ? `Gravando no Supabase (${b + 1}/${totalBatches})...` : 'Gravando no Supabase...';
 
-        if (r.ok) {
-          toast(r.data.message || 'Importação realizada com sucesso!');
-          closeAgenteImportModal();
-          loadAgenteData(true);
-        } else {
-          toast(r.error || 'Erro na importação', true);
-          btn.disabled = false;
-          btn.textContent = 'Tentar Novamente';
+          const r = await api('agendamentos', {
+            action: 'import',
+            rows: chunk,
+            loteNome: 'Upload_Agil_' + new Date().toISOString().substring(0, 10)
+          });
+
+          if (!r.ok) {
+            const msg = r.error || 'Erro ao gravar lote no banco de dados';
+            if (errBox) {
+              errBox.classList.remove('hidden');
+              errBox.innerHTML = `⚠️ Falha na importação: ${esc(msg)}`;
+            }
+            toast(msg, true);
+            btn.disabled = false;
+            btn.textContent = 'Tentar Novamente';
+            return;
+          }
+
+          totalInserted += (r.data.insertedCount || 0);
+          totalUpdated += (r.data.updatedCount || 0);
+          totalNps += (r.data.npsCount || 0);
+          if (Array.isArray(r.data.dates)) importedDates.push(...r.data.dates);
         }
+
+        const uniqueD = [...new Set(importedDates)];
+        if (uniqueD.length === 1) {
+          agenteDayFilter = uniqueD[0];
+        }
+        toast(`✅ Importado com sucesso! ${totalInserted} novos, ${totalUpdated} atualizados${totalNps ? ` • 🔵 ${totalNps} Alerta(s) NPS` : ''}.`);
+        closeAgenteImportModal();
+        loadAgenteData(false);
       } catch (e) {
+        if (errBox) {
+          errBox.classList.remove('hidden');
+          errBox.innerHTML = `⚠️ Erro de comunicação com o servidor: ${esc(e.message || '')}`;
+        }
         toast('Erro de comunicação com o servidor', true);
         btn.disabled = false;
         btn.textContent = 'Tentar Novamente';
       }
     }
 
-    // Exportação Oficial em Excel (17 Abas)
-    async function exportAgenteExcel() {
-      if (typeof XLSX === 'undefined') {
-        toast('Biblioteca XLSX carregando...', true);
-        return;
+    // Modal Rápido para Envio / Cópia do Link de NPS (10ª Sessão Paciente Novo)
+    function openNpsShareModal(paciente, unidade) {
+      const unitSlug = String(unidade || '').toUpperCase().includes('GRANJA') ? 'granja_viana' : 'paulista';
+      const unitName = unitSlug === 'granja_viana' ? 'Unidade Granja Viana' : 'Unidade Av. Paulista';
+      const npsUrl = `https://avaliacao.creabily.com/nps.html?name=${encodeURIComponent(paciente || '')}&unit=${unitSlug}`;
+      const first = String(paciente || '').trim().split(' ')[0] || '';
+      const waMsg = `Olá, ${first}! Tudo bem? 💙 Parabéns por concluir sua 10ª sessão deste primeiro ciclo de cuidado conosco na Creabily (${unitName})! Para continuarmos evoluindo nosso atendimento, você poderia avaliar sua experiência rapidinho (leva 30 segundos)?\n\n👉 ${npsUrl}\n\nMuito obrigada pelo carinho! ✨`;
+      const waHref = `https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`;
+
+      const modalRoot = document.getElementById('modal-root');
+      if (!modalRoot) return;
+      modalRoot.innerHTML = `
+        <div class="modal-backdrop" onclick="if(event.target === this) closeAgenteImportModal()">
+          <div class="modal-box-lg" style="max-width:520px;">
+            <div class="modal-header" style="background:#EFF6FF; border-bottom-color:#BFDBFE;">
+              <div class="modal-title" style="color:#1E40AF;">
+                <span>🔵 ⭐ Enviar Pesquisa NPS — 10ª Sessão (Paciente Novo)</span>
+              </div>
+              <button class="modal-close" onclick="closeAgenteImportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+              <div style="font-size:13px; color:var(--text-2);">
+                <b>Paciente:</b> ${esc(paciente)} (${esc(unitName)})
+              </div>
+              <div style="background:#F8FAFC; border:1px solid var(--line); border-radius:8px; padding:12px; font-size:12px; color:var(--text); white-space:pre-wrap;">${esc(waMsg)}</div>
+              <div style="display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap;">
+                <button class="btn btn-ghost" onclick="navigator.clipboard.writeText(${JSON.stringify(waMsg).replace(/"/g, '&quot;')}); toast('Mensagem de NPS copiada!');">📋 Copiar Mensagem</button>
+                <a class="btn btn-primary" style="background:#2563EB; border-color:#2563EB; text-decoration:none;" href="${waHref}" target="_blank" rel="noopener">💬 Enviar no WhatsApp</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Helper para formatar blocos por Data e Unidade nas abas de Convênio do Excel Oficial
+    function buildConvenioSheetAoA(cName, convRows) {
+      const HEADER = ['Data', 'Paciente', 'Horário', 'Status Ágil', 'Profissional', 'Especialidade', 'Procedimento', 'Sessão', 'CPF/Carteirinha', 'Guia', 'Ação / Lembrete', 'Situação', 'Validação', 'Observação'];
+      const sheetData = [
+        [`${cName.toUpperCase()} — OUTUBRO 2026   |   🔤 A–Z   🕐 HORÁRIO   👤 PROFISSIONAL   📋 STATUS`],
+        []
+      ];
+
+      if (!convRows.length) {
+        sheetData.push(HEADER);
+        return sheetData;
       }
-      toast('Gerando planilha oficial de auditoria...');
 
-      try {
-        const r = await api('agendamentos', { action: 'list', limit: 3000, page: 1 });
-        if (!r.ok || !r.data.rows) {
-          toast('Erro ao buscar dados para exportação', true);
-          return;
-        }
+      // Agrupar por data em ordem cronológica
+      const parseD = (s) => { const p = String(s || '').split('/'); return new Date(+p[2] || 2026, (+p[1] || 10) - 1, +p[0] || 1).getTime() || 0; };
+      const uniqueDates = [...new Set(convRows.map(r => r.data))].sort((a, b) => parseD(a) - parseD(b));
 
-        const wb = XLSX.utils.book_new();
-        const allRows = r.data.rows;
+      for (const dt of uniqueDates) {
+        const dayRows = convRows.filter(r => r.data === dt);
+        const paulistaRows = dayRows.filter(r => (r.unidade || '').toUpperCase().includes('PAULISTA')).sort((a, b) => (a.paciente || '').localeCompare(b.paciente || '', 'pt-BR'));
+        const granjaRows = dayRows.filter(r => (r.unidade || '').toUpperCase().includes('GRANJA')).sort((a, b) => (a.paciente || '').localeCompare(b.paciente || '', 'pt-BR'));
 
-        // Abas por Convênio
-        const convList = r.data.conveniosList || [
-          'Afresp Saúde', 'Amil Black, Amil One, Lincx', 'Care Plus', 'Medsenior',
-          'Omint Skill', 'Omint Premium', 'Convênio Creabily Especial',
-          'Creabily Particular', 'Omint Corporate', 'SEM CONVÊNIO', 'Total Pass'
-        ];
+        sheetData.push([`DATA ${dt} — TOTAL DO DIA: ${dayRows.length} ATENDIMENTO(S)`]);
 
-        for (const cName of convList) {
-          const convRows = allRows.filter(x => x.convenio === cName);
-          const sheetData = [
-            [`${cName.toUpperCase()} — OUTUBRO 2026   |   🔤 A–Z   🕐 HORÁRIO   👤 PROFISSIONAL   📋 STATUS`],
-            [],
-            ['Data', 'Paciente', 'Horário', 'Status Ágil', 'Profissional', 'Especialidade', 'Procedimento', 'Sessão', 'CPF/Carteirinha', 'Guia', 'Ação / Lembrete', 'Situação', 'Validação', 'Observação']
-          ];
-
-          convRows.forEach(row => {
+        if (paulistaRows.length > 0) {
+          sheetData.push([`UNIDADE PAULISTA — ${paulistaRows.length} ATENDIMENTO(S)`]);
+          sheetData.push(HEADER);
+          paulistaRows.forEach(row => {
             sheetData.push([
               row.data, row.paciente, row.horario, row.status_agil, row.profissional,
               row.especialidade, row.procedimento, row.sessao, row.cpf_carteirinha,
               row.guia, row.acao_lembrete, row.situacao, row.validacao, row.observacao
             ]);
           });
+          sheetData.push([]);
+        }
 
+        if (granjaRows.length > 0) {
+          sheetData.push([`UNIDADE GRANJA VIANA — ${granjaRows.length} ATENDIMENTO(S)`]);
+          sheetData.push(HEADER);
+          granjaRows.forEach(row => {
+            sheetData.push([
+              row.data, row.paciente, row.horario, row.status_agil, row.profissional,
+              row.especialidade, row.procedimento, row.sessao, row.cpf_carteirinha,
+              row.guia, row.acao_lembrete, row.situacao, row.validacao, row.observacao
+            ]);
+          });
+          sheetData.push([]);
+        }
+      }
+
+      return sheetData;
+    }
+
+    // Exportação Oficial em Excel (17 Abas Completas ou Relatório do Dia)
+    async function exportAgenteExcel(onlyCurrentDay = false) {
+      if (typeof XLSX === 'undefined') {
+        toast('Biblioteca XLSX carregando, tente novamente em 2 segundos...', true);
+        return;
+      }
+
+      const targetDate = onlyCurrentDay
+        ? (agenteDayFilter !== 'all' ? agenteDayFilter : ((agenteData && agenteData.dias && agenteData.dias[0] && agenteData.dias[0].data) || 'all'))
+        : 'all';
+
+      toast(targetDate !== 'all' ? `Gerando planilha oficial do dia ${targetDate}...` : 'Gerando Consolidado Oficial (17 Abas)...');
+
+      try {
+        const r = await api('agendamentos', {
+          action: 'list',
+          dataFilter: targetDate,
+          limit: 5000,
+          page: 1
+        });
+        if (!r.ok || !r.data.rows) {
+          toast(r.error || 'Erro ao buscar dados para exportação', true);
+          return;
+        }
+
+        const wb = XLSX.utils.book_new();
+        const allRows = r.data.rows;
+        const k = r.data.kpis || {};
+        const colWidths = [
+          { wch: 12 }, { wch: 34 }, { wch: 9 }, { wch: 22 }, { wch: 28 },
+          { wch: 20 }, { wch: 26 }, { wch: 10 }, { wch: 18 }, { wch: 16 },
+          { wch: 46 }, { wch: 16 }, { wch: 24 }, { wch: 30 }
+        ];
+
+        // 1 a 11: As 11 Abas Oficiais por Convênio (Ordem exata da Seção 4 do Prompt Mestre)
+        const convList = [
+          'Afresp Saúde',
+          'Amil Black, Amil One, Lincx',
+          'Care Plus',
+          'Medsenior',
+          'Convênio Creabily Especial',
+          'Creabily Particular',
+          'Omint Premium',
+          'Omint Skill',
+          'Omint Corporate',
+          'SEM CONVÊNIO',
+          'Total Pass'
+        ];
+
+        for (const cName of convList) {
+          const convRows = allRows.filter(x => x.convenio === cName);
+          const sheetData = buildConvenioSheetAoA(cName, convRows);
           const ws = XLSX.utils.aoa_to_sheet(sheetData);
+          ws['!cols'] = colWidths;
           XLSX.utils.book_append_sheet(wb, ws, cName.substring(0, 31));
         }
 
-        // Aba BASE AUDITORIA
+        // 12. Regras do Agente
+        const wsRegras = XLSX.utils.aoa_to_sheet([
+          ['REGRAS OPERACIONAIS DO AGENTE DE CONFERÊNCIA DIÁRIA — CREABILY OUTUBRO 2026'],
+          [],
+          ['Regra / Status', 'Cor Oficial', 'Diretriz Operacional'],
+          ['Validado / Finalizado', 'Verde-Bandeira (#16A34A)', 'Conferência administrativa concluída pela recepção. Retirado de EM ABERTO.'],
+          ['Pendente', 'Laranja (#F59E0B)', 'Aguardando conferência da recepção. Permanece em EM ABERTO.'],
+          ['Falta Justificada', 'Fundo Branco (#FFFFFF)', 'Avisou com 24h de antecedência. Sem cobrança, sem token/assinatura. Resolvido.'],
+          ['Não Compareceu', 'Vermelho (#DC2626)', 'Exige validação de Token ou Assinatura pela recepção. Após validar, fica Verde com "Validado (token ou assinatura)".'],
+          ['Alerta NPS (10ª Sessão)', 'Azul (#2563EB)', 'Exclusivo para Pacientes Novos (fizeram Avaliação + 1º bloco de 10 sessões). Enviar pesquisa NPS na 10ª sessão.']
+        ]);
+        wsRegras['!cols'] = [{ wch: 26 }, { wch: 26 }, { wch: 85 }];
+        XLSX.utils.book_append_sheet(wb, wsRegras, 'Regras do Agente');
+
+        // 13. TOTAL OUTUBRO
+        const totalOutData = [
+          ['TOTAL CONSOLIDADO POR CONVÊNIO E UNIDADE — OUTUBRO 2026'],
+          [],
+          ['Convênio', 'Unidade Paulista', 'Unidade Granja Viana', 'Total Atendimentos', 'Validados', 'Pendentes', 'Não Compareceu', 'Faltas Justificadas', 'Alertas NPS (Azul)']
+        ];
+        convList.forEach(cName => {
+          const cRows = allRows.filter(x => x.convenio === cName);
+          const pCount = cRows.filter(x => (x.unidade || '').includes('PAULISTA')).length;
+          const gCount = cRows.filter(x => (x.unidade || '').includes('GRANJA')).length;
+          const valCount = cRows.filter(x => /validado|finalizado/i.test(x.validacao || '')).length;
+          const pendCount = cRows.filter(x => !x.validacao || /pendente/i.test(x.validacao)).length;
+          const noShowCount = cRows.filter(x => /não compareceu|nao compareceu/i.test(x.status_agil || '') && !/validado/i.test(x.validacao || '')).length;
+          const faltaCount = cRows.filter(x => /justificada/i.test(x.validacao || '') || /justificada/i.test(x.status_agil || '')).length;
+          const npsCount = cRows.filter(x => (x.acao_lembrete || '').includes('ALERTA NPS')).length;
+          totalOutData.push([cName, pCount, gCount, cRows.length, valCount, pendCount, noShowCount, faltaCount, npsCount]);
+        });
+        const wsTotalOut = XLSX.utils.aoa_to_sheet(totalOutData);
+        wsTotalOut['!cols'] = [{ wch: 30 }, { wch: 18 }, { wch: 20 }, { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 18 }, { wch: 18 }];
+        XLSX.utils.book_append_sheet(wb, wsTotalOut, 'TOTAL OUTUBRO');
+
+        // 14. RESUMO CONFERÊNCIA
+        const resumoData = [
+          ['RESUMO DE CONFERÊNCIA DIÁRIA POR DATA'],
+          [],
+          ['Data', 'Paulista', 'Granja Viana', 'Total do Dia', 'Validados', 'Em Aberto (Pendentes)', 'Alertas NPS']
+        ];
+        const datesUnique = [...new Set(allRows.map(r => r.data))];
+        datesUnique.forEach(dt => {
+          const dRows = allRows.filter(x => x.data === dt);
+          resumoData.push([
+            dt,
+            dRows.filter(x => (x.unidade || '').includes('PAULISTA')).length,
+            dRows.filter(x => (x.unidade || '').includes('GRANJA')).length,
+            dRows.length,
+            dRows.filter(x => /validado|finalizado/i.test(x.validacao || '')).length,
+            dRows.filter(x => !/validado|finalizado|justificada/i.test(x.validacao || '')).length,
+            dRows.filter(x => (x.acao_lembrete || '').includes('ALERTA NPS')).length
+          ]);
+        });
+        const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
+        wsResumo['!cols'] = [{ wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 22 }, { wch: 15 }];
+        XLSX.utils.book_append_sheet(wb, wsResumo, 'RESUMO CONFERÊNCIA');
+
+        // 15. BASE AUDITORIA
         const auditData = [
-          ['Data', 'Unidade', 'Convênio', 'Horário', 'Status Ágil', 'Validação', 'Profissional']
+          ['Data', 'Unidade', 'Convênio', 'Paciente', 'Horário', 'Status Ágil', 'Sessão', 'Validação', 'Ação / Lembrete', 'Profissional', 'Observação']
         ];
         allRows.forEach(row => {
           auditData.push([
-            row.data, row.unidade, row.convenio, row.horario, row.status_agil, row.validacao, row.profissional
+            row.data, row.unidade, row.convenio, row.paciente, row.horario,
+            row.status_agil, row.sessao, row.validacao, row.acao_lembrete, row.profissional, row.observacao
           ]);
         });
         const wsAudit = XLSX.utils.aoa_to_sheet(auditData);
+        wsAudit['!cols'] = [{ wch: 12 }, { wch: 16 }, { wch: 26 }, { wch: 32 }, { wch: 10 }, { wch: 20 }, { wch: 10 }, { wch: 22 }, { wch: 44 }, { wch: 26 }, { wch: 28 }];
         XLSX.utils.book_append_sheet(wb, wsAudit, 'BASE AUDITORIA');
 
-        XLSX.writeFile(wb, `Agente_Creabily_Conferencia_${new Date().toISOString().substring(0, 10)}.xlsx`);
-        toast('Planilha exportada com sucesso!');
+        // 16. PAINEL GERENCIAL
+        const wsPainel = XLSX.utils.aoa_to_sheet([
+          ['PAINEL GERENCIAL EXECUTIVO — CREABILY ARTE DA CURA'],
+          [],
+          ['Indicador', 'Resultado Consolidado'],
+          ['Total de Atendimentos Auditados', k.totalAgendamentos || allRows.length],
+          ['Atendimentos Unidade Paulista', k.paulistaTotal || 0],
+          ['Atendimentos Unidade Granja Viana', k.granjaTotal || 0],
+          ['Atendimentos Validados / Concluídos', k.validados || 0],
+          ['Taxa de Conclusão da Conferência (%)', `${k.taxaConclusao || 0}%`],
+          ['Pendentes em Aberto', k.pendentes || 0],
+          ['Faltas Justificadas (Em Branco)', k.faltasJustificadas || 0],
+          ['Não Compareceu (Pendentes de Token/Assinatura)', k.naoCompareceu || 0],
+          ['Cancelamentos', k.cancelamentos || 0],
+          ['Alertas NPS 10ª Sessão (Pacientes Novos - Azul)', k.npsAlertas || 0]
+        ]);
+        wsPainel['!cols'] = [{ wch: 48 }, { wch: 24 }];
+        XLSX.utils.book_append_sheet(wb, wsPainel, 'PAINEL GERENCIAL');
+
+        // 17. AÇÕES ADMINISTRATIVAS (Lista EM ABERTO + Alertas NPS em Azul)
+        const acoesRows = allRows.filter(x =>
+          (x.acao_lembrete && x.acao_lembrete.trim() !== '') ||
+          !/validado|finalizado|justificada/i.test(x.validacao || '')
+        );
+        const acoesData = [
+          ['AÇÕES ADMINISTRATIVAS, PENDÊNCIAS EM ABERTO E ALERTAS DE NPS (10ª SESSÃO PACIENTES NOVOS)'],
+          [],
+          ['Data', 'Unidade', 'Convênio', 'Paciente', 'Horário', 'Sessão', 'Status Ágil', 'Validação Atual', 'Ação / Alerta Clínico', 'Observação']
+        ];
+        acoesRows.forEach(row => {
+          acoesData.push([
+            row.data, row.unidade, row.convenio, row.paciente, row.horario,
+            row.sessao, row.status_agil, row.validacao, row.acao_lembrete, row.observacao
+          ]);
+        });
+        const wsAcoes = XLSX.utils.aoa_to_sheet(acoesData);
+        wsAcoes['!cols'] = [{ wch: 12 }, { wch: 16 }, { wch: 26 }, { wch: 32 }, { wch: 10 }, { wch: 10 }, { wch: 20 }, { wch: 22 }, { wch: 50 }, { wch: 28 }];
+        XLSX.utils.book_append_sheet(wb, wsAcoes, 'AÇÕES ADMINISTRATIVAS');
+
+        const fileSuffix = targetDate !== 'all' ? targetDate.replace(/\//g, '-') : 'Outubro_2026_consolidado';
+        XLSX.writeFile(wb, `Agente_Creabily_${fileSuffix}.xlsx`);
+        toast('✅ Planilha Excel exportada com sucesso!');
       } catch (err) {
         toast('Erro ao exportar Excel: ' + err.message, true);
       }
@@ -2530,31 +3022,57 @@
       const totalFiltered = agenteData.total || 0;
       const totalPages = agenteData.totalPages || 1;
 
-      // Mapeamento de Cores Oficiais do Prompt Mestre
+      // Mapeamento de Cores Oficiais do Prompt Mestre (Seção 7.1 a 7.6)
       const getRowClass = (r) => {
         const val = (r.validacao || '').toLowerCase();
         const st = (r.status_agil || '').toLowerCase();
+        const acao = (r.acao_lembrete || '');
+        // 7.1 e 7.6: Quando já validado, o verde de validação prevalece (mantendo o lembrete azul na coluna de ações)
         if (val.includes('finalizado') || val.includes('validado')) return 'row-val-validado';
+        // 7.4: Falta justificada sempre em fundo branco, nunca pintar de vermelho, laranja ou verde
         if (val.includes('justificada') || st.includes('justificada')) return 'row-val-falta';
+        // 7.5: Não compareceu em vermelho enquanto não houver validação de token ou assinatura
         if (val.includes('não compareceu') || val.includes('nao compareceu') || st.includes('não compareceu') || st.includes('nao compareceu')) return 'row-val-noshow';
+        // 7.6: Alerta NPS em Azul para 10ª sessão de pacientes novos
+        if (acao.includes('ALERTA NPS')) return 'row-val-nps';
         if (val.includes('cancelado') || val.includes('desmarcado') || st.includes('desmarcado')) return 'row-val-cancelado';
         return 'row-val-pendente';
       };
 
-      const getAlertBadge = (alerta) => {
+      const getAlertBadge = (alerta, r) => {
         if (!alerta) return '';
-        if (alerta.includes('NPS')) return `<span class="alerta-nps">⭐ ${esc(alerta)}</span>`;
-        if (alerta.includes('1ª SESSÃO')) return `<span class="alerta-primeira-sessao">⚠️ ${esc(alerta)}</span>`;
-        if (alerta.includes('ALERTA FINAL') || alerta.includes('MEDSENIOR')) return `<span class="alerta-fim-ciclo">🔔 ${esc(alerta)}</span>`;
-        return `<span style="font-size:11px; color:var(--text-2); font-weight:600;">${esc(alerta)}</span>`;
+        const parts = String(alerta).split(/\s*(?:•|\|)\s*/).filter(Boolean);
+        return `<div style="display:flex; flex-direction:column; gap:3px; align-items:flex-start;">` + parts.map(item => {
+          if (item.includes('ALERTA NPS')) {
+            const pSafe = r ? esc(r.paciente || '').replace(/'/g, "\\'") : '';
+            const uSafe = r ? esc(r.unidade || '').replace(/'/g, "\\'") : '';
+            return `
+              <span class="alerta-nps" title="Paciente novo finalizando 10ª sessão — Enviar pesquisa de satisfação NPS">
+                ${esc(item)}
+              </span>
+              ${r ? `<button type="button" class="btn-nps-inline" onclick="openNpsShareModal('${pSafe}', '${uSafe}')">📨 Enviar NPS (10ª Sessão)</button>` : ''}
+            `;
+          }
+          if (item.includes('PACIENTE NOVO') || item.includes('Paciente Novo') || item.includes('Preparar NPS')) {
+            return `<span class="alerta-novo-paciente">${esc(item)}</span>`;
+          }
+          if (item.includes('1ª') || item.includes('Avaliação Inicial')) {
+            return `<span class="alerta-primeira-sessao">${esc(item)}</span>`;
+          }
+          if (item.includes('Renovação') || item.includes('ALERTA FINAL') || item.includes('MEDSENIOR') || item.includes('Token') || item.includes('Cancelamento')) {
+            return `<span class="alerta-fim-ciclo">${esc(item)}</span>`;
+          }
+          return `<span style="font-size:10.5px; color:var(--text-2); font-weight:600;">${esc(item)}</span>`;
+        }).join('') + `</div>`;
       };
 
       // ===== Gráficos (SVG puro, sem dependências) =====
       const statusSegs = [
-        { key: 'validado', label: 'Validados', val: k.validados || 0, color: '#10B981' },
+        { key: 'validado', label: 'Validados', val: k.validados || 0, color: '#16A34A' },
         { key: 'pendente', label: 'Pendentes', val: k.pendentes || 0, color: '#F59E0B' },
         { key: 'falta_justificada', label: 'Falta justificada', val: k.faltasJustificadas || 0, color: '#9CA3AF' },
-        { key: 'nao_compareceu', label: 'Não compareceu', val: k.naoCompareceu || 0, color: '#EF4444' },
+        { key: 'nao_compareceu', label: 'Não compareceu', val: k.naoCompareceu || 0, color: '#DC2626' },
+        { key: 'nps', label: '🔵 Alerta NPS / Novos', val: k.npsCicloTotal || k.npsAlertas || 0, color: '#2563EB' },
         { key: 'cancelado', label: 'Cancelados', val: k.cancelamentos || 0, color: '#F97316' }
       ];
       const statusTotal = statusSegs.reduce((a, s) => a + s.val, 0) || 1;
@@ -2649,7 +3167,7 @@
         </div>`;
 
       const hasActiveFilters = agenteUnitFilter !== 'all' || agenteConvenioFilter !== 'all' || agenteStatusFilter !== 'all' || agenteDayFilter !== 'all' || agenteSearchQuery;
-      const statusLabels = { validado: 'Validados', pendente: 'Pendentes', falta_justificada: 'Falta justificada', nao_compareceu: 'Não compareceu', cancelado: 'Cancelados' };
+      const statusLabels = { validado: 'Validados', pendente: 'Pendentes', falta_justificada: 'Falta justificada', nao_compareceu: 'Não compareceu', cancelado: 'Cancelados', nps: '🔵 Alerta NPS / Pacientes Novos', nps_10: '🔵 ⭐ Alerta NPS (10ª Sessão)' };
       const activeFiltersHtml = hasActiveFilters ? `
         <div class="active-filters">
           <span style="color:var(--text-3); font-weight:700;">Filtros ativos:</span>
@@ -2663,20 +3181,26 @@
 
       const getValStatusBadge = (r) => {
         const val = (r.validacao || 'Pendente').trim();
-        if (val === 'Validado' || val === 'Finalizado') {
-          return '<span style="color:#059669; font-weight:700;">🟢 Validado</span>';
+        const valLow = val.toLowerCase();
+        if (valLow.includes('validado') || valLow.includes('finalizado')) {
+          return `<span style="color:#16A34A; font-weight:700;">🟢 ${esc(val)}</span>`;
         }
-        if (val === 'Falta Justificada') {
+        if (valLow.includes('justificada') || (r.status_agil || '').toLowerCase().includes('justificada')) {
           return '<span style="color:#64748B; font-weight:700;">⚪ Falta Justificada</span>';
         }
-        if (val.includes('Não compareceu') || val.includes('nao compareceu')) {
-          return '<span style="color:#DC2626; font-weight:700;">🔴 Não Compareceu</span>';
+        if (valLow.includes('não compareceu') || valLow.includes('nao compareceu') || (r.status_agil || '').toLowerCase().includes('não compareceu')) {
+          return '<span style="color:#DC2626; font-weight:700;">🔴 Não Compareceu (Cobrar Token/Assin.)</span>';
         }
-        if (val.includes('Cancelado')) {
+        if ((r.acao_lembrete || '').includes('ALERTA NPS')) {
+          return '<span style="color:#2563EB; font-weight:800;">🔵 ⭐ Alerta NPS (10ª Sessão)</span>';
+        }
+        if (valLow.includes('cancelado')) {
           return '<span style="color:#EA580C; font-weight:700;">🟠 Cancelado</span>';
         }
         return '<span style="color:#D97706; font-weight:700;">⏳ Pendente</span>';
       };
+
+      const isNoShowAgil = (r) => /não compareceu|nao compareceu/i.test(r.status_agil || '');
 
       container.innerHTML = `
         <div class="agente-container">
@@ -2694,8 +3218,11 @@
                 <button class="btn-agente btn-agente-import" onclick="openAgenteImportModal()">
                   📥 Importar Relatório do Ágil
                 </button>
-                <button class="btn-agente btn-agente-sheets" onclick="exportAgenteExcel()">
-                  📊 Exportar Excel Oficial (17 Abas)
+                <button class="btn-agente" style="background:#2563EB; color:#fff; border-color:#2563EB;" onclick="exportAgenteExcel(true)" title="Exportar planilha Excel do dia selecionado (ou último dia)">
+                  📄 Exportar Dia (${agenteDayFilter !== 'all' ? agenteDayFilter.substring(0, 5) : 'Hoje'})
+                </button>
+                <button class="btn-agente btn-agente-sheets" onclick="exportAgenteExcel(false)" title="Exportar planilha consolidada completa com todas as 17 abas oficiais">
+                  📊 Exportar Consolidado (17 Abas)
                 </button>
                 <button class="btn-agente" onclick="loadAgenteData(true)">
                   🔄 Atualizar Dados
@@ -2705,32 +3232,37 @@
 
             <!-- KPIS GRID DO PAINEL GERENCIAL -->
             <div class="agente-kpis">
-              <div class="agente-kpi-card">
+              <div class="agente-kpi-card" style="cursor:pointer;" onclick="clearAgenteFilters()">
                 <div class="agente-kpi-title">Total Atendimentos</div>
                 <div class="agente-kpi-value">${(k.totalAgendamentos || 0).toLocaleString('pt-BR')}</div>
                 <div class="agente-kpi-sub">Paulista: <b>${(k.paulistaTotal || 0).toLocaleString('pt-BR')}</b> | Granja: <b>${(k.granjaTotal || 0).toLocaleString('pt-BR')}</b></div>
               </div>
-              <div class="agente-kpi-card" style="border-left: 3px solid #16A34A;">
+              <div class="agente-kpi-card" style="border-left: 3px solid #16A34A; cursor:pointer;" onclick="setAgenteStatusFilter(agenteStatusFilter === 'validado' ? 'all' : 'validado')">
                 <div class="agente-kpi-title" style="color:#16A34A;">Validados / Concluídos</div>
                 <div class="agente-kpi-value" style="color:#16A34A;">${(k.validados || 0).toLocaleString('pt-BR')}</div>
                 <div class="agente-kpi-sub">Taxa: <b>${k.taxaConclusao || 0}%</b> auditado</div>
               </div>
-              <div class="agente-kpi-card" style="border-left: 3px solid #F59E0B;">
+              <div class="agente-kpi-card" style="border-left: 3px solid #F59E0B; cursor:pointer;" onclick="setAgenteStatusFilter(agenteStatusFilter === 'pendente' ? 'all' : 'pendente')">
                 <div class="agente-kpi-title" style="color:#D97706;">Pendentes em Aberto</div>
                 <div class="agente-kpi-value" style="color:#D97706;">${(k.pendentes || 0).toLocaleString('pt-BR')}</div>
                 <div class="agente-kpi-sub">Exigem ação da recepção</div>
               </div>
-              <div class="agente-kpi-card" style="border-left: 3px solid #9CA3AF;">
+              <div class="agente-kpi-card" style="border-left: 3px solid #9CA3AF; cursor:pointer;" onclick="setAgenteStatusFilter(agenteStatusFilter === 'falta_justificada' ? 'all' : 'falta_justificada')">
                 <div class="agente-kpi-title">Faltas Justificadas</div>
                 <div class="agente-kpi-value" style="color:#4B5563;">${(k.faltasJustificadas || 0).toLocaleString('pt-BR')}</div>
-                <div class="agente-kpi-sub">Sem cobrança / resolvidas</div>
+                <div class="agente-kpi-sub">Fundo branco • sem cobrança</div>
               </div>
-              <div class="agente-kpi-card" style="border-left: 3px solid #DC2626;">
+              <div class="agente-kpi-card" style="border-left: 3px solid #DC2626; cursor:pointer;" onclick="setAgenteStatusFilter(agenteStatusFilter === 'nao_compareceu' ? 'all' : 'nao_compareceu')">
                 <div class="agente-kpi-title" style="color:#DC2626;">Não Compareceu</div>
                 <div class="agente-kpi-value" style="color:#DC2626;">${(k.naoCompareceu || 0).toLocaleString('pt-BR')}</div>
-                <div class="agente-kpi-sub">Verificar token/assinatura</div>
+                <div class="agente-kpi-sub">Vermelho • validar token/assin.</div>
               </div>
-              <div class="agente-kpi-card" style="border-left: 3px solid #F97316;">
+              <div class="agente-kpi-card" style="border-left: 3px solid #2563EB; background:rgba(37,99,235,0.05); cursor:pointer;" onclick="setAgenteStatusFilter(agenteStatusFilter === 'nps' ? 'all' : 'nps')" title="Clique para filtrar Pacientes Novos em ciclo de 10 sessões e Alertas de NPS na 10ª sessão">
+                <div class="agente-kpi-title" style="color:#2563EB;">🔵 Alerta NPS (Novos)</div>
+                <div class="agente-kpi-value" style="color:#2563EB;">${(k.npsAlertas || 0).toLocaleString('pt-BR')} <span style="font-size:12px; font-weight:700; color:#1D4ED8;">(10ª sessão)</span></div>
+                <div class="agente-kpi-sub" style="color:#1E40AF;"><b>${(k.npsCicloTotal || 0)}</b> em 1º bloco (Avaliação+10)</div>
+              </div>
+              <div class="agente-kpi-card" style="border-left: 3px solid #F97316; cursor:pointer;" onclick="setAgenteStatusFilter(agenteStatusFilter === 'cancelado' ? 'all' : 'cancelado')">
                 <div class="agente-kpi-title" style="color:#EA580C;">Cancelamentos</div>
                 <div class="agente-kpi-value" style="color:#EA580C;">${(k.cancelamentos || 0).toLocaleString('pt-BR')}</div>
                 <div class="agente-kpi-sub">Auditoria de autorizações</div>
@@ -2784,8 +3316,10 @@
               <option value="all" ${agenteStatusFilter === 'all' ? 'selected' : ''}>⚡ Todos os Status</option>
               <option value="validado" ${agenteStatusFilter === 'validado' ? 'selected' : ''}>🟢 Validado / Finalizado</option>
               <option value="pendente" ${agenteStatusFilter === 'pendente' ? 'selected' : ''}>🟠 Pendente em Aberto</option>
-              <option value="falta_justificada" ${agenteStatusFilter === 'falta_justificada' ? 'selected' : ''}>⚪ Falta Justificada</option>
-              <option value="nao_compareceu" ${agenteStatusFilter === 'nao_compareceu' ? 'selected' : ''}>🔴 Não Compareceu</option>
+              <option value="falta_justificada" ${agenteStatusFilter === 'falta_justificada' ? 'selected' : ''}>⚪ Falta Justificada (Branco)</option>
+              <option value="nao_compareceu" ${agenteStatusFilter === 'nao_compareceu' ? 'selected' : ''}>🔴 Não Compareceu (Vermelho)</option>
+              <option value="nps_10" ${agenteStatusFilter === 'nps_10' ? 'selected' : ''}>🔵 ⭐ Alerta NPS — 10ª Sessão (${k.npsAlertas || 0})</option>
+              <option value="nps" ${agenteStatusFilter === 'nps' ? 'selected' : ''}>🔵 Pacientes Novos em Ciclo de 10 (${k.npsCicloTotal || 0})</option>
               <option value="cancelado" ${agenteStatusFilter === 'cancelado' ? 'selected' : ''}>🟠 Cancelado / Desmarcado</option>
             </select>
 
@@ -2816,7 +3350,7 @@
           <!-- CORPO DE EXIBIÇÃO: VISÃO INTELIGENTE OU TABELA CLÁSSICA -->
           ${agenteViewMode === 'smart' ? `
             <div class="agente-smart-container">
-              <div style="background: var(--surface-subtle); border-bottom: 1px solid var(--line); padding: 9px 14px; display: grid; grid-template-columns: 85px minmax(180px, 1.3fr) minmax(170px, 1fr) 110px minmax(210px, 220px) minmax(120px, 0.9fr); gap: 12px; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px;">
+              <div style="background: var(--surface-subtle); border-bottom: 1px solid var(--line); padding: 9px 14px; display: grid; grid-template-columns: 85px minmax(180px, 1.3fr) minmax(170px, 1fr) minmax(160px, 1.1fr) minmax(215px, 230px) minmax(110px, 0.8fr); gap: 12px; font-size: 11px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px;">
                 <div>Horário</div>
                 <div>Paciente & Documento</div>
                 <div>Convênio & Atendimento</div>
@@ -2827,7 +3361,7 @@
 
               <div class="agente-smart-list">
                 ${rows.length ? rows.map(r => `
-                  <div class="agente-smart-row ${getRowClass(r)}">
+                  <div class="agente-smart-row ${getRowClass(r)}" style="grid-template-columns: 85px minmax(180px, 1.3fr) minmax(170px, 1fr) minmax(160px, 1.1fr) minmax(215px, 230px) minmax(110px, 0.8fr);">
                     <!-- HORÁRIO & DATA -->
                     <div class="smart-cell-time">
                       <span class="smart-time-val">${esc(r.horario || '—')}</span>
@@ -2857,7 +3391,7 @@
                     <!-- SESSÃO & ALERTAS -->
                     <div class="smart-cell-session">
                       <span class="smart-session-badge">Sessão ${esc(r.sessao || '—')}</span>
-                      ${r.acao_lembrete ? getAlertBadge(r.acao_lembrete) : ''}
+                      ${r.acao_lembrete ? getAlertBadge(r.acao_lembrete, r) : ''}
                     </div>
 
                     <!-- VALIDAÇÃO 1 TOQUE -->
@@ -2866,9 +3400,13 @@
                         ${getValStatusBadge(r)}
                       </div>
                       <div class="agente-val-group">
-                        <button class="btn-val btn-val-ok ${r.validacao === 'Finalizado' || r.validacao === 'Validado' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado')" title="Validar Atendimento">✓ Validar</button>
-                        <button class="btn-val btn-val-falta ${r.validacao === 'Falta Justificada' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Falta Justificada')" title="Falta Justificada">⚪ Falta</button>
-                        <button class="btn-val btn-val-noshow ${r.validacao && r.validacao.includes('Não compareceu') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Não compareceu')" title="Não Compareceu">✕ Ausência</button>
+                        ${isNoShowAgil(r) ? `
+                          <button class="btn-val btn-val-ok ${(r.validacao || '').toLowerCase().includes('validado') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado (token ou assinatura)')" title="Confirmar cobrança de Token ou Assinatura na ausência">✓ Token/Assin.</button>
+                        ` : `
+                          <button class="btn-val btn-val-ok ${r.validacao === 'Finalizado' || (r.validacao || '').toLowerCase().includes('validado') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado')" title="Validar Atendimento (Verde-Bandeira)">✓ Validar</button>
+                        `}
+                        <button class="btn-val btn-val-falta ${r.validacao === 'Falta Justificada' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Falta Justificada')" title="Falta Justificada (Avisou com 24h • Fica em Branco)">⚪ Falta</button>
+                        <button class="btn-val btn-val-noshow ${r.validacao && r.validacao.includes('Não compareceu') && !r.validacao.toLowerCase().includes('validado') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Não compareceu')" title="Não Compareceu (Fica em Vermelho até validar token/assinatura)">✕ Ausência</button>
                       </div>
                     </div>
 
@@ -2916,7 +3454,7 @@
                       <th style="width:80px;">Guia</th>
                       <th>Ação / Lembrete</th>
                       <th style="width:90px;">Situação</th>
-                      <th style="width:170px;">Validação (1 Toque)</th>
+                      <th style="width:185px;">Validação (1 Toque)</th>
                       <th style="width:180px;">Observação</th>
                     </tr>
                   </thead>
@@ -2938,13 +3476,17 @@
                         <td style="font-weight:700; text-align:center;">${esc(r.sessao || '—')}</td>
                         <td style="font-size:11px; font-family:monospace;">${esc(r.cpf_carteirinha || '—')}</td>
                         <td style="font-size:11px; font-family:monospace;">${esc(r.guia || '—')}</td>
-                        <td>${getAlertBadge(r.acao_lembrete)}</td>
+                        <td>${getAlertBadge(r.acao_lembrete, r)}</td>
                         <td style="font-size:11px; font-weight:600;">${esc(r.situacao || '—')}</td>
                         <td>
                           <div class="agente-val-group">
-                            <button class="btn-val btn-val-ok ${r.validacao === 'Finalizado' || r.validacao === 'Validado' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado')" title="Validar Atendimento">✓ Validar</button>
+                            ${isNoShowAgil(r) ? `
+                              <button class="btn-val btn-val-ok ${(r.validacao || '').toLowerCase().includes('validado') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado (token ou assinatura)')" title="Confirmar cobrança de Token ou Assinatura na ausência">✓ Token/Assin.</button>
+                            ` : `
+                              <button class="btn-val btn-val-ok ${r.validacao === 'Finalizado' || (r.validacao || '').toLowerCase().includes('validado') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Validado')" title="Validar Atendimento">✓ Validar</button>
+                            `}
                             <button class="btn-val btn-val-falta ${r.validacao === 'Falta Justificada' ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Falta Justificada')" title="Falta Justificada">⚪ Falta</button>
-                            <button class="btn-val btn-val-noshow ${r.validacao && r.validacao.includes('Não compareceu') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Não compareceu')" title="Não Compareceu">✕ Ausência</button>
+                            <button class="btn-val btn-val-noshow ${r.validacao && r.validacao.includes('Não compareceu') && !r.validacao.toLowerCase().includes('validado') ? 'active' : ''}" onclick="validateAgenteRow('${r.id}', 'Não compareceu')" title="Não Compareceu">✕ Ausência</button>
                           </div>
                         </td>
                         <td>
