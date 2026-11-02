@@ -1987,10 +1987,10 @@
 
       // Dados da Agenda Clínica (Agente Ágil)
       const agKpis = (agenteData && agenteData.kpis) || {};
-      const agTotalMes = agKpis.totalAgendamentos || 1875;
+      const agTotalMes = agKpis.totalAgendamentos !== undefined ? agKpis.totalAgendamentos : 0;
       const agValidados = agKpis.validados || 0;
       const agFaltas = (agKpis.faltas || 0) + (agKpis.cancelados || 0);
-      const agPresencaPct = agTotalMes > 0 ? Math.round(((agTotalMes - agFaltas) / agTotalMes) * 100) : 85;
+      const agPresencaPct = agTotalMes > 0 ? Math.round(((agTotalMes - agFaltas) / agTotalMes) * 100) : 100;
       const agRenovacaoPacotes = ((agenteData && agenteData.rows) || []).filter(r => {
         const s = String(r.sessao || '');
         return s.includes('6/8') || s.includes('7/8') || s.includes('8/8');
@@ -2012,11 +2012,11 @@
 
       // Dados de Auditoria MedSênior
       const msRel = (medSeniorData && medSeniorData.relatorioExecutivo) || {};
-      const msGuiasCount = msRel.guiasConferidas !== undefined ? msRel.guiasConferidas : 15;
-      const msSemPend = msRel.guiasSemPendencias !== undefined ? msRel.guiasSemPendencias : 7;
-      const msComPend = msRel.guiasComPendencias !== undefined ? msRel.guiasComPendencias : 8;
-      const msValorAuditado = msRel.valorAuditadoConfirmado !== undefined ? msRel.valorAuditadoConfirmado : 5830;
-      const msValorProposto = msRel.valorProposto !== undefined ? msRel.valorProposto : 13200;
+      const msGuiasCount = msRel.guiasConferidas !== undefined ? msRel.guiasConferidas : 0;
+      const msSemPend = msRel.guiasSemPendencias !== undefined ? msRel.guiasSemPendencias : 0;
+      const msComPend = msRel.guiasComPendencias !== undefined ? msRel.guiasComPendencias : 0;
+      const msValorAuditado = msRel.valorAuditadoConfirmado !== undefined ? msRel.valorAuditadoConfirmado : 0;
+      const msValorProposto = msRel.valorProposto !== undefined ? msRel.valorProposto : 0;
 
       // Gráfico 2: Evolução últimos 7 dias (Captados vs Convertidos)
       const days7 = [];
@@ -3093,26 +3093,9 @@
         });
         if (r.ok && r.data) {
           agenteData = r.data;
-          // Virada perpétua de mês: na 1ª carga, se o mês atual do calendário ainda estiver zerado no banco, abre automaticamente no mês passado (ex: Outubro 2026) com dados
+          // Sempre inicia puxando os dados do Mês Atual do calendário quando abre o app (mantendo o botão do Mês Passado disponível para filtro)
           if (!window._agenteMonthInitialized) {
             window._agenteMonthInitialized = true;
-            const calMes = getCurrentCalendarMonth();
-            const prevMes = getPrevCalendarMonth(calMes);
-            const mesesArr = Array.isArray(agenteData.meses) ? agenteData.meses : [];
-            const calEntry = mesesArr.find(x => x && x.mes === calMes);
-            const prevEntry = mesesArr.find(x => x && x.mes === prevMes);
-            const dbMes = mesesArr.length > 0 ? mesesArr[0].mes : calMes;
-            let targetMes = calMes;
-            if ((!calEntry || !calEntry.count) && prevEntry && prevEntry.count > 0) {
-              targetMes = prevMes;
-            } else if ((!calEntry || !calEntry.count) && dbMes) {
-              targetMes = dbMes;
-            }
-            if (targetMes && targetMes !== agenteMonthFilter) {
-              agenteMonthFilter = targetMes;
-              agenteCalViewMonth = targetMes;
-              return loadAgenteData(forceRefresh);
-            }
           }
           const totalVal = (agenteData.kpis && agenteData.kpis.totalAgendamentos) || agenteData.total || 0;
           const badge = document.getElementById('nav-agente');
@@ -3435,15 +3418,15 @@
             </div>
             <div class="modal-body">
               <p style="font-size:13px; color:var(--text-2); margin:0;">
-                Selecione ou arraste a planilha exportada diretamente do sistema Ágil (ex: <code>atendimentos-9.xlsx</code>, <code>21-10-26.xlsx</code> ou consolidado). 
-                O sistema reconhece automaticamente a ordem das colunas, separa <b>Paulista</b> e <b>Granja Viana</b>, preserva validações anteriores e ativa o <b>Alerta NPS em Azul na 10ª sessão para pacientes novos</b>.
+                Selecione ou arraste a <b>planilha do sistema Ágil</b> (<code>.xlsx</code>, <code>.xls</code>, <code>.csv</code>) <b>ou prints/imagens da Agenda Ágil</b> (<code>.png</code>, <code>.jpg</code>, <code>.pdf</code>).
+                O sistema reconhece automaticamente colunas ou lê visualmente por IA, separa <b>Paulista</b> e <b>Granja Viana</b>, preserva validações anteriores e ativa o <b>Alerta NPS em Azul na 10ª sessão para pacientes novos</b>.
               </p>
 
               <div class="dropzone" id="agente-dropzone" onclick="document.getElementById('agente-file-input').click()">
-                <div class="dropzone-icon">📥</div>
-                <div class="dropzone-text">Clique aqui ou arraste a planilha do Ágil (.xlsx, .xls ou .csv)</div>
-                <div class="dropzone-sub">Reconhecimento inteligente de colunas (Relatório Bruto do Ágil ou Planilha Consolidada)</div>
-                <input type="file" id="agente-file-input" accept=".xlsx, .xls, .csv" style="display:none;" onchange="handleAgilFileSelect(this.files[0])">
+                <div class="dropzone-icon">📥🔍</div>
+                <div class="dropzone-text">Clique aqui ou arraste Planilha (.xlsx, .xls, .csv) ou Prints/Imagens da Agenda (.png, .jpg, .pdf)</div>
+                <div class="dropzone-sub">Suporta múltiplos prints/imagens simultâneos com Leitura Visual IA (GPT-4o Vision) ou Planilha Excel</div>
+                <input type="file" id="agente-file-input" accept=".xlsx,.xls,.csv,.png,.jpg,.jpeg,.webp,.pdf" multiple style="display:none;" onchange="handleAgilFileSelect(this.files)">
               </div>
 
               <div id="agente-import-preview" class="preview-import hidden" style="max-height:280px; overflow-y:auto;"></div>
@@ -3465,7 +3448,7 @@
         e.preventDefault();
         dz.classList.remove('dragover');
         if (e.dataTransfer.files && e.dataTransfer.files.length) {
-          handleAgilFileSelect(e.dataTransfer.files[0]);
+          handleAgilFileSelect(e.dataTransfer.files);
         }
       };
     }
@@ -3573,17 +3556,108 @@
       return matchOfficial(c) || matchOfficial(sh) || matchOfficial(`${procedimento || ''} ${guia || ''}`) || 'SEM CONVÊNIO';
     }
 
-    function handleAgilFileSelect(file) {
-      if (!file) return;
+    async function handleAgilFileSelect(fileOrList) {
+      if (!fileOrList) return;
+      const files = (fileOrList instanceof FileList || Array.isArray(fileOrList))
+        ? Array.from(fileOrList)
+        : [fileOrList];
+      if (!files.length) return;
+
+      const preview = document.getElementById('agente-import-preview');
+      const errBox = document.getElementById('agente-import-error');
+      const btnConfirm = document.getElementById('btn-confirm-import');
+      if (errBox) { errBox.classList.add('hidden'); errBox.innerHTML = ''; }
+      preview.classList.remove('hidden');
+
+      const isImageOrPdf = (f) => /\.(png|jpg|jpeg|webp|pdf)$/i.test(f.name || '') || (f.type && (f.type.startsWith('image/') || f.type === 'application/pdf'));
+      if (files.some(isImageOrPdf)) {
+        const imgFiles = files.filter(isImageOrPdf);
+        const allExtractedRows = [];
+        const datesSet = new Set();
+        let countPaulista = 0;
+        let countGranja = 0;
+        const logs = [];
+
+        for (let i = 0; i < imgFiles.length; i++) {
+          const f = imgFiles[i];
+          preview.innerHTML = `<div style="font-weight:700; color:#6D28D9; margin-bottom:8px;">⏳ Lendo visualmente imagem ${i + 1} de ${imgFiles.length}: <b>${esc(f.name)}</b>...</div>` + logs.join('');
+          try {
+            let fbDate = '';
+            const mD = (f.name || '').match(/(\d{4})[\/\-_](\d{2})[\/\-_](\d{2})|(\d{2})[\/\-_](\d{2})[\/\-_](\d{2,4})/);
+            if (mD) {
+              if (mD[1]) fbDate = `${mD[3]}/${mD[2]}/${mD[1]}`;
+              else {
+                let yy = mD[6]; if (yy.length === 2) yy = '20' + yy;
+                fbDate = `${mD[4]}/${mD[5]}/${yy}`;
+              }
+            }
+            const imageDataUrl = await convertFileToImageDataUrl(f);
+            const r = await api('agendamentos', {
+              action: 'ocr_image',
+              imageDataUrl,
+              fileName: f.name,
+              fallbackDate: fbDate
+            });
+            if (r.ok && r.data && Array.isArray(r.data.rows) && r.data.rows.length > 0) {
+              r.data.rows.forEach(row => {
+                allExtractedRows.push(row);
+                if (row.data) datesSet.add(row.data);
+                if (row.unidade === 'GRANJA VIANA') countGranja++; else countPaulista++;
+              });
+              logs.unshift(`<div style="padding:4px 0; border-bottom:1px solid var(--line); color:#065F46; font-size:12px;">✅ <b>${esc(f.name)}</b>: ${r.data.rows.length} atendimento(s) reconhecido(s)</div>`);
+            } else {
+              logs.unshift(`<div style="padding:4px 0; border-bottom:1px solid var(--line); color:#DC2626; font-size:12px;">⚠️ <b>${esc(f.name)}</b>: ${esc(r.error || 'Nenhum atendimento identificado na imagem')}</div>`);
+            }
+          } catch (err) {
+            logs.unshift(`<div style="padding:4px 0; border-bottom:1px solid var(--line); color:#DC2626; font-size:12px;">⚠️ <b>${esc(f.name)}</b>: ${esc(err.message)}</div>`);
+          }
+        }
+
+        agenteImportPendingRows = allExtractedRows;
+        if (allExtractedRows.length > 0) {
+          btnConfirm.disabled = false;
+          btnConfirm.textContent = `Confirmar Importação (${allExtractedRows.length} atendimentos)`;
+          const sampleRows = allExtractedRows.slice(0, 6).map(x => `
+            <tr>
+              <td style="padding:4px 6px; border-bottom:1px solid var(--line);">${esc(x.data)}</td>
+              <td style="padding:4px 6px; border-bottom:1px solid var(--line); font-family:monospace;">${esc(x.horario)}</td>
+              <td style="padding:4px 6px; border-bottom:1px solid var(--line); font-weight:700;">${esc(x.paciente)}</td>
+              <td style="padding:4px 6px; border-bottom:1px solid var(--line);">${esc(x.convenio)}</td>
+              <td style="padding:4px 6px; border-bottom:1px solid var(--line);">${esc(x.unidade)}</td>
+            </tr>
+          `).join('');
+          preview.innerHTML = `
+            <div style="font-weight:800; color:#047857; margin-bottom:6px;">🎉 ${allExtractedRows.length} atendimento(s) extraídos de ${imgFiles.length} imagem(ns)!</div>
+            <div style="font-size:11.5px; color:var(--text-2); margin-bottom:8px;">
+              Paulista: <b>${countPaulista}</b> • Granja Viana: <b>${countGranja}</b> • Datas: <b>${[...datesSet].join(', ')}</b>
+            </div>
+            <table style="width:100%; border-collapse:collapse; font-size:11.5px; margin-bottom:8px;">
+              <thead>
+                <tr style="background:var(--surface-subtle); text-align:left;">
+                  <th style="padding:4px 6px;">Data</th>
+                  <th style="padding:4px 6px;">Hora</th>
+                  <th style="padding:4px 6px;">Paciente</th>
+                  <th style="padding:4px 6px;">Convênio</th>
+                  <th style="padding:4px 6px;">Unidade</th>
+                </tr>
+              </thead>
+              <tbody>${sampleRows}</tbody>
+            </table>
+            ${logs.join('')}
+          `;
+        } else {
+          btnConfirm.disabled = true;
+          preview.innerHTML = `<div style="font-weight:700; color:#DC2626; margin-bottom:6px;">Não foi possível extrair atendimentos das imagens enviadas.</div>` + logs.join('');
+        }
+        return;
+      }
+
+      const file = files[0];
       if (typeof XLSX === 'undefined') {
         alert('Biblioteca XLSX ainda carregando. Aguarde 2 segundos e tente novamente.');
         return;
       }
 
-      const preview = document.getElementById('agente-import-preview');
-      const errBox = document.getElementById('agente-import-error');
-      if (errBox) { errBox.classList.add('hidden'); errBox.innerHTML = ''; }
-      preview.classList.remove('hidden');
       preview.innerHTML = `<div style="display:flex; align-items:center; gap:8px;">🔄 Lendo e analisando estrutura de <b>${esc(file.name)}</b>...</div>`;
 
       // Tentar extrair data do nome do arquivo caso seja 21-10-26.xlsx
@@ -4882,16 +4956,9 @@
         if (r.ok && r.data) {
           medSeniorData = r.data;
           const totalGuias = (r.data.rows || []).length;
-          // Se na 1ª carga o mês atual (ex: Novembro 2026) ainda tiver 0 guias e o mês passado (Outubro 2026) tiver guias, seleciona automaticamente o mês passado
+          // Sempre inicia puxando os dados do Mês Atual do calendário quando abre o app (mantendo o botão do Mês Passado disponível para filtro)
           if (!window._medSeniorMonthInitialized) {
             window._medSeniorMonthInitialized = true;
-            const prevComp = getPrevCalendarMonth(getCurrentCalendarMonth());
-            const compsList = Array.isArray(r.data.competencias) ? r.data.competencias : [];
-            const prevHasGuias = compsList.some(c => c && c.competencia === prevComp && Number(c.count) > 0);
-            if (totalGuias === 0 && medSeniorCompetencia !== prevComp && (prevHasGuias || compsList.length === 0)) {
-              medSeniorCompetencia = prevComp;
-              return loadMedSeniorData(forceToast);
-            }
           }
           const navBadge = document.getElementById('nav-medsenior');
           if (navBadge) navBadge.textContent = totalGuias;
@@ -5216,6 +5283,40 @@
     }
 
     async function convertFileToImageDataUrl(file) {
+      const compressCanvasToJpeg = (sourceCanvas, maxDim = 1650, quality = 0.82) => {
+        let w = sourceCanvas.width || 1600;
+        let h = sourceCanvas.height || 1200;
+        if (w > maxDim || h > maxDim) {
+          const ratio = Math.min(maxDim / w, maxDim / h);
+          w = Math.max(1, Math.round(w * ratio));
+          h = Math.max(1, Math.round(h * ratio));
+        }
+        const outCanvas = document.createElement('canvas');
+        outCanvas.width = w;
+        outCanvas.height = h;
+        const outCtx = outCanvas.getContext('2d');
+        outCtx.fillStyle = '#FFFFFF';
+        outCtx.fillRect(0, 0, w, h);
+        outCtx.drawImage(sourceCanvas, 0, 0, w, h);
+        let dataUrl = outCanvas.toDataURL('image/jpeg', quality);
+        if (dataUrl.length > 1400000) {
+          dataUrl = outCanvas.toDataURL('image/jpeg', 0.68);
+        }
+        if (dataUrl.length > 1400000) {
+          const smallerW = Math.round(w * 0.78);
+          const smallerH = Math.round(h * 0.78);
+          const smallCanvas = document.createElement('canvas');
+          smallCanvas.width = smallerW;
+          smallCanvas.height = smallerH;
+          const sCtx = smallCanvas.getContext('2d');
+          sCtx.fillStyle = '#FFFFFF';
+          sCtx.fillRect(0, 0, smallerW, smallerH);
+          sCtx.drawImage(outCanvas, 0, 0, smallerW, smallerH);
+          dataUrl = smallCanvas.toDataURL('image/jpeg', 0.65);
+        }
+        return dataUrl;
+      };
+
       const nameLow = (file.name || '').toLowerCase();
       if (nameLow.endsWith('.pdf')) {
         if (typeof pdfjsLib === 'undefined') {
@@ -5225,17 +5326,33 @@
         const arrayBuf = await file.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuf }).promise;
         const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 2.2 });
+        const viewport = page.getViewport({ scale: 2.0 });
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         await page.render({ canvasContext: ctx, viewport }).promise;
-        return canvas.toDataURL('image/png', 0.95);
+        return compressCanvasToJpeg(canvas, 1700, 0.84);
       } else {
         return new Promise((resolve, reject) => {
           const reader = new FileReader();
-          reader.onload = () => resolve(reader.result);
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.naturalWidth || img.width || 1600;
+              canvas.height = img.naturalHeight || img.height || 1200;
+              const ctx = canvas.getContext('2d');
+              ctx.fillStyle = '#FFFFFF';
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+              ctx.drawImage(img, 0, 0);
+              resolve(compressCanvasToJpeg(canvas, 1700, 0.84));
+            };
+            img.onerror = () => reject(new Error('Formato de imagem não suportado. Use PNG, JPG ou PDF.'));
+            img.src = reader.result;
+          };
           reader.onerror = () => reject(new Error('Falha ao ler imagem'));
           reader.readAsDataURL(file);
         });
@@ -5621,11 +5738,11 @@
             <!-- SELETOR DE COMPETÊNCIA MENSAL -->
             <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin: 12px 0;">
               <span style="font-size:11px; font-weight:800; color:var(--text-3); text-transform:uppercase;">Competência de Faturamento:</span>
-              <button class="day-pill ${medSeniorCompetencia === prevAutoMonth ? 'active' : ''}" onclick="setMedSeniorCompetencia('${prevAutoMonth}')">
-                📅 ${esc(formatMonthLabel(prevAutoMonth))} (Mês Passado)${compCounts[prevAutoMonth] ? ` • ${compCounts[prevAutoMonth]} guias` : ''}
-              </button>
               <button class="day-pill ${medSeniorCompetencia === curAutoMonth ? 'active' : ''}" onclick="setMedSeniorCompetencia('${curAutoMonth}')">
                 📅 ${esc(formatMonthLabel(curAutoMonth))} (Mês Atual)${compCounts[curAutoMonth] ? ` • ${compCounts[curAutoMonth]} guias` : ''}
+              </button>
+              <button class="day-pill ${medSeniorCompetencia === prevAutoMonth ? 'active' : ''}" onclick="setMedSeniorCompetencia('${prevAutoMonth}')">
+                📅 ${esc(formatMonthLabel(prevAutoMonth))} (Mês Passado)${compCounts[prevAutoMonth] ? ` • ${compCounts[prevAutoMonth]} guias` : ''}
               </button>
               <button class="day-pill ${medSeniorCompetencia === nextAutoMonth ? 'active' : ''}" onclick="setMedSeniorCompetencia('${nextAutoMonth}')">
                 📅 ${esc(formatMonthLabel(nextAutoMonth))} (Próximo Mês)

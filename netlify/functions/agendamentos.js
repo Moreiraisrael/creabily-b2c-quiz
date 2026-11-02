@@ -52,18 +52,16 @@ function normalizeTimeStr(raw) {
 function detectUnidade(r) {
   const u = String(r.unidade || '').toUpperCase();
   if (u.includes('GRANJA')) return 'GRANJA VIANA';
-  const prof = String(r.profissional || '').toLowerCase();
-  const esp = String(r.especialidade || '').toLowerCase();
-  const proc = String(r.procedimento || '').toLowerCase();
+  const combined = `${r.profissional || ''} ${r.especialidade || ''} ${r.procedimento || ''}`.toLowerCase();
   if (
-    prof.includes('granja') ||
-    prof.includes('angela oliveira') ||
-    prof.includes('giovanna barros') ||
-    prof.includes('jessica oliveira') ||
-    prof.includes('piero antonaccio') ||
-    prof.includes('camila (fisio') ||
-    esp.includes('granja') ||
-    proc.includes('granja')
+    combined.includes('granja') ||
+    combined.includes('angela oliveira') ||
+    combined.includes('giovanna barros') ||
+    combined.includes('jessica oliveira') ||
+    combined.includes('piero') ||
+    combined.includes('pierro') ||
+    combined.includes('antonaccio') ||
+    combined.includes('camila (fisio')
   ) {
     return 'GRANJA VIANA';
   }
@@ -143,6 +141,11 @@ function computeAlerts(r, historyProfile = null) {
   const isConfirmedNewWithEval = historyProfile ? historyProfile.isConfirmedNewWithEval : false;
   const isFirstCycle10 = historyProfile ? historyProfile.isFirstCycle10 : true;
 
+  // 0. Falta Justificada na Agenda -> Alerta prioritário para NÃO validar token/assinatura
+  if (st.includes('justificada') || val.includes('justificada')) {
+    alerts.push('⚪ 🚫 FALTA JUSTIFICADA — NÃO VALIDAR TOKEN / ASSINATURA');
+  }
+
   // 1. Avaliação Inicial
   if (sess === '1/1' || /avalia/i.test(espProc)) {
     alerts.push('📋 Avaliação Inicial (Verificar início de bloco de 10 sessões)');
@@ -193,6 +196,161 @@ function computeAlerts(r, historyProfile = null) {
   return alerts.join(' • ');
 }
 
+function normalizeNameForMatch(raw) {
+  return String(raw || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isSamePersonName(agilName, leadName) {
+  const nA = normalizeNameForMatch(agilName);
+  const nL = normalizeNameForMatch(leadName);
+  if (!nA || !nL) return false;
+  const partsA = nA.split(' ').filter(Boolean);
+  const partsL = nL.split(' ').filter(Boolean);
+  if (partsA.length < 2 || partsL.length < 2) return false;
+  if (nA === nL) return true;
+
+  // Se todos os nomes/sobrenomes do Lead (mínimo 2 tokens relevantes >=3 letras e primeiro nome igual) estão contidos na mesma ordem no nome do Ágil
+  if (partsA[0] !== partsL[0]) return false;
+  const stopWords = new Set(['de', 'da', 'do', 'das', 'dos', 'e']);
+  const sigA = partsA.filter(w => !stopWords.has(w));
+  const sigL = partsL.filter(w => !stopWords.has(w));
+  if (sigA.length < 2 || sigL.length < 2) return false;
+
+  // Se ambos têm >= 3 nomes significativos e todos os de um estão no outro
+  if (sigL.length >= 3 && sigL.every(w => sigA.includes(w))) return true;
+  if (sigA.length >= 3 && sigA.every(w => sigL.includes(w))) return true;
+
+  // Se o lead preencheu Nome + Último Sobrenome exato (e sobrenome não é ultra-comum isolado)
+  const commonSurnames = new Set(['silva', 'santos', 'souza', 'sousa', 'oliveira', 'pereira', 'lima', 'costa', 'ferreira', 'rodrigues', 'almeida', 'nascimento', 'alves', 'araujo', 'ribeiro', 'carvalho']);
+  if (sigL.length === 2 && sigA[0] === sigL[0] && sigA[sigA.length - 1] === sigL[1] && !commonSurnames.has(sigL[1]) && sigL[0].length >= 4 && sigL[1].length >= 4) {
+    return true;
+  }
+  return false;
+}
+
+async function syncAgilPatientsWithCrmLeads(client, targetPatientNames = null) {
+  const leadsRes = await client.query(`
+    SELECT id, name, phone, status, notes
+    FROM public.leads
+    WHERE name IS NOT NULL AND TRIM(name) <> ''
+    ORDER BY created_at DESC;
+  `);
+  const leads = leadsRes.rows || [];
+  if (!leads.length) return { syncedCount: 0, matchedLeadsTotal: 0, updatedLeads: [], leadMapByAgilNorm: {} };
+
+  let agilQuery = `
+    SELECT paciente, data, horario, status_agil, validacao, unidade, especialidade, convenio, sessao
+    FROM public.agendamentos_auditoria
+  `;
+  const agilParams = [];
+  if (Array.isArray(targetPatientNames) && targetPatientNames.length > 0) {
+    agilQuery += ` WHERE LOWER(TRIM(paciente)) = ANY($1::text[])`;
+    agilParams.push(targetPatientNames.map(x => String(x || '').trim().toLowerCase()));
+  }
+  agilQuery += ` ORDER BY to_date(CASE WHEN data ~ '^\\d{2}/\\d{2}/\\d{4}$' THEN data ELSE '01/10/2026' END, 'DD/MM/YYYY') DESC, id DESC;`;
+
+  const agilRes = await client.query(agilQuery, agilParams);
+  const byPatient = new Map();
+  for (const r of agilRes.rows) {
+    const pNorm = normalizeNameForMatch(r.paciente);
+    if (!pNorm) continue;
+    if (!byPatient.has(pNorm)) {
+      byPatient.set(pNorm, { rawName: r.paciente, rows: [] });
+    }
+    byPatient.get(pNorm).rows.push(r);
+  }
+
+  let syncedCount = 0;
+  let matchedLeadsTotal = 0;
+  const updatedLeads = [];
+  const leadMapByAgilNorm = {};
+
+  for (const [pNorm, pData] of byPatient.entries()) {
+    const matchedLead = leads.find(l => isSamePersonName(pData.rawName, l.name));
+    if (!matchedLead) continue;
+
+    matchedLeadsTotal++;
+    const rows = pData.rows;
+    const latest = rows[0];
+    const hasValidado = rows.some(r => {
+      const v = String(r.validacao || '').toLowerCase();
+      const s = String(r.status_agil || '').toLowerCase();
+      return v.includes('validado') || v.includes('finalizado') || s.includes('finalizado');
+    });
+    const hasOpenOrJustified = rows.some(r => {
+      const v = String(r.validacao || '').toLowerCase();
+      const s = String(r.status_agil || '').toLowerCase();
+      return v.includes('pendente') || v.includes('justificada') || s.includes('aberto') || s.includes('agendado') || s.includes('justificada');
+    });
+    const allNoShow = rows.length > 0 && rows.every(r => {
+      const v = String(r.validacao || '').toLowerCase();
+      const s = String(r.status_agil || '').toLowerCase();
+      return (v.includes('não compareceu') || v.includes('nao compareceu') || s.includes('não compareceu')) && !v.includes('validado');
+    });
+
+    let desiredStatus = null;
+    let noteTag = '';
+    if (hasValidado) {
+      desiredStatus = 'consulta_realizada';
+      noteTag = `[Agente Creabily] ✅ Comparecimento/Sessão confirmada na agenda do Ágil em ${latest.data} (${latest.horario || ''} - ${latest.unidade || ''} - ${latest.especialidade || 'Atendimento'}). Removido do fluxo do Funil.`;
+    } else if (hasOpenOrJustified) {
+      desiredStatus = 'consulta_realizada';
+      noteTag = `[Agente Creabily] 📅 Subiu na Agenda do Ágil para ${latest.data} às ${latest.horario || ''} (${latest.unidade || ''} - ${latest.especialidade || 'Atendimento'}). Removido automaticamente do Funil.`;
+    } else if (allNoShow) {
+      desiredStatus = 'no_show';
+      noteTag = `[Agente Creabily] ⚠️ Ausência (Não Compareceu) registrada na agenda do Ágil em ${latest.data}.`;
+    }
+
+    let finalStatus = matchedLead.status;
+    // Nunca rebaixar consulta_realizada para agendado ou no_show
+    if (desiredStatus && matchedLead.status !== desiredStatus) {
+      if (matchedLead.status === 'consulta_realizada' && desiredStatus !== 'consulta_realizada') {
+        finalStatus = 'consulta_realizada';
+      } else {
+        const currentNotes = String(matchedLead.notes || '').trim();
+        const updatedNotes = currentNotes.includes(noteTag)
+          ? currentNotes
+          : (currentNotes ? `${currentNotes}\n${noteTag}` : noteTag);
+
+        await client.query(`
+          UPDATE public.leads
+          SET status = $1,
+              status_changed_at = NOW(),
+              notes = $2
+          WHERE id = $3;
+        `, [desiredStatus, updatedNotes, matchedLead.id]);
+
+        finalStatus = desiredStatus;
+        matchedLead.status = desiredStatus;
+        matchedLead.notes = updatedNotes;
+        syncedCount++;
+        updatedLeads.push({
+          leadId: matchedLead.id,
+          name: matchedLead.name,
+          oldStatus: matchedLead.status,
+          newStatus: desiredStatus,
+          data: latest.data
+        });
+      }
+    }
+
+    leadMapByAgilNorm[pNorm] = {
+      id: matchedLead.id,
+      name: matchedLead.name,
+      phone: matchedLead.phone,
+      status: finalStatus
+    };
+  }
+
+  return { syncedCount, matchedLeadsTotal, updatedLeads, leadMapByAgilNorm };
+}
+
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -227,10 +385,104 @@ exports.handler = async (event) => {
     await client.connect();
 
     // -------------------------------------------------------------
+    // ACTION: OCR_IMAGE (Lê Prints/Imagens da Agenda Ágil ou Guias via GPT-4o Vision)
+    // -------------------------------------------------------------
+    if (action === 'ocr_image') {
+      const { imageDataUrl, fileName = 'Agenda_Agil.png', fallbackDate = '' } = body;
+      await client.end();
+      if (!imageDataUrl) {
+        return { statusCode: 400, headers, body: JSON.stringify({ error: 'Imagem não fornecida.' }) };
+      }
+
+      const customSystemPrompt = `Você é o Auditor de Agenda Clínica da CREABILY – ARTE DA CURA.
+Analise visualmente esta imagem (que pode ser um print/captura de tela da Agenda do Sistema Ágil, uma planilha de atendimentos ou uma Guia SP/SADT com datas de sessão).
+Extraia TODOS os atendimentos/sessões visíveis na imagem e retorne APENAS um objeto JSON válido com a estrutura:
+{
+  "atendimentos": [
+    {
+      "data": "DD/MM/2026 (se não houver ano visível, use 2026; se for uma guia SP/SADT com várias datas no Campo 56, gere um item para cada data manuscrita preenchida)",
+      "horario": "HH:MM (ou '08:00' se não informado)",
+      "paciente": "Nome completo do paciente/beneficiário",
+      "convenio": "Convênio (ex: Afresp Saúde, Medsenior, Care Plus, Omint Skill, Omint Premium, Omint Corporate, Amil Black, Amil One, Lincx, Total Pass, Creabily Particular, SEM CONVÊNIO)",
+      "profissional": "Nome do fisioterapeuta/profissional (se visível)",
+      "especialidade": "Especialidade (ex: Fisioterapia, Pilates, RPG, Acupuntura, Nutrição, Psicologia)",
+      "procedimento": "Procedimento realizado",
+      "sessao": "Número da sessão ex: 1/10, 2/8, etc.",
+      "cpf_carteirinha": "Número da carteirinha ou CPF (se visível)",
+      "guia": "Número da guia SADT ou senha (se visível)",
+      "status_agil": "Finalizado, Em Aberto, Não Compareceu ou Falta Justificada",
+      "unidade": "PAULISTA ou GRANJA VIANA"
+    }
+  ]
+}`;
+
+      const ocrRes = await fetch('http://2.25.163.224:5678/webhook/ocr-medsenior-sadt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageDataUrl,
+          fileName,
+          customSystemPrompt,
+          customUserPrompt: `Extraia todos os atendimentos desta imagem (${fileName}). Data de referência caso não apareça na linha: ${fallbackDate || new Date().toLocaleDateString('pt-BR')}.`
+        })
+      });
+
+      if (!ocrRes.ok) {
+        return { statusCode: 502, headers, body: JSON.stringify({ error: 'Falha ao comunicar com o motor de Visão IA.' }) };
+      }
+
+      const ocrJson = await ocrRes.json();
+      let parsed = null;
+      if (ocrJson.choices && ocrJson.choices[0] && ocrJson.choices[0].message) {
+        const rawContent = String(ocrJson.choices[0].message.content || '').replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        parsed = JSON.parse(rawContent);
+      } else if (ocrJson.atendimentos) {
+        parsed = ocrJson;
+      }
+
+      const rawList = (parsed && Array.isArray(parsed.atendimentos)) ? parsed.atendimentos : [];
+      const todayBR = new Date().toLocaleDateString('pt-BR');
+      const normalizedRows = rawList
+        .filter(r => r && r.paciente && String(r.paciente).trim().length >= 2)
+        .map(r => {
+          const dt = normalizeDateStr(r.data) || fallbackDate || todayBR;
+          const hr = normalizeTimeStr(r.horario) || '';
+          const unid = detectUnidade(r);
+          const conv = normalizeConvenio(r.convenio, r.procedimento, r.guia);
+          const stAgil = String(r.status_agil || 'Finalizado').trim();
+          return {
+            data: dt,
+            unidade: unid,
+            convenio: conv,
+            paciente: String(r.paciente).trim(),
+            horario: hr,
+            status_agil: stAgil,
+            profissional: String(r.profissional || '').trim(),
+            especialidade: String(r.especialidade || 'Fisioterapia').trim(),
+            procedimento: String(r.procedimento || 'Atendimento').trim(),
+            sessao: String(r.sessao || '').trim(),
+            cpf_carteirinha: String(r.cpf_carteirinha || '000').trim(),
+            guia: String(r.guia || '').trim(),
+            acao_lembrete: '',
+            situacao: stAgil,
+            validacao: stAgil.toLowerCase().includes('finalizado') ? 'Finalizado' : 'Pendente',
+            observacao: `Extraído via IA Visual (${fileName})`
+          };
+        });
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ ok: true, rows: normalizedRows })
+      };
+    }
+
+    // -------------------------------------------------------------
     // ACTION: LIST (Listagem analítica com paginação e filtros)
     // -------------------------------------------------------------
     if (action === 'list') {
       const {
+        mesFilter = 'all',
         dataFilter = 'all',
         unidadeFilter = 'all',
         convenioFilter = 'all',
@@ -247,6 +499,9 @@ exports.handler = async (event) => {
       if (dataFilter && dataFilter !== 'all') {
         whereClauses.push(`data = $${pIdx++}`);
         params.push(dataFilter);
+      } else if (mesFilter && mesFilter !== 'all') {
+        whereClauses.push(`data LIKE $${pIdx++}`);
+        params.push(`%/${mesFilter}`);
       }
 
       if (unidadeFilter && unidadeFilter !== 'all') {
@@ -307,16 +562,19 @@ exports.handler = async (event) => {
                validacao, observacao, unidade, convenio, validado_por, validado_em
         FROM public.agendamentos_auditoria
         ${whereSql}
-        ORDER BY to_date(CASE WHEN data ~ '^\\d{2}/\\d{2}/\\d{4}$' THEN data ELSE '01/10/2026' END, 'DD/MM/YYYY') DESC, unidade ASC, paciente ASC
+        ORDER BY to_date(CASE WHEN data ~ '^\\d{2}/\\d{2}/\\d{4}$' THEN data ELSE '01/10/2026' END, 'DD/MM/YYYY') DESC, LOWER(TRIM(paciente)) ASC, horario ASC
         LIMIT $${pIdx++} OFFSET $${pIdx++};
       `, queryParams);
 
-      // KPIs consolidados (filtrados por data se selecionada)
+      // KPIs consolidados (filtrados por data ou mês se selecionado)
       const kpiParams = [];
       let kpiDateFilter = '';
       if (dataFilter && dataFilter !== 'all') {
         kpiDateFilter = 'WHERE data = $1';
         kpiParams.push(dataFilter);
+      } else if (mesFilter && mesFilter !== 'all') {
+        kpiDateFilter = 'WHERE data LIKE $1';
+        kpiParams.push(`%/${mesFilter}`);
       }
 
       const kpisRes = await client.query(`
@@ -354,15 +612,30 @@ exports.handler = async (event) => {
         taxaConclusao: parseFloat(taxaConclusao)
       };
 
+      const mesesRes = await client.query(`
+        SELECT SUBSTRING(data FROM 4 FOR 7) AS mes, count(*) as count
+        FROM public.agendamentos_auditoria
+        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}$'
+        GROUP BY SUBSTRING(data FROM 4 FOR 7)
+        ORDER BY to_date('01/' || SUBSTRING(data FROM 4 FOR 7), 'DD/MM/YYYY') DESC;
+      `);
+
+      const diasParams = [];
+      let diasMonthClause = '';
+      if (mesFilter && mesFilter !== 'all') {
+        diasMonthClause = 'AND data LIKE $1';
+        diasParams.push(`%/${mesFilter}`);
+      }
+
       const diasRes = await client.query(`
         SELECT data, count(*) as count,
                count(*) FILTER (WHERE LOWER(unidade) LIKE '%paulista%') AS paulista,
                count(*) FILTER (WHERE LOWER(unidade) LIKE '%granja%') AS granja
         FROM public.agendamentos_auditoria
-        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}$'
+        WHERE data ~ '^\\d{2}/\\d{2}/\\d{4}$' ${diasMonthClause}
         GROUP BY data
         ORDER BY to_date(data, 'DD/MM/YYYY') DESC;
-      `);
+      `, diasParams);
 
       const convRes = await client.query(`
         SELECT convenio, count(*) as count
@@ -371,6 +644,21 @@ exports.handler = async (event) => {
         GROUP BY convenio
         ORDER BY count DESC;
       `, kpiParams);
+
+      // Enriquecer linhas exibidas com vínculo automático ao Funil do CRM (public.leads)
+      const leadsForMatchRes = await client.query(`
+        SELECT id, name, phone, status
+        FROM public.leads
+        WHERE name IS NOT NULL AND TRIM(name) <> ''
+        ORDER BY created_at DESC;
+      `);
+      const allLeads = leadsForMatchRes.rows || [];
+      const enrichedRows = rowsRes.rows.map(r => {
+        const matched = allLeads.find(l => isSamePersonName(r.paciente, l.name));
+        return matched
+          ? { ...r, crm_lead: { id: matched.id, name: matched.name, phone: matched.phone, status: matched.status } }
+          : r;
+      });
 
       await client.end();
 
@@ -383,8 +671,9 @@ exports.handler = async (event) => {
           page,
           limit: safeLimit,
           totalPages: Math.ceil(totalFiltered / safeLimit) || 1,
-          rows: rowsRes.rows,
+          rows: enrichedRows,
           kpis,
+          meses: mesesRes.rows,
           dias: diasRes.rows,
           convenios: convRes.rows,
           conveniosList: CONVENIO_LIST
@@ -393,10 +682,26 @@ exports.handler = async (event) => {
     }
 
     // -------------------------------------------------------------
-    // ACTION: VALIDATE (Validação de 1 clique ou em lote)
+    // ACTION: SYNC_CRM (Cruzamento completo Agenda do Ágil ➔ Funil do CRM)
+    // -------------------------------------------------------------
+    if (action === 'sync_crm') {
+      const syncResult = await syncAgilPatientsWithCrmLeads(client, null);
+      await client.end();
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          ok: true,
+          ...syncResult
+        })
+      };
+    }
+
+    // -------------------------------------------------------------
+    // ACTION: VALIDATE (Validação de 1 clique, edição de obs/carteirinha ou em lote)
     // -------------------------------------------------------------
     if (action === 'validate') {
-      const { id, ids, validacao, observacao, validado_por = 'Recepção' } = body;
+      const { id, ids, validacao, observacao, cpf_carteirinha, guia, validado_por = 'Recepção' } = body;
       const targetIds = ids || (id ? [id] : []);
 
       if (!targetIds.length || !validacao) {
@@ -422,11 +727,24 @@ exports.handler = async (event) => {
         updateQuery += `, observacao = $${pIdx++}`;
         updateParams.push(observacao);
       }
+      if (cpf_carteirinha !== undefined) {
+        updateQuery += `, cpf_carteirinha = $${pIdx++}`;
+        updateParams.push(String(cpf_carteirinha).trim());
+      }
+      if (guia !== undefined) {
+        updateQuery += `, guia = $${pIdx++}`;
+        updateParams.push(String(guia).trim());
+      }
+      if (String(validacao).toLowerCase().includes('justificada')) {
+        updateQuery += `, situacao = 'JUSTIFICADA', acao_lembrete = CASE WHEN COALESCE(acao_lembrete, '') LIKE '%FALTA JUSTIFICADA%' THEN acao_lembrete WHEN COALESCE(acao_lembrete, '') = '' THEN '⚪ 🚫 FALTA JUSTIFICADA — NÃO VALIDAR TOKEN / ASSINATURA' ELSE '⚪ 🚫 FALTA JUSTIFICADA — NÃO VALIDAR TOKEN / ASSINATURA • ' || acao_lembrete END`;
+      }
 
-      updateQuery += ` WHERE id = ANY($${pIdx}::bigint[]) RETURNING id, validacao, observacao, acao_lembrete;`;
+      updateQuery += ` WHERE id = ANY($${pIdx}::bigint[]) RETURNING id, paciente, validacao, observacao, cpf_carteirinha, guia, acao_lembrete;`;
       updateParams.push(targetIds);
 
       const updateRes = await client.query(updateQuery, updateParams);
+      const patientNames = [...new Set(updateRes.rows.map(r => r.paciente).filter(Boolean))];
+      const crmSync = patientNames.length ? await syncAgilPatientsWithCrmLeads(client, patientNames) : { syncedCount: 0, updatedLeads: [] };
       await client.end();
 
       return {
@@ -435,7 +753,9 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           ok: true,
           updatedCount: updateRes.rowCount,
-          updatedRows: updateRes.rows
+          updatedRows: updateRes.rows,
+          crmSyncedCount: crmSync.syncedCount,
+          crmUpdatedLeads: crmSync.updatedLeads
         })
       };
     }
@@ -455,21 +775,76 @@ exports.handler = async (event) => {
         };
       }
 
-      // Normalizar todas as linhas recebidas antes de consultar o banco
+      // Normalizar todas as linhas recebidas antes de consultar o banco (com proteção contra colunas deslocadas do Ágil)
       const normalizedRows = rows.map(r => {
         const data = normalizeDateStr(r.data);
-        const paciente = String(r.paciente || '').trim();
-        const horario = normalizeTimeStr(r.horario);
-        const status_agil = String(r.status_agil || 'Agendado').trim();
-        const profissional = String(r.profissional || '').trim();
-        const especialidade = String(r.especialidade || '').trim();
-        const procedimento = String(r.procedimento || '').trim();
-        const sessao = String(r.sessao || '').trim();
-        const cpf_carteirinha = String(r.cpf_carteirinha || '').trim();
-        const guia = String(r.guia || '').trim();
-        const situacao = String(r.situacao || '').trim();
-        const unidade = detectUnidade(r);
-        const convenio = normalizeConvenio(r.convenio, procedimento, guia);
+        let paciente = String(r.paciente || '').trim();
+        let horario = String(r.horario || '').trim();
+        let status_agil = String(r.status_agil || '').trim();
+        let profissional = String(r.profissional || '').trim();
+        let especialidade = String(r.especialidade || '').trim();
+        let procedimento = String(r.procedimento || '').trim();
+        let sessao = String(r.sessao || '').trim();
+        let cpf_carteirinha = String(r.cpf_carteirinha || '').trim();
+        let guia = String(r.guia || '').trim();
+        let acao_lembrete = String(r.acao_lembrete || '').trim();
+        let situacao = String(r.situacao || '').trim();
+        let validacao = String(r.validacao || '').trim();
+        let observacao = String(r.observacao || '').trim();
+        let rawConvenio = String(r.convenio || '').trim();
+
+        // Se a linha veio deslocada do relatório bruto do Ágil (ex: paciente = horário ou status_agil = Feminino/Masculino ou procedimento = CREFITO)
+        const isShiftedAgil =
+          (/^\d{1,2}:\d{2}/.test(paciente) && horario && !/^\d{1,2}:\d{2}/.test(horario)) ||
+          /^(feminino|masculino|não informado)$/i.test(status_agil) ||
+          /^(crefito|crp|crn|crtp|crm)\s*:/i.test(procedimento);
+
+        if (isShiftedAgil) {
+          const realTime = /^\d{1,2}:\d{2}/.test(paciente) ? paciente : horario;
+          const realName = /^\d{1,2}:\d{2}/.test(paciente) ? horario : paciente;
+          const realConv = profissional;
+          const rawProf = especialidade;
+          const rawConselho = procedimento;
+          const realProc = sessao;
+          const realEsp = cpf_carteirinha;
+          const rawStSess = acao_lembrete;
+
+          horario = normalizeTimeStr(realTime);
+          paciente = realName;
+          rawConvenio = realConv;
+          profissional = (rawConselho && /^(crefito|crp|crn|crtp|crm)/i.test(rawConselho) && !rawProf.includes(rawConselho))
+            ? `${rawProf} - ${rawConselho}`
+            : rawProf;
+          procedimento = realProc;
+          especialidade = realEsp;
+          cpf_carteirinha = '';
+          acao_lembrete = '';
+          situacao = '';
+          validacao = 'Pendente';
+          observacao = '';
+
+          const mSt = rawStSess.match(/^([^\(]+?)\s*(?:\(([^)]*)\))?$/);
+          if (mSt) {
+            status_agil = (mSt[1] || 'Em Aberto').trim();
+            const inside = (mSt[2] || '').trim();
+            sessao = /^\d+\s*\/\s*\d+$/.test(inside) ? inside.replace(/\s+/g, '') : '';
+          } else {
+            status_agil = 'Em Aberto';
+            sessao = '';
+          }
+        } else {
+          horario = normalizeTimeStr(horario);
+          status_agil = status_agil || 'Agendado';
+          if (/^[0-9.]+$/.test(validacao)) validacao = 'Pendente';
+          if (/^[0-9.]+$/.test(observacao)) observacao = '';
+          if (/^[0-9.]+$/.test(situacao)) situacao = '';
+          if (/^[0-9.]+$/.test(acao_lembrete)) acao_lembrete = '';
+          if (/^(tratamento|consulta|avaliação|avaliacao)$/i.test(profissional)) profissional = '';
+        }
+
+        const rowForUnit = { unidade: r.unidade, profissional, especialidade, procedimento };
+        const unidade = detectUnidade(rowForUnit);
+        const convenio = normalizeConvenio(rawConvenio, procedimento, guia);
         return {
           ...r,
           data,
@@ -482,7 +857,10 @@ exports.handler = async (event) => {
           sessao,
           cpf_carteirinha,
           guia,
+          acao_lembrete,
           situacao,
+          validacao,
+          observacao,
           unidade,
           convenio
         };
@@ -498,38 +876,55 @@ exports.handler = async (event) => {
       }
 
       const uniqueDates = [...new Set(normalizedRows.map(r => r.data))];
-      const uniquePatients = [...new Set(normalizedRows.map(r => r.paciente))];
+      const uniquePatientsLower = [...new Set(normalizedRows.map(r => r.paciente.trim().toLowerCase()))];
 
       // Buscar registros existentes nas datas importadas em 1 única query
       const existingRes = await client.query(`
-        SELECT id, data, paciente, horario, unidade, validacao, observacao
+        SELECT id, data, paciente, horario, unidade, validacao, observacao, cpf_carteirinha, profissional
         FROM public.agendamentos_auditoria
         WHERE data = ANY($1::text[]);
       `, [uniqueDates]);
 
       const existingMap = new Map();
       for (const ex of existingRes.rows) {
-        const key = `${ex.data}|${(ex.paciente || '').toLowerCase()}|${ex.horario || ''}|${ex.unidade || ''}`;
+        const key = `${ex.data}|${(ex.paciente || '').trim().toLowerCase()}|${ex.horario || ''}`;
         existingMap.set(key, ex);
       }
 
-      // Buscar histórico dos pacientes para cálculo inteligente de Paciente Novo & 10ª Sessão NPS
+      // Buscar histórico dos pacientes para cálculo inteligente de Paciente Novo & 10ª Sessão NPS + Herança Automática de Carteirinha e Profissional
       const historyRes = await client.query(`
-        SELECT paciente, data, sessao, especialidade, procedimento, guia
+        SELECT paciente, data, sessao, especialidade, procedimento, guia, cpf_carteirinha, profissional, convenio, unidade
         FROM public.agendamentos_auditoria
-        WHERE paciente = ANY($1::text[])
+        WHERE LOWER(TRIM(paciente)) = ANY($1::text[])
         ORDER BY id ASC;
-      `, [uniquePatients]);
+      `, [uniquePatientsLower]);
 
       const historyByPatient = {};
+      const patientDefaults = {};
       for (const h of historyRes.rows) {
         const pKey = (h.paciente || '').trim().toLowerCase();
         if (!historyByPatient[pKey]) historyByPatient[pKey] = [];
         historyByPatient[pKey].push(h);
+
+        if (!patientDefaults[pKey]) {
+          patientDefaults[pKey] = { cpf_carteirinha: '', guia: '', profissional: '', convenio: '', unidade: '' };
+        }
+        const def = patientDefaults[pKey];
+        const cVal = String(h.cpf_carteirinha || '').trim();
+        if (cVal && cVal !== '—' && (!def.cpf_carteirinha || def.cpf_carteirinha === '000')) {
+          def.cpf_carteirinha = cVal;
+        }
+        const gVal = String(h.guia || '').trim();
+        if (gVal && gVal !== '—') def.guia = gVal;
+        const prVal = String(h.profissional || '').trim();
+        if (prVal && prVal !== 'Tratamento' && prVal !== '—') def.profissional = prVal;
+        const cvVal = String(h.convenio || '').trim();
+        if (cvVal && cvVal !== 'SEM CONVÊNIO') def.convenio = cvVal;
+        if (h.unidade) def.unidade = h.unidade;
       }
       // Incluir também os próprios registros do lote atual na análise histórica
       for (const nr of normalizedRows) {
-        const pKey = nr.paciente.toLowerCase();
+        const pKey = nr.paciente.trim().toLowerCase();
         if (!historyByPatient[pKey]) historyByPatient[pKey] = [];
         historyByPatient[pKey].push(nr);
       }
@@ -546,15 +941,28 @@ exports.handler = async (event) => {
       await client.query('BEGIN');
 
       for (const r of normalizedRows) {
-        const pKey = r.paciente.toLowerCase();
+        const pKey = r.paciente.trim().toLowerCase();
         const profile = patientProfiles[pKey] || null;
-        const acao_lembrete = r.acao_lembrete || computeAlerts(r, profile);
-        if (acao_lembrete.includes('ALERTA NPS')) npsCount++;
+        const def = patientDefaults[pKey] || {};
+
+        // Herdar automaticamente o número da carteirinha, profissional e convênio do histórico se não vieram na planilha do Ágil
+        if ((!r.cpf_carteirinha || r.cpf_carteirinha === '—') && def.cpf_carteirinha) {
+          r.cpf_carteirinha = def.cpf_carteirinha;
+        }
+        if ((!r.profissional || r.profissional === 'Tratamento' || r.profissional === '—') && def.profissional) {
+          r.profissional = def.profissional;
+        }
+        if ((!r.convenio || r.convenio === 'SEM CONVÊNIO') && def.convenio) {
+          r.convenio = def.convenio;
+        }
+        r.unidade = detectUnidade({ unidade: r.unidade || def.unidade, profissional: r.profissional, especialidade: r.especialidade, procedimento: r.procedimento });
 
         const stLow = r.status_agil.toLowerCase();
         let initialValidacao = r.validacao || 'Pendente';
+        let initialSituacao = r.situacao || 'EM ABERTO';
         if (stLow.includes('justificada')) {
           initialValidacao = 'Falta Justificada';
+          initialSituacao = 'JUSTIFICADA';
         } else if (stLow.includes('não compareceu') || stLow.includes('nao compareceu')) {
           if (!initialValidacao.toLowerCase().includes('validado')) {
             initialValidacao = 'Não compareceu';
@@ -564,24 +972,31 @@ exports.handler = async (event) => {
             initialValidacao = 'Pendente';
           }
         }
+        r.validacao = initialValidacao;
+        r.situacao = initialSituacao;
 
-        const key = `${r.data}|${pKey}|${r.horario}|${r.unidade}`;
+        const acao_lembrete = r.acao_lembrete || computeAlerts(r, profile);
+        if (acao_lembrete.includes('ALERTA NPS')) npsCount++;
+
+        const key = `${r.data}|${pKey}|${r.horario}`;
         const existing = existingMap.get(key);
 
         if (existing) {
-          // Preservar validação manual e observação existentes (Regra Seção 6 do Prompt Mestre)
+          // Preservar validação manual, observação e carteirinha existentes (Regra Seção 6 do Prompt Mestre)
           const preservedVal = (existing.validacao && existing.validacao !== 'Pendente') ? existing.validacao : initialValidacao;
           const preservedObs = existing.observacao || r.observacao || '';
+          const preservedCart = r.cpf_carteirinha || existing.cpf_carteirinha || '';
+          const preservedProf = r.profissional || existing.profissional || '';
           await client.query(`
             UPDATE public.agendamentos_auditoria
             SET status_agil = $1, profissional = $2, especialidade = $3, procedimento = $4,
                 sessao = $5, cpf_carteirinha = $6, guia = $7, acao_lembrete = $8, situacao = $9,
-                convenio = $10, validacao = $11, observacao = $12, updated_at = NOW()
-            WHERE id = $13;
+                convenio = $10, validacao = $11, observacao = $12, unidade = $13, updated_at = NOW()
+            WHERE id = $14;
           `, [
-            r.status_agil, r.profissional, r.especialidade, r.procedimento,
-            r.sessao, r.cpf_carteirinha, r.guia, acao_lembrete, r.situacao,
-            r.convenio, preservedVal, preservedObs, existing.id
+            r.status_agil, preservedProf, r.especialidade, r.procedimento,
+            r.sessao, preservedCart, r.guia, acao_lembrete, r.situacao,
+            r.convenio, preservedVal, preservedObs, r.unidade, existing.id
           ]);
           updatedCount++;
         } else {
@@ -603,6 +1018,7 @@ exports.handler = async (event) => {
       }
 
       await client.query('COMMIT');
+      const crmSync = await syncAgilPatientsWithCrmLeads(client, uniquePatientsLower);
       await client.end();
 
       return {
@@ -614,6 +1030,9 @@ exports.handler = async (event) => {
           insertedCount,
           updatedCount,
           npsCount,
+          crmSyncedCount: crmSync.syncedCount,
+          crmMatchedTotal: crmSync.matchedLeadsTotal,
+          crmUpdatedLeads: crmSync.updatedLeads,
           dates: uniqueDates
         })
       };

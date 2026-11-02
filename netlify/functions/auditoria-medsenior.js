@@ -614,11 +614,13 @@ exports.handler = async (event) => {
       }
 
       const ocrJson = await ocrRes.json();
+      const rawOcr = Array.isArray(ocrJson) ? ocrJson[0] : ocrJson;
       let parsed = null;
-      if (ocrJson.choices && ocrJson.choices[0] && ocrJson.choices[0].message) {
-        parsed = JSON.parse(ocrJson.choices[0].message.content);
-      } else if (ocrJson.beneficiario || ocrJson.numero_sadt) {
-        parsed = ocrJson;
+      if (rawOcr && rawOcr.choices && rawOcr.choices[0] && rawOcr.choices[0].message) {
+        const cleanJsonStr = String(rawOcr.choices[0].message.content || '').replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+        parsed = JSON.parse(cleanJsonStr);
+      } else if (rawOcr && (rawOcr.beneficiario || rawOcr.numero_sadt)) {
+        parsed = rawOcr;
       }
 
       if (!parsed || (!parsed.beneficiario && !parsed.numero_sadt)) {
