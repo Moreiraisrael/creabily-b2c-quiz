@@ -577,14 +577,14 @@
                             </label>
                             <label onclick="toggleConvenioSelect(true)" class="cursor-pointer border-2 border-gray-200 rounded-xl p-2.5 text-center transition-all hover:border-primary has-[:checked]:border-primary has-[:checked]:bg-purple-50 has-[:checked]:text-primary">
                                 <input type="radio" name="tipo_modalidade" value="Convênio Credenciado" class="sr-only">
-                                <span class="block text-xs sm:text-sm font-bold">🏥 Convênio / Parceria</span>
-                                <span class="block text-[10px] text-gray-500">Care Plus, Omint, Afresp, Amil One, MedSênior</span>
+                                <span class="block text-xs sm:text-sm font-bold">🏥 Convênio Premium</span>
+                                <span class="block text-[10px] text-gray-500">Care Plus, Omint, Afresp, MedSênior, Lincx</span>
                             </label>
                         </div>
 
                         <!-- Seleção rápida do Convênio Credenciado (1 clique) -->
                         <div id="convenio-selector-box" class="hidden mt-2.5 p-3 bg-purple-50/70 border border-purple-200 rounded-xl animate-fade-in">
-                            <label class="block text-xs font-bold text-primary mb-2">Selecione seu convênio ou parceiro credenciado:</label>
+                            <label class="block text-xs font-bold text-primary mb-2">Selecione seu convênio credenciado:</label>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                                 <label class="cursor-pointer border border-purple-200 bg-white rounded-lg py-1.5 px-2 text-center text-xs font-semibold text-gray-700 hover:border-primary has-[:checked]:bg-primary has-[:checked]:text-white has-[:checked]:border-primary transition-all">
                                     <input type="radio" name="convenio_nome" value="Convênio: Care Plus" class="sr-only" checked>
@@ -599,16 +599,12 @@
                                     Afresp Saúde
                                 </label>
                                 <label class="cursor-pointer border border-purple-200 bg-white rounded-lg py-1.5 px-2 text-center text-xs font-semibold text-gray-700 hover:border-primary has-[:checked]:bg-primary has-[:checked]:text-white has-[:checked]:border-primary transition-all">
-                                    <input type="radio" name="convenio_nome" value="Convênio: Amil (One / Black / Lincx)" class="sr-only">
-                                    Amil One / Black
-                                </label>
-                                <label class="cursor-pointer border border-purple-200 bg-white rounded-lg py-1.5 px-2 text-center text-xs font-semibold text-gray-700 hover:border-primary has-[:checked]:bg-primary has-[:checked]:text-white has-[:checked]:border-primary transition-all">
                                     <input type="radio" name="convenio_nome" value="Convênio: MedSênior" class="sr-only">
                                     MedSênior
                                 </label>
-                                <label class="cursor-pointer border border-purple-200 bg-white rounded-lg py-1.5 px-2 text-center text-xs font-semibold text-gray-700 hover:border-primary has-[:checked]:bg-primary has-[:checked]:text-white has-[:checked]:border-primary transition-all">
-                                    <input type="radio" name="convenio_nome" value="Parceria: TotalPass / ClassPass" class="sr-only">
-                                    TotalPass / ClassPass
+                                <label class="cursor-pointer border border-purple-200 bg-white rounded-lg py-1.5 px-2 text-center text-xs font-semibold text-gray-700 hover:border-primary has-[:checked]:bg-primary has-[:checked]:text-white has-[:checked]:border-primary transition-all col-span-2 sm:col-span-1">
+                                    <input type="radio" name="convenio_nome" value="Convênio: Lincx / Amil One / Black" class="sr-only">
+                                    Lincx / Amil One
                                 </label>
                             </div>
                         </div>
@@ -669,7 +665,7 @@
                     <span>Escolher Meu Horário no WhatsApp</span>
                 </a>
                 <p id="result-obs-note" class="text-[11px] text-gray-400 mt-4 leading-relaxed italic">
-                    Obs.: Atendemos Particular, Reembolso Assistido (com emissão de Nota Fiscal e Relatório Clínico para todos os planos) e Convênios Credenciados (Care Plus, Omint, Afresp Saúde, Amil One/Black/Lincx, MedSênior e TotalPass).
+                    Obs.: Atendemos Particular, Reembolso Assistido (com emissão de Nota Fiscal e Relatório Clínico para todos os planos) e Convênios Premium Credenciados (Care Plus, Omint, Afresp Saúde, MedSênior e Lincx / Amil One).
                 </p>
             </div>
 
