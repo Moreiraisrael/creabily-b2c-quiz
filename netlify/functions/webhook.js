@@ -77,8 +77,25 @@ exports.handler = async (event, context) => {
 
         const rotinas = [];
 
+        const rawFirst = (limpar(nome, 120) || 'Paciente').trim().split(/\s+/)[0];
+        const primeiroNome = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
+        const turnoLower = (turno || '').toLowerCase();
+        const turnoHumanizado = turnoLower.includes('manhã') || turnoLower.includes('manha')
+            ? 'no período da *manhã*'
+            : (turnoLower.includes('tarde')
+                ? 'no período da *tarde*'
+                : (turnoLower.includes('noite') ? 'no *final do dia*' : ''));
+        const queixaHumana = q2 ? ` — vi aqui que seu principal objetivo é *${limpar(q2).replace(/\.$/, '').toLowerCase()}*` : '';
+        const modLimpa = limpar(modalidade) || 'Particular / Reembolso';
+        const isConvenioCredenciado = /conv[êe]nio:|parceria:|care plus|omint|afresp|amil|meds[êe]nior|totalpass|classpass/i.test(modLimpa);
+        const complementoModalidade = isConvenioCredenciado
+            ? ` pelo *${modLimpa.replace(/^(Convênio:\s*|Parceria:\s*)/i, '')}*`
+            : '';
+
+        const wppMessage = `Olá, ${primeiroNome}! Tudo bem? Aqui é a Beatriz, da Creabily 😊\n\nAcabei de receber a sua avaliação para *${tratamentoFormatado}* na *${nomeUnidade}*${complementoModalidade}${queixaHumana}. Vai ser um prazer cuidar de você!\n\nJá separei prioridade na nossa agenda${turnoHumanizado ? ` ${turnoHumanizado}` : ''}. Qual dia da semana fica mais confortável na sua rotina para olharmos o melhor horário para você?`;
+
         // ==========================================
-        // 1. INSERIR DADOS NO SUPABASE
+        // 1. INSERIR DADOS NO SUPABASE + MEMÓRIA DO AGENTE IA (n8n_chat_histories)
         // ==========================================
         const supabaseUrl = process.env.SUPABASE_URL;
         const supabaseKey = process.env.SUPABASE_KEY;
@@ -86,7 +103,9 @@ exports.handler = async (event, context) => {
         if (supabaseUrl && supabaseKey) {
             const supabase = createClient(supabaseUrl, supabaseKey);
 
-            const preAgendamentoNote = `[Pré-Agendamento] Turno: ${limpar(turno) || 'Não informado'} | Previsão: ${limpar(previsao) || 'Esta semana'} | Modalidade: ${limpar(modalidade) || 'Particular'} (Avaliação R$ 300)`;
+            const preAgendamentoNote = isConvenioCredenciado
+                ? `[Pré-Agendamento] Turno: ${limpar(turno) || 'Não informado'} | Previsão: ${limpar(previsao) || 'Esta semana'} | Modalidade: ${modLimpa} (Credenciado)`
+                : `[Pré-Agendamento] Turno: ${limpar(turno) || 'Não informado'} | Previsão: ${limpar(previsao) || 'Esta semana'} | Modalidade: ${modLimpa} (Avaliação R$ 300)`;
 
             const baseLead = {
                 name: limpar(nome, 120),
@@ -122,6 +141,40 @@ exports.handler = async (event, context) => {
                 } else {
                     console.log('[Supabase] Lead B2C inserido com sucesso na tabela leads.');
                 }
+
+                // Grava a triagem e a 1ª mensagem enviada pela Beatriz na memória do n8n (n8n_chat_histories)
+                // para que a IA tenha contexto imediato quando o paciente responder "Sim", "Não", etc.
+                const sessionId = `${cleanNumber}@s.whatsapp.net`;
+                const resumoRespostas = quizAnswers.map(q => `${q.pergunta}: ${q.resposta}`).join(' | ');
+                const contextoHuman = `[Triagem preenchida no site da Creabily] Meu nome é ${limpar(nome, 120)}. Busco atendimento de ${tratamentoFormatado} na ${nomeUnidade} (Objetivo/Queixa: ${limpar(foco) || 'Não informada'}). ${resumoRespostas}`;
+
+                const { error: memErr } = await supabase.from('n8n_chat_histories').insert([
+                    {
+                        session_id: sessionId,
+                        message: {
+                            type: 'human',
+                            content: contextoHuman,
+                            additional_kwargs: {},
+                            response_metadata: {}
+                        }
+                    },
+                    {
+                        session_id: sessionId,
+                        message: {
+                            type: 'ai',
+                            content: wppMessage,
+                            tool_calls: [],
+                            additional_kwargs: {},
+                            response_metadata: {},
+                            invalid_tool_calls: []
+                        }
+                    }
+                ]);
+                if (memErr) {
+                    console.error('[Supabase] Aviso ao gravar memória inicial no n8n_chat_histories:', memErr.message);
+                } else {
+                    console.log(`[Supabase] Memória inicial do Quiz gravada em n8n_chat_histories para ${sessionId}.`);
+                }
             })().catch(err => console.error('[Supabase] Exceção:', err));
             
             rotinas.push(supabasePromise);
@@ -137,11 +190,6 @@ exports.handler = async (event, context) => {
         const instanceName = process.env.EVOLUTION_INSTANCE_NAME;
 
         if (evolutionApiUrl && evolutionApiKey && instanceName) {
-            const turnoTexto = turno ? ` no turno da *${turno}*` : '';
-            const modalidadeTexto = modalidade ? ` (${modalidade})` : '';
-
-            const wppMessage = `Olá ${nome}, tudo bem? Aqui é a Beatriz, da Creabily! 🌟\n\nRecebi suas respostas no nosso teste para *${tratamentoFormatado}* na *${nomeUnidade}*${turnoTexto}${modalidadeTexto}.\n\nNossa Avaliação Clínica Inicial é individualizada e dura 1 hora com especialista (investimento de R$ 300,00 no particular, com suporte completo caso queira solicitar reembolso junto ao seu convênio).\n\n⚠️ *Aviso importante:* Seu pré-agendamento é uma solicitação de preferência. Por gentileza, *aguarde nossa confirmação oficial de horário aqui no WhatsApp* antes de se dirigir à clínica.\n\nPodemos confirmar sua data e horário preferido agora? 😊`;
-
             console.log(`[Evolution API] Enviando mensagem da Beatriz para ${cleanNumber} (instância: ${instanceName})...`);
 
             const wppPromise = fetch(`${evolutionApiUrl}/message/sendText/${instanceName}`, {
