@@ -7447,80 +7447,8 @@
 
       container.innerHTML = `
         <div class="agente-wrap">
-          <!-- CABEÇALHO EXECUTIVO DIRETORIA -->
+          <!-- 8 KPIS EXECUTIVOS E BPO NO TOPO -->
           <div class="agente-header-card" style="border-top: 4px solid #493477;">
-            <div class="agente-top-row">
-              <div class="agente-badges">
-                <span class="agente-badge" style="background:#F4F1F8; color:#493477; border:1px solid #D8CEE8;">
-                  <span class="dot" style="background:#493477"></span>
-                  🟣 Fechamento Oficial Creabily • Paulista &amp; Granja Viana
-                </span>
-                <span class="agente-badge" style="background:#E6F7F7; color:#117A79; border:1px solid #A5E3E2;">
-                  🧠 Memória Permanente Ativa (${allRegras.length} Regras Fixas no Banco)
-                </span>
-                <span class="agente-badge" style="background:#DCFCE7; color:#166534; border:1px solid #BBF7D0;">
-                  🔒 Exclusivo Dra. Camila Ostan
-                </span>
-              </div>
-              <div class="agente-actions">
-                <button class="btn-agente" style="background:#16A34A; color:#fff; border-color:#16A34A;" onclick="setFechamentoTab('recibos_wa')">
-                  ✂️📲 Recibos Contabilidade &amp; WhatsApp 1-Clique
-                </button>
-                <button class="btn-agente" style="background:#493477; color:#fff; border-color:#493477;" onclick="openProfissionalModal(null)">
-                  + Novo Profissional
-                </button>
-                <button class="btn-agente" style="background:#1DAAA9; color:#fff; border-color:#1DAAA9;" onclick="openRegraHonorarioModal(null)">
-                  ⚙️ + Nova Regra Fixa
-                </button>
-                <button class="btn-agente" onclick="recalcularFechamentoComAgil()" title="Cruzar agendamentos do Ágil com a Tabela de Honorários Fixa">
-                  🔄 Recalcular pelo Ágil
-                </button>
-                <button class="btn-agente" onclick="fechamentoChartsOpen=!fechamentoChartsOpen; renderFechamentoView();">
-                  📈 ${fechamentoChartsOpen ? 'Ocultar Gráficos' : 'Mostrar Gráficos'}
-                </button>
-                <button class="btn-agente primary" style="background:#1D4ED8; border-color:#1D4ED8;" onclick="exportFechamentoConsolidado10Abas()">
-                  📊 Baixar Planilha Consolidada 10 Abas (.xlsx)
-                </button>
-                <button class="btn-agente" style="background:#F4F1F8; color:#493477; border-color:#D8CEE8;" onclick="openChangeFechamentoPinModal()">
-                  🔑 Trocar Senha
-                </button>
-                <button class="btn-agente" style="background:#FEF2F2; color:#B91C1C; border-color:#FECACA;" onclick="lockFechamentoDiretoria()">
-                  🔒 Bloquear Tela
-                </button>
-              </div>
-            </div>
-
-            <!-- SELETOR DE COMPETÊNCIA & UNIDADE -->
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin: 12px 0;">
-              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                <span style="font-size:11px; font-weight:800; color:var(--text-3); text-transform:uppercase;">Competência:</span>
-                <button class="day-pill ${fechamentoCompetencia === '10/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('10/2026')">
-                  📅 Outubro 2026 (Fechado • ${compCounts['10/2026'] ? compCounts['10/2026'].atendimentos + ' atend.' : '2.449 atend.'})
-                </button>
-                <button class="day-pill ${fechamentoCompetencia === '11/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('11/2026')">
-                  📅 Novembro 2026 (Mês Atual${compCounts['11/2026'] ? ' • ' + compCounts['11/2026'].atendimentos + ' atend.' : ''})
-                </button>
-                <button class="day-pill ${fechamentoCompetencia === '09/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('09/2026')">
-                  📅 Setembro 2026 (${compCounts['09/2026'] ? compCounts['09/2026'].atendimentos + ' atend.' : '2.146 atend.'})
-                </button>
-                <input type="month" class="agente-filter-select" style="padding:5px 10px; font-size:12px; height:32px;" value="${isoMonth}" onchange="if(this.value){const p=this.value.split('-');setFechamentoCompetencia(p[1]+'/'+p[0]);}">
-              </div>
-
-              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                <span style="font-size:11px; font-weight:800; color:var(--text-3); text-transform:uppercase;">Unidade:</span>
-                <button class="day-pill ${fechamentoUnidadeFilter === 'all' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('all')">
-                  🏢 Todas (${allProfs.length})
-                </button>
-                <button class="day-pill ${fechamentoUnidadeFilter === 'Paulista' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('Paulista')">
-                  🏙️ Av. Paulista (${profsPaulista.length})
-                </button>
-                <button class="day-pill ${fechamentoUnidadeFilter === 'Granja/Jandira' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('Granja/Jandira')">
-                  🌿 Granja Viana (${profsGranja.length})
-                </button>
-              </div>
-            </div>
-
-            <!-- 8 KPIS EXECUTIVOS E BPO -->
             <div class="agente-kpis" style="grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));">
               <div class="agente-kpi-card" style="border-left: 4px solid #493477; background:#FAF8FC;">
                 <div class="agente-kpi-title" style="color:#493477;">Repasse Total Consolidado</div>
@@ -7788,7 +7716,81 @@
             `;
           })() : ''}
 
-          <!-- NAVEGAÇÃO ENTRE AS 5 SUB-ABAS EXECUTIVAS -->
+          <!-- BARRA DE COMANDOS, COMPETÊNCIA, UNIDADE E BUSCA (ACIMA DA BUSCA DE PROFISSIONAL) -->
+          <div class="agente-header-card" style="border-top: 4px solid #493477; padding:14px 16px;">
+            <div class="agente-top-row">
+              <div class="agente-badges">
+                <span class="agente-badge" style="background:#F4F1F8; color:#493477; border:1px solid #D8CEE8;">
+                  <span class="dot" style="background:#493477"></span>
+                  🟣 Fechamento Oficial Creabily • Paulista &amp; Granja Viana
+                </span>
+                <span class="agente-badge" style="background:#E6F7F7; color:#117A79; border:1px solid #A5E3E2;">
+                  🧠 Memória Permanente Ativa (${allRegras.length} Regras Fixas no Banco)
+                </span>
+                <span class="agente-badge" style="background:#DCFCE7; color:#166534; border:1px solid #BBF7D0;">
+                  🔒 Exclusivo Dra. Camila Ostan
+                </span>
+              </div>
+              <div class="agente-actions">
+                <button class="btn-agente" style="background:#16A34A; color:#fff; border-color:#16A34A;" onclick="setFechamentoTab('recibos_wa')">
+                  ✂️📲 Recibos Contabilidade &amp; WhatsApp 1-Clique
+                </button>
+                <button class="btn-agente" style="background:#493477; color:#fff; border-color:#493477;" onclick="openProfissionalModal(null)">
+                  + Novo Profissional
+                </button>
+                <button class="btn-agente" style="background:#1DAAA9; color:#fff; border-color:#1DAAA9;" onclick="openRegraHonorarioModal(null)">
+                  ⚙️ + Nova Regra Fixa
+                </button>
+                <button class="btn-agente" onclick="recalcularFechamentoComAgil()" title="Cruzar agendamentos do Ágil com a Tabela de Honorários Fixa">
+                  🔄 Recalcular pelo Ágil
+                </button>
+                <button class="btn-agente" onclick="fechamentoChartsOpen=!fechamentoChartsOpen; renderFechamentoView();">
+                  📈 ${fechamentoChartsOpen ? 'Ocultar Gráficos' : 'Mostrar Gráficos'}
+                </button>
+                <button class="btn-agente primary" style="background:#1D4ED8; border-color:#1D4ED8;" onclick="exportFechamentoConsolidado10Abas()">
+                  📊 Baixar Planilha Consolidada 10 Abas (.xlsx)
+                </button>
+                <button class="btn-agente" style="background:#F4F1F8; color:#493477; border-color:#D8CEE8;" onclick="openChangeFechamentoPinModal()">
+                  🔑 Trocar Senha
+                </button>
+                <button class="btn-agente" style="background:#FEF2F2; color:#B91C1C; border-color:#FECACA;" onclick="lockFechamentoDiretoria()">
+                  🔒 Bloquear Tela
+                </button>
+              </div>
+            </div>
+
+            <!-- SELETOR DE COMPETÊNCIA & UNIDADE -->
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin: 12px 0 0;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:11px; font-weight:800; color:var(--text-3); text-transform:uppercase;">Competência:</span>
+                <button class="day-pill ${fechamentoCompetencia === '10/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('10/2026')">
+                  📅 Outubro 2026 (Fechado • ${compCounts['10/2026'] ? compCounts['10/2026'].atendimentos + ' atend.' : '2.449 atend.'})
+                </button>
+                <button class="day-pill ${fechamentoCompetencia === '11/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('11/2026')">
+                  📅 Novembro 2026 (Mês Atual${compCounts['11/2026'] ? ' • ' + compCounts['11/2026'].atendimentos + ' atend.' : ''})
+                </button>
+                <button class="day-pill ${fechamentoCompetencia === '09/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('09/2026')">
+                  📅 Setembro 2026 (${compCounts['09/2026'] ? compCounts['09/2026'].atendimentos + ' atend.' : '2.146 atend.'})
+                </button>
+                <input type="month" class="agente-filter-select" style="padding:5px 10px; font-size:12px; height:32px;" value="${isoMonth}" onchange="if(this.value){const p=this.value.split('-');setFechamentoCompetencia(p[1]+'/'+p[0]);}">
+              </div>
+
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span style="font-size:11px; font-weight:800; color:var(--text-3); text-transform:uppercase;">Unidade:</span>
+                <button class="day-pill ${fechamentoUnidadeFilter === 'all' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('all')">
+                  🏢 Todas (${allProfs.length})
+                </button>
+                <button class="day-pill ${fechamentoUnidadeFilter === 'Paulista' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('Paulista')">
+                  🏙️ Av. Paulista (${profsPaulista.length})
+                </button>
+                <button class="day-pill ${fechamentoUnidadeFilter === 'Granja/Jandira' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('Granja/Jandira')">
+                  🌿 Granja Viana (${profsGranja.length})
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- NAVEGAÇÃO ENTRE AS 5 SUB-ABAS EXECUTIVAS & BUSCA DE PROFISSIONAL -->
           <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
               <button class="btn-agente ${fechamentoTab === 'profissionais' ? 'primary' : ''}" style="${fechamentoTab === 'profissionais' ? 'background:#493477;border-color:#493477;' : ''}" onclick="setFechamentoTab('profissionais')">
