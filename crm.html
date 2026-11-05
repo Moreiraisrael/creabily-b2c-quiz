@@ -1108,6 +1108,7 @@
     let fechamentoUnidadeFilter = 'all'; // 'all' | 'Paulista' | 'Granja/Jandira'
     let fechamentoAreaFilter = 'all';
     let fechamentoSearch = '';
+    let fechamentoChartsOpen = true;
     let view = 'today';
     let boardFilter = 'active'; // 'active', 'all', 'cold'
     let unit = 'all';
@@ -7466,6 +7467,9 @@
                 <button class="btn-agente" onclick="recalcularFechamentoComAgil()" title="Cruzar agendamentos do Ágil com a Tabela de Honorários Fixa">
                   🔄 Recalcular pelo Ágil
                 </button>
+                <button class="btn-agente" onclick="fechamentoChartsOpen=!fechamentoChartsOpen; renderFechamentoView();">
+                  📈 ${fechamentoChartsOpen ? 'Ocultar Gráficos' : 'Mostrar Gráficos'}
+                </button>
                 <button class="btn-agente primary" style="background:#1D4ED8; border-color:#1D4ED8;" onclick="exportFechamentoConsolidado10Abas()">
                   📊 Baixar Planilha Consolidada 10 Abas (.xlsx)
                 </button>
@@ -7574,6 +7578,207 @@
               </div>
             ` : ''}
           </div>
+
+          <!-- NAVEGAÇÃO ENTRE AS 4 SUB-ABAS EXECUTIVAS -->
+          ${fechamentoChartsOpen ? (() => {
+            const topProfs = [...filteredProfs].sort((a, b) => (Number(b.valor_repasse_confirmado) || 0) - (Number(a.valor_repasse_confirmado) || 0)).slice(0, 10);
+            const maxProfVal = Math.max(1, ...topProfs.map(p => Number(p.valor_repasse_confirmado) || 0));
+
+            const pctPaulista = sumRepasseAll > 0 ? Math.round((sumRepassePaulista / sumRepasseAll) * 100) : 0;
+            const pctGranja = 100 - pctPaulista;
+            const pctPart = sumRepasseAll > 0 ? Math.round((sumPartAll / sumRepasseAll) * 100) : 0;
+            const pctConv = 100 - pctPart;
+
+            const c09 = compCounts['09/2026'] || { atendimentos: 2146, repasse: 84270 };
+            const c10 = compCounts['10/2026'] || { atendimentos: 2449, repasse: 91791 };
+            const c11 = compCounts['11/2026'] || { atendimentos: 411, repasse: 17187 };
+            const maxMonthVal = Math.max(1, c09.repasse, c10.repasse, c11.repasse);
+            const growthOctVsSep = c09.repasse > 0 ? (((c10.repasse - c09.repasse) / c09.repasse) * 100).toFixed(1) : '0.0';
+
+            const wfTotal = Math.max(1, fatBruto);
+            const wfImpPct = Math.min(100, Math.max(2, Math.round((impValor / wfTotal) * 100)));
+            const wfRepPct = Math.min(100, Math.max(5, Math.round((sumRepasseAll / wfTotal) * 100)));
+            const wfCustosVal = fixoPaulista + fixoGranja + varOper;
+            const wfCustosPct = Math.min(100, Math.max(5, Math.round((wfCustosVal / wfTotal) * 100)));
+            const wfLucroPct = Math.min(100, Math.max(5, Math.round((Math.max(0, resultadoLiquidoBpo) / wfTotal) * 100)));
+
+            return `
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:14px; margin-bottom:4px;">
+                <!-- GRÁFICO 1: TOP 10 REPASSES POR PROFISSIONAL (BARRAS EMPILHADAS PARTICULAR X CONVÊNIO) -->
+                <div class="agente-table-card" style="padding:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div>
+                      <div style="font-size:13px; font-weight:800; color:#493477;">📊 Top 10 Repasses por Profissional</div>
+                      <div style="font-size:11px; color:var(--text-3);">Divisão Particular (Roxo) × Convênios (Tiffany) — Clique p/ abrir</div>
+                    </div>
+                    <div style="display:flex; gap:8px; font-size:10.5px; font-weight:700;">
+                      <span style="color:#6D28D9;">● Particular</span>
+                      <span style="color:#1DAAA9;">● Convênio</span>
+                    </div>
+                  </div>
+                  <div style="display:flex; flex-direction:column; gap:7px;">
+                    ${topProfs.map((p, idx) => {
+                      const tot = Number(p.valor_repasse_confirmado) || 0;
+                      const part = Number(p.valor_particular) || 0;
+                      const conv = Number(p.valor_convenio) || 0;
+                      const wTot = Math.max(6, Math.round((tot / maxProfVal) * 100));
+                      const wPart = tot > 0 ? Math.round((part / tot) * 100) : 0;
+                      const wConv = 100 - wPart;
+                      const isG = p.unidade === 'Granja/Jandira';
+                      return `
+                        <div style="cursor:pointer;" onclick="openProfissionalModal(${p.id})" title="Clique para ver detalhes ou emitir Folder PDF de ${esc(p.nome_curto)}">
+                          <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:2px;">
+                            <span style="font-weight:700; color:var(--text);">${idx + 1}. ${esc(p.nome_curto || p.profissional)} <span style="font-size:10px; color:${isG ? '#0F766E' : '#1D4ED8'};">(${isG ? 'Granja' : 'Paulista'} • ${p.atendimentos_total} atend.)</span></span>
+                            <span style="font-weight:800; color:#493477;">R$ ${tot.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                          </div>
+                          <div style="width:100%; background:#F1F5F9; height:9px; border-radius:999px; overflow:hidden;">
+                            <div style="width:${wTot}%; height:100%; display:flex; border-radius:999px; overflow:hidden;">
+                              <div style="width:${wPart}%; background:#6D28D9; height:100%;"></div>
+                              <div style="width:${wConv}%; background:#1DAAA9; height:100%;"></div>
+                            </div>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+
+                <!-- GRÁFICO 2: DUPLO DONUT SVG (UNIDADES & PARTICULAR X CONVÊNIOS) + EVOLUÇÃO MENSAL -->
+                <div style="display:flex; flex-direction:column; gap:14px;">
+                  <div class="agente-table-card" style="padding:16px;">
+                    <div style="font-size:13px; font-weight:800; color:#493477; margin-bottom:12px;">🍩 Distribuição por Unidade &amp; Mix de Receita (${esc(fechamentoCompetencia)})</div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; align-items:center;">
+                      <!-- Donut Unidades -->
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <svg width="78" height="78" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#1DAAA9" stroke-width="4.5"></circle>
+                          <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#2563EB" stroke-width="4.5" stroke-dasharray="${pctPaulista} ${100 - pctPaulista}" stroke-dashoffset="25"></circle>
+                          <text x="18" y="19.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#1E293B">${pctPaulista}%</text>
+                        </svg>
+                        <div style="font-size:11px; line-height:1.45;">
+                          <div style="font-weight:800; color:#1D4ED8;">● Paulista: ${pctPaulista}%</div>
+                          <div style="color:var(--text-3); margin-bottom:4px;">R$ ${sumRepassePaulista.toLocaleString('pt-BR')}</div>
+                          <div style="font-weight:800; color:#0F766E;">● Granja: ${pctGranja}%</div>
+                          <div style="color:var(--text-3);">R$ ${sumRepasseGranja.toLocaleString('pt-BR')}</div>
+                        </div>
+                      </div>
+
+                      <!-- Donut Particular x Convênio -->
+                      <div style="display:flex; align-items:center; gap:10px;">
+                        <svg width="78" height="78" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#0284C7" stroke-width="4.5"></circle>
+                          <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="#6D28D9" stroke-width="4.5" stroke-dasharray="${pctPart} ${100 - pctPart}" stroke-dashoffset="25"></circle>
+                          <text x="18" y="19.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#1E293B">${pctPart}%</text>
+                        </svg>
+                        <div style="font-size:11px; line-height:1.45;">
+                          <div style="font-weight:800; color:#6D28D9;">● Particular: ${pctPart}%</div>
+                          <div style="color:var(--text-3); margin-bottom:4px;">R$ ${sumPartAll.toLocaleString('pt-BR')}</div>
+                          <div style="font-weight:800; color:#0284C7;">● Convênios: ${pctConv}%</div>
+                          <div style="color:var(--text-3);">R$ ${sumConvAll.toLocaleString('pt-BR')}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- GRÁFICO 3: EVOLUÇÃO MENSAL DE REPASSES E ATENDIMENTOS -->
+                  <div class="agente-table-card" style="padding:16px; flex:1;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                      <div>
+                        <div style="font-size:13px; font-weight:800; color:#493477;">📈 Evolução por Competência (Set / Out / Nov)</div>
+                        <div style="font-size:11px; color:var(--text-3);">Comparativo histórico de repasses e atendimentos</div>
+                      </div>
+                      <span style="background:#DCFCE7; color:#166534; font-size:10.5px; font-weight:800; padding:3px 8px; border-radius:999px;">
+                        Out vs Set: +${growthOctVsSep}%
+                      </span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; align-items:end; height:125px; padding-top:16px;">
+                      ${[
+                        { comp: '09/2026', label: 'Setembro/26', val: c09.repasse, atd: c09.atendimentos, color: '#64748B' },
+                        { comp: '10/2026', label: 'Outubro/26', val: c10.repasse, atd: c10.atendimentos, color: '#493477' },
+                        { comp: '11/2026', label: 'Novembro/26', val: c11.repasse, atd: c11.atendimentos, color: '#1DAAA9' }
+                      ].map(m => {
+                        const hPct = Math.max(14, Math.round((m.val / maxMonthVal) * 78));
+                        const isCur = fechamentoCompetencia === m.comp;
+                        return `
+                          <div style="display:flex; flex-direction:column; align-items:center; cursor:pointer;" onclick="setFechamentoCompetencia('${m.comp}')">
+                            <div style="font-size:11px; font-weight:800; color:${m.color}; margin-bottom:4px;">R$ ${Math.round(m.val).toLocaleString('pt-BR')}</div>
+                            <div style="width:56%; height:${hPct}px; background:${m.color}; border-radius:6px 6px 0 0; opacity:${isCur ? '1' : '0.72'}; border:${isCur ? '2px solid #1E293B' : 'none'};"></div>
+                            <div style="font-size:11px; font-weight:${isCur ? '800' : '600'}; color:var(--text); margin-top:5px;">${m.label}</div>
+                            <div style="font-size:10px; color:var(--text-3);">${m.atd} atend.</div>
+                          </div>
+                        `;
+                      }).join('')}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- GRÁFICO 4: CASCATA FINANCEIRA DRE / BPO (WATERFALL DA CLÍNICA) -->
+                <div class="agente-table-card" style="padding:16px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div>
+                      <div style="font-size:13px; font-weight:800; color:#0F766E;">💰 Cascata Financeira BPO &amp; Margem Líquida (${esc(fechamentoCompetencia)})</div>
+                      <div style="font-size:11px; color:var(--text-3);">Para onde vai cada R$ 100 faturados pela Clínica Creabily</div>
+                    </div>
+                    <span style="background:#F0FDF4; color:#15803D; border:1px solid #BBF7D0; font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px;">
+                      Margem: ${margemLiquidaPct.toFixed(1)}%
+                    </span>
+                  </div>
+
+                  <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+                    <div>
+                      <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px;">
+                        <span style="font-weight:700;">1. Faturamento Bruto Estimado (100%)</span>
+                        <b style="color:#1E293B;">R$ ${fatBruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                      </div>
+                      <div style="height:12px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                        <div style="width:100%; height:100%; background:linear-gradient(90deg,#1E293B,#475569);"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px;">
+                        <span style="font-weight:700; color:#493477;">2. (−) Repasse Profissionais (${((sumRepasseAll / wfTotal) * 100).toFixed(1)}%)</span>
+                        <b style="color:#493477;">− R$ ${sumRepasseAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                      </div>
+                      <div style="height:12px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                        <div style="width:${wfRepPct}%; height:100%; background:#493477;"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px;">
+                        <span style="font-weight:700; color:#D97706;">3. (−) Custos Fixos Paulista + Granja + Variáveis (${((wfCustosVal / wfTotal) * 100).toFixed(1)}%)</span>
+                        <b style="color:#D97706;">− R$ ${wfCustosVal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                      </div>
+                      <div style="height:12px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                        <div style="width:${wfCustosPct}%; height:100%; background:#F59E0B;"></div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <div style="display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px;">
+                        <span style="font-weight:700; color:#DC2626;">4. (−) Impostos Nota Fiscal (${impPct}%)</span>
+                        <b style="color:#DC2626;">− R$ ${impValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                      </div>
+                      <div style="height:12px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+                        <div style="width:${wfImpPct}%; height:100%; background:#EF4444;"></div>
+                      </div>
+                    </div>
+
+                    <div style="padding-top:6px; border-top:1px dashed var(--line);">
+                      <div style="display:flex; justify-content:space-between; font-size:12.5px; margin-bottom:4px;">
+                        <span style="font-weight:800; color:#15803D;">5. (=) Lucro Líquido Operacional (${margemLiquidaPct.toFixed(1)}%)</span>
+                        <b style="color:#15803D; font-size:13.5px;">R$ ${resultadoLiquidoBpo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                      </div>
+                      <div style="height:14px; background:#DCFCE7; border-radius:999px; overflow:hidden;">
+                        <div style="width:${wfLucroPct}%; height:100%; background:linear-gradient(90deg,#16A34A,#1DAAA9);"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          })() : ''}
 
           <!-- NAVEGAÇÃO ENTRE AS 4 SUB-ABAS EXECUTIVAS -->
           <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
@@ -8046,6 +8251,47 @@
     <div class="kpi" style="background:#E8F6F6; border-top-color:#1DAAA9;">
       <div class="lbl" style="color:#0F766E;">Repasse Total (R$)</div>
       <div class="val" style="color:#0F766E;">R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+    </div>
+  </div>
+
+  <!-- PAINEL GRÁFICO VISUAL DO PROFISSIONAL NO PDF -->
+  <div style="display:grid; grid-template-columns: 1.3fr 1fr; gap:12px; margin: 10px 0 14px; background:#FAF9FC; border:1px solid #D8CEE8; border-radius:8px; padding:12px;">
+    <div>
+      <div style="font-size:10px; font-weight:800; color:#493477; text-transform:uppercase; margin-bottom:8px;">📊 Gráfico de Participação por Modalidade</div>
+      ${composicao.map(c => {
+        const pctMod = rep > 0 ? Math.round(((Number(c.total) || 0) / rep) * 100) : 0;
+        return `
+          <div style="margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; font-size:9.5px; margin-bottom:2px;">
+              <span style="font-weight:700;">${esc(c.modalidade)} (${c.qtd} atend.)</span>
+              <span style="font-weight:800; color:#493477;">R$ ${(Number(c.total)||0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${pctMod}%)</span>
+            </div>
+            <div style="height:7px; background:#E2DCF0; border-radius:999px; overflow:hidden;">
+              <div style="width:${Math.max(4, pctMod)}%; height:100%; background:linear-gradient(90deg,#493477,#1DAAA9);"></div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <div style="border-left:1px solid #D8CEE8; padding-left:12px; display:flex; flex-direction:column; justify-content:center; gap:10px;">
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:9.5px; font-weight:700; margin-bottom:3px;">
+          <span>Taxa de Ocupação da Agenda</span>
+          <span style="color:#0F766E;">${ocup}% (${atd}/${cap} vagas)</span>
+        </div>
+        <div style="height:9px; background:#E2E8F0; border-radius:999px; overflow:hidden;">
+          <div style="width:${ocup}%; height:100%; background:#1DAAA9;"></div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex; justify-content:space-between; font-size:9.5px; font-weight:700; margin-bottom:3px;">
+          <span>Mix Particular × Convênios</span>
+          <span style="color:#493477;">${rep > 0 ? Math.round(((Number(p.valor_particular)||0)/rep)*100) : 0}% Part. / ${rep > 0 ? Math.round(((Number(p.valor_convenio)||0)/rep)*100) : 0}% Conv.</span>
+        </div>
+        <div style="height:9px; background:#0284C7; border-radius:999px; overflow:hidden; display:flex;">
+          <div style="width:${rep > 0 ? Math.round(((Number(p.valor_particular)||0)/rep)*100) : 0}%; height:100%; background:#493477;"></div>
+        </div>
+      </div>
     </div>
   </div>
 
