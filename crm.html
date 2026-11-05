@@ -7929,32 +7929,69 @@
             </div>
           ` : ''}
 
-          ${fechamentoTab === 'recibos_wa' ? `
-            <!-- ABA ESPECIAL: CORTADOR INTELIGENTE DE RECIBOS DA CONTABILIDADE + DISPARO WHATSAPP 1-CLIQUE -->
+          ${fechamentoTab === 'recibos_wa' ? (() => {
+            const extraCltRecibos = allRecibos.filter(r => !r.profissional_id && (r.imagem_data_url || r.conteudo_html));
+            const anexadosCount = allRecibos.filter(r => r.imagem_data_url || r.conteudo_html).length;
+            const origensUnicas = Array.from(new Set(
+              allRecibos
+                .map(r => String(r.origem_arquivo || '').trim())
+                .filter(o => o && !o.includes('Gerado Automaticamente'))
+            ));
+            return `
+            <!-- ABA ESPECIAL: CORTADOR INTELIGENTE DE VÁRIOS ARQUIVOS DA CONTABILIDADE + DISPARO WHATSAPP 1-CLIQUE -->
             <div class="agente-table-card" style="padding:20px;">
-              <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--line);">
-                <div style="max-width:720px;">
+              <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:16px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid var(--line);">
+                <div>
                   <div style="display:inline-block; background:#DCFCE7; color:#166534; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; margin-bottom:6px;">
-                    ✂️📲 AUTOMAÇÃO EXCLUSIVA DRA. CAMILA • OPÇÃO B (ENVIO INDIVIDUAL 1-CLIQUE)
+                    ✂️📲 MULTI-UPLOAD CONTABILIDADE (PAULISTA + GRANJA + CLT) • ENVIO 1-CLIQUE
                   </div>
                   <h3 style="margin:0 0 6px; font-size:17px; color:#493477;">
-                    Cortador Inteligente de Recibos da Contabilidade &amp; Disparo Individual no WhatsApp
+                    Subir Vários Arquivos da Contabilidade &amp; Disparar no WhatsApp
                   </h3>
-                  <p style="margin:0; font-size:12.5px; color:var(--text-2); line-height:1.5;">
-                    A Contabilidade enviou todos os recibos/holerites juntos num único PDF ou planilha Excel? Clique em <b>📤 Subir Arquivo Geral da Contabilidade</b> abaixo: o sistema lê todas as páginas/abas, identifica o nome de cada profissional, <b>recorta e isola o recibo individual de cada um</b> e gera um link exclusivo para envio em <b>1 clique no WhatsApp</b> (sem risco de um profissional ver o valor de outro).
+                  <p style="margin:0 0 10px; font-size:12.5px; color:var(--text-2); line-height:1.5;">
+                    Você pode subir <b>todos os arquivos da Contabilidade de uma só vez</b> (ex: os <b>4 arquivos: Paulista, Granja e os de CLT</b>) ou enviar um por um. O sistema acumula todos os arquivos, identifica cada profissional/colaborador automaticamente, recorta a página/aba de cada um e libera o envio individual em <b>1 clique no WhatsApp</b>.
                   </p>
+                  <div id="contab-upload-status" style="font-size:11.5px; font-weight:800; color:#0F766E; background:#E6F7F7; padding:8px 12px; border-radius:8px; display:inline-block;">
+                    ✅ ${allProfs.length} links de profissionais + ${extraCltRecibos.length} holerites CLT/extras • ${anexadosCount} recibo(s) recortado(s) da Contabilidade
+                  </div>
                 </div>
 
-                <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
-                  <input type="file" id="contab-upload-input" accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple style="display:none;" onchange="handleContabilidadeUpload(this.files)">
-                  <button class="btn" style="background:linear-gradient(135deg,#16A34A,#0F766E); color:#fff; border:none; font-weight:800; padding:10px 18px; font-size:13px; cursor:pointer; box-shadow:0 6px 18px rgba(22,163,74,0.22);" onclick="document.getElementById('contab-upload-input').click()">
-                    📤 Subir Arquivo Geral da Contabilidade (.pdf / .xlsx / imagem)
+                <!-- CAIXA DE UPLOAD MÚLTIPLO (ARRASTAR OU SELECIONAR OS 4+ ARQUIVOS) -->
+                <div style="border:2px dashed #16A34A; background:#F0FDF4; border-radius:14px; padding:16px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:10px;"
+                     ondragover="event.preventDefault(); this.style.background='#DCFCE7';"
+                     ondragleave="this.style.background='#F0FDF4';"
+                     ondrop="event.preventDefault(); this.style.background='#F0FDF4'; handleContabilidadeUpload(event.dataTransfer.files);">
+                  <input type="file" id="contab-upload-input" accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple style="display:none;" onchange="handleContabilidadeUpload(this.files); this.value='';">
+                  <div style="font-size:13px; font-weight:800; color:#166534;">
+                    📂 Arraste os 4+ arquivos aqui ou clique abaixo (aceita vários PDFs, Excel e Imagens juntos)
+                  </div>
+                  <button class="btn" style="background:linear-gradient(135deg,#16A34A,#0F766E); color:#fff; border:none; font-weight:800; padding:10px 20px; font-size:13px; cursor:pointer; box-shadow:0 6px 18px rgba(22,163,74,0.22);" onclick="document.getElementById('contab-upload-input').click()">
+                    📤 Subir Vários Arquivos da Contabilidade (Selecionar 1, 4 ou + arquivos)
                   </button>
-                  <div id="contab-upload-status" style="font-size:11px; font-weight:700; color:#0F766E;">
-                    ✅ ${allProfs.length} links individuais prontos • ${allRecibos.filter(r => r.imagem_data_url || r.conteudo_html).length} com anexo recortado da Contabilidade
+                  <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+                    <button type="button" class="btn-agente" style="font-size:11px; padding:4px 10px; background:#fff; color:#1D4ED8; border-color:#BFDBFE;" onclick="document.getElementById('contab-upload-input').click()">
+                      🏙️ + Arquivo Paulista
+                    </button>
+                    <button type="button" class="btn-agente" style="font-size:11px; padding:4px 10px; background:#fff; color:#0F766E; border-color:#99F6E4;" onclick="document.getElementById('contab-upload-input').click()">
+                      🌿 + Arquivo Granja
+                    </button>
+                    <button type="button" class="btn-agente" style="font-size:11px; padding:4px 10px; background:#fff; color:#493477; border-color:#D8CEE8;" onclick="document.getElementById('contab-upload-input').click()">
+                      📋 + Arquivos CLT (1 ou mais)
+                    </button>
                   </div>
                 </div>
               </div>
+
+              ${origensUnicas.length > 0 ? `
+                <div style="margin-bottom:14px; padding:10px 14px; background:#FAF8FC; border:1px solid #D8CEE8; border-radius:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="font-size:11px; font-weight:800; color:#493477;">📁 Páginas / Abas já recortadas neste mês (${origensUnicas.length}):</span>
+                  ${origensUnicas.slice(0, 14).map(or => `
+                    <span style="font-size:10.5px; font-weight:700; background:#fff; border:1px solid #CBD5E1; color:#334155; padding:2px 8px; border-radius:999px;">
+                      📄 ${esc(or)}
+                    </span>
+                  `).join('')}
+                </div>
+              ` : ''}
 
               <div class="agente-table-scroll">
                 <table class="agente-table">
@@ -8013,16 +8050,16 @@
                             <button class="btn-agente" style="padding:5px 9px; font-size:11px; background:#F4F1F8; color:#493477; border-color:#D8CEE8;" onclick="openReciboIndividualUrl(${p.id})" title="Visualizar ou imprimir a página exclusiva deste profissional">
                               👁️ Ver Recibo
                             </button>
-                            <label class="btn-agente" style="padding:5px 9px; font-size:11px; cursor:pointer; display:inline-flex; align-items:center;" title="Subir imagem ou PDF de recibo específico para ${esc(p.nome_curto)}">
+                            <label class="btn-agente" style="padding:5px 9px; font-size:11px; cursor:pointer; display:inline-flex; align-items:center;" title="Subir 1 ou mais arquivos específicos para ${esc(p.nome_curto)}">
                               📎 Anexar
-                              <input type="file" accept=".pdf,.xlsx,.xls,.png,.jpg,.jpeg" style="display:none;" onchange="handleSingleReciboUpload(${p.id}, this.files[0])">
+                              <input type="file" accept=".pdf,.xlsx,.xls,.png,.jpg,.jpeg" multiple style="display:none;" onchange="handleContabilidadeUpload(this.files, ${p.id}); this.value='';">
                             </label>
                           </td>
                           <td style="text-align:center; white-space:nowrap;">
                             <button class="btn-agente" style="padding:6px 12px; font-size:11.5px; font-weight:800; background:#16A34A; color:#fff; border-color:#16A34A;" onclick="sendReciboWhatsapp1ClickByProf(${p.id})">
                               📲 Enviar Individual 1-Clique
                             </button>
-                            ${rec.enviado_whatsapp ? `<div style="font-size:10px; color:#16A34A; font-weight:800; margin-top:2px;">✓ Enviado no WhatsApp</div>` : ''}
+                            ${rec.status_envio === 'ENVIADO_WHATSAPP' ? `<div style="font-size:10px; color:#16A34A; font-weight:800; margin-top:2px;">✓ Enviado no WhatsApp</div>` : ''}
                           </td>
                         </tr>
                       `;
@@ -8030,8 +8067,65 @@
                   </tbody>
                 </table>
               </div>
+
+              ${extraCltRecibos.length > 0 ? `
+                <!-- TABELA AUTOMÁTICA PARA HOLERITES CLT E RECIBOS EXTRAS RECORTADOS DOS ARQUIVOS -->
+                <div style="margin-top:22px; padding-top:16px; border-top:2px dashed #CBD5E1;">
+                  <h4 style="margin:0 0 6px; font-size:15px; color:#493477;">
+                    📋 Holerites CLT &amp; Recibos Extras Recortados (${extraCltRecibos.length})
+                  </h4>
+                  <p style="margin:0 0 12px; font-size:12px; color:var(--text-2);">
+                    Páginas ou abas dos arquivos de <b>CLT / Contabilidade</b> de colaboradores que não estavam na lista dos 22 profissionais (ou cujo nome estava abreviado). Você pode enviar direto no WhatsApp em 1 clique ou vincular a um profissional da tabela acima:
+                  </p>
+                  <div class="agente-table-scroll">
+                    <table class="agente-table">
+                      <thead>
+                        <tr style="background:#F4F1F8;">
+                          <th style="color:#493477;">ARQUIVO / PÁGINA RECORTADA</th>
+                          <th style="color:#493477;">NOME DO COLABORADOR (CLT / EXTRA)</th>
+                          <th style="color:#493477;">VINCULAR A UM PROFISSIONAL</th>
+                          <th style="color:#493477;">WHATSAPP DO COLABORADOR</th>
+                          <th style="color:#493477; text-align:center;">VER RECIBO</th>
+                          <th style="color:#493477; text-align:center;">ENVIAR 1-CLIQUE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${extraCltRecibos.map(ex => `
+                          <tr>
+                            <td style="font-size:11.5px; font-weight:700; color:#0F766E;">📄 ${esc(ex.origem_arquivo || 'Arquivo CLT')}</td>
+                            <td>
+                              <input type="text" class="input" style="height:30px; font-size:12px; font-weight:700;" value="${esc(ex.nome_curto || ex.profissional_nome || '')}" onchange="saveExtraReciboMeta('${esc(ex.token)}', this.value, null)">
+                            </td>
+                            <td>
+                              <select class="agente-filter-select" style="height:30px; font-size:11.5px;" onchange="if(this.value) linkExtraReciboToProf('${esc(ex.token)}', this.value)">
+                                <option value="">🔗 Manter como CLT / Separado...</option>
+                                ${allProfs.map(pr => `<option value="${pr.id}">Vincular a ${esc(pr.nome_curto || pr.profissional)} (${esc(pr.unidade)})</option>`).join('')}
+                              </select>
+                            </td>
+                            <td>
+                              <input type="tel" class="input" style="height:30px; font-size:12px;" placeholder="(11) 99999-9999" value="${esc(ex.telefone_whatsapp || '')}" onchange="saveExtraReciboMeta('${esc(ex.token)}', null, this.value)">
+                            </td>
+                            <td style="text-align:center; white-space:nowrap;">
+                              <button class="btn-agente" style="padding:4px 9px; font-size:11px;" onclick="window.open('${window.location.origin}/.netlify/functions/fechamento-profissionais?action=view_recibo&token=${encodeURIComponent(ex.token)}', '_blank')">
+                                👁️ Ver Recorte
+                              </button>
+                              <button class="btn-agente" style="padding:4px 8px; font-size:11px; color:#DC2626;" onclick="deleteExtraRecibo('${esc(ex.token)}')" title="Remover recorte">🗑️</button>
+                            </td>
+                            <td style="text-align:center;">
+                              <button class="btn-agente" style="padding:5px 11px; font-size:11.5px; font-weight:800; background:#16A34A; color:#fff; border-color:#16A34A;" onclick="sendExtraReciboWhatsapp1Click('${esc(ex.token)}')">
+                                📲 Enviar 1-Clique
+                              </button>
+                            </td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ` : ''}
             </div>
-          ` : ''}
+            `;
+          })() : ''}
 
           ${fechamentoTab === 'regras' ? `
             <!-- ABA 2: TABELA DE HONORÁRIOS FIXA (MEMÓRIA PERMANENTE) -->
@@ -8459,19 +8553,93 @@
       }
     }
 
+    function extractCandidateNameFromText(rawText, fallbackLabel) {
+      const text = String(rawText || '');
+      const m = text.match(/(?:Funcion[áa]rio|Colaborador|Empregado|Nome|Profissional|Benefici[áa]rio)[:\s\-]+([A-ZÀ-Ú][A-Za-zÀ-ú]+(?:\s+[A-ZÀ-Úa-zà-ú]+){1,4})/i);
+      if (m && m[1]) return m[1].trim().slice(0, 60);
+      return fallbackLabel || 'Colaborador CLT / Contabilidade';
+    }
+
+    async function saveExtraReciboMeta(token, nome, whatsapp) {
+      const r = await api('fechamento-profissionais', {
+        action: 'save_whatsapp_prof',
+        token,
+        nome_curto: nome || '',
+        telefone_whatsapp: whatsapp || ''
+      });
+      if (r.ok) {
+        toast('✅ Dados do recibo CLT/Extra salvos!');
+        loadFechamentoData(false);
+      }
+    }
+
+    async function linkExtraReciboToProf(fromToken, profId) {
+      if (!fromToken || !profId) return;
+      const r = await api('fechamento-profissionais', {
+        action: 'link_recibo_prof',
+        competencia: fechamentoCompetencia,
+        from_token: fromToken,
+        profissional_id: profId
+      });
+      if (r.ok) {
+        toast('✅ Recibo vinculado ao profissional com sucesso!');
+        loadFechamentoData(false);
+      }
+    }
+
+    async function deleteExtraRecibo(token) {
+      const r = await api('fechamento-profissionais', {
+        action: 'delete_recibo_extra',
+        token
+      });
+      if (r.ok) {
+        toast('🗑️ Recorte removido');
+        loadFechamentoData(false);
+      }
+    }
+
+    function sendExtraReciboWhatsapp1Click(token) {
+      const recibos = (fechamentoData && fechamentoData.recibos) || [];
+      const ex = recibos.find(r => r.token === token) || {};
+      const reciboUrl = `${window.location.origin}/.netlify/functions/fechamento-profissionais?action=view_recibo&token=${encodeURIComponent(token)}`;
+      const nome = ex.nome_curto || ex.profissional_nome || 'Colaborador(a)';
+      let digits = String(ex.telefone_whatsapp || '').replace(/\D/g, '');
+      if (digits && !digits.startsWith('55') && digits.length >= 10) digits = '55' + digits;
+
+      const msg = [
+        `Olá, *${nome}*! Tudo bem? 💜`,
+        ``,
+        `Segue o seu *Recibo / Demonstrativo de Pagamento Creabily* referente à competência *${fechamentoCompetencia}*:`,
+        ``,
+        `📄 *Acesse / Baixe seu Recibo Individual Exclusivo aqui:*`,
+        reciboUrl,
+        ``,
+        `Qualquer dúvida estou à disposição!`,
+        `*Dra. Camila Ostan — Clínica Creabily*`
+      ].join('\n');
+
+      const waLink = digits.length >= 12
+        ? `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`
+        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(waLink, '_blank');
+      api('fechamento-profissionais', { action: 'mark_recibo_enviado', token }).then(() => loadFechamentoData(false));
+    }
+
     async function handleContabilidadeUpload(files, forcedProfId = null) {
       if (!files || !files.length) return;
+      const fileList = Array.from(files);
       const statusEl = document.getElementById('contab-upload-status');
-      if (statusEl) statusEl.textContent = '⏳ Lendo e recortando páginas/abas do arquivo da Contabilidade...';
-      toast('✂️ Lendo arquivo da Contabilidade e recortando por profissional...');
+      if (statusEl) statusEl.textContent = `⏳ Processando ${fileList.length} arquivo(s) da Contabilidade (Paulista, Granja e CLT)...`;
+      toast(`✂️ Lendo ${fileList.length} arquivo(s) da Contabilidade e recortando páginas/abas...`);
 
       const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
       let totalMatched = 0;
+      let totalExtras = 0;
 
-      for (const file of Array.from(files)) {
+      for (const file of fileList) {
         const ext = file.name.split('.').pop().toLowerCase();
 
-        // 1. ARQUIVO PDF MULTI-PÁGINAS DA CONTABILIDADE
+        // 1. ARQUIVO PDF MULTI-PÁGINAS DA CONTABILIDADE (RPA PAULISTA, RPA GRANJA OU HOLERITES CLT)
         if (ext === 'pdf' && window.pdfjsLib) {
           try {
             window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -8483,19 +8651,19 @@
               const textContent = await page.getTextContent();
               const pageText = textContent.items.map(it => it.str).join(' ');
 
+              const viewport = page.getViewport({ scale: 1.55 });
+              const canvas = document.createElement('canvas');
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              const ctx = canvas.getContext('2d');
+              await page.render({ canvasContext: ctx, viewport }).promise;
+              const imgDataUrl = canvas.toDataURL('image/jpeg', 0.84);
+
               const matchedProf = forcedProfId
                 ? allProfs.find(x => Number(x.id) === Number(forcedProfId))
                 : matchProfissionalByText(pageText);
 
               if (matchedProf) {
-                const viewport = page.getViewport({ scale: 1.6 });
-                const canvas = document.createElement('canvas');
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                const ctx = canvas.getContext('2d');
-                await page.render({ canvasContext: ctx, viewport }).promise;
-                const imgDataUrl = canvas.toDataURL('image/jpeg', 0.84);
-
                 await api('fechamento-profissionais', {
                   action: 'save_recibo_recortado',
                   competencia: fechamentoCompetencia,
@@ -8505,9 +8673,25 @@
                   unidade: matchedProf.unidade,
                   origem_arquivo: `${file.name} (Pág. ${pageNum})`,
                   conteudo_texto: pageText.slice(0, 2000),
-                  imagem_data_url: imgDataUrl
+                  imagem_data_url: imgDataUrl,
+                  append_if_exists: true
                 });
                 totalMatched++;
+              } else {
+                // Salva também páginas de CLT ou colaboradores extras para envio 1-clique ou vínculo manual
+                const candName = extractCandidateNameFromText(pageText, `Recibo CLT/Extra — ${file.name} (Pág. ${pageNum})`);
+                await api('fechamento-profissionais', {
+                  action: 'save_recibo_recortado',
+                  competencia: fechamentoCompetencia,
+                  profissional_id: null,
+                  profissional: candName,
+                  nome_curto: candName,
+                  unidade: file.name.toLowerCase().includes('granja') ? 'Granja/Jandira' : 'Paulista',
+                  origem_arquivo: `${file.name} (Pág. ${pageNum})`,
+                  conteudo_texto: pageText.slice(0, 2000),
+                  imagem_data_url: imgDataUrl
+                });
+                totalExtras++;
               }
             }
           } catch (pdfErr) {
@@ -8530,7 +8714,7 @@
                 ? allProfs.find(x => Number(x.id) === Number(forcedProfId))
                 : matchProfissionalByText(sheetText);
 
-              if (matchedBySheet && wb.SheetNames.length > 1) {
+              if (matchedBySheet && (wb.SheetNames.length > 1 || forcedProfId)) {
                 const nonEmptyRows = rows.filter(r => r.some(c => String(c).trim() !== '')).slice(0, 45);
                 const htmlTable = `<table style="width:100%;border-collapse:collapse;font-size:11px;">` +
                   nonEmptyRows.map((r, idx) => `<tr>` + r.slice(0, 8).map(c => `<${idx === 0 ? 'th' : 'td'} style="border:1px solid #CBD5E1;padding:5px 8px;">${esc(String(c ?? ''))}</${idx === 0 ? 'th' : 'td'}>`).join('') + `</tr>`).join('') +
@@ -8544,12 +8728,14 @@
                   nome_curto: matchedBySheet.nome_curto,
                   unidade: matchedBySheet.unidade,
                   origem_arquivo: `${file.name} (${sheetName})`,
-                  conteudo_html: htmlTable
+                  conteudo_html: htmlTable,
+                  append_if_exists: true
                 });
                 totalMatched++;
               } else {
                 // Procura linha por linha caso seja uma planilha única com todos os profissionais
                 const headerRow = rows[0] || [];
+                let matchedAnyRow = false;
                 for (let rIdx = 1; rIdx < rows.length; rIdx++) {
                   const row = rows[rIdx];
                   const rowStr = row.join(' ');
@@ -8568,10 +8754,30 @@
                       nome_curto: profRow.nome_curto,
                       unidade: profRow.unidade,
                       origem_arquivo: `${file.name} (Linha ${rIdx + 1})`,
-                      conteudo_html: htmlSingle
+                      conteudo_html: htmlSingle,
+                      append_if_exists: true
                     });
                     totalMatched++;
+                    matchedAnyRow = true;
                   }
+                }
+                if (!matchedAnyRow && rows.length > 1) {
+                  const nonEmptyRows = rows.filter(r => r.some(c => String(c).trim() !== '')).slice(0, 45);
+                  const htmlTable = `<table style="width:100%;border-collapse:collapse;font-size:11px;">` +
+                    nonEmptyRows.map((r, idx) => `<tr>` + r.slice(0, 8).map(c => `<${idx === 0 ? 'th' : 'td'} style="border:1px solid #CBD5E1;padding:5px 8px;">${esc(String(c ?? ''))}</${idx === 0 ? 'th' : 'td'}>`).join('') + `</tr>`).join('') +
+                    `</table>`;
+                  const candName = extractCandidateNameFromText(sheetText, `${sheetName} (${file.name})`);
+                  await api('fechamento-profissionais', {
+                    action: 'save_recibo_recortado',
+                    competencia: fechamentoCompetencia,
+                    profissional_id: null,
+                    profissional: candName,
+                    nome_curto: candName,
+                    unidade: file.name.toLowerCase().includes('granja') ? 'Granja/Jandira' : 'Paulista',
+                    origem_arquivo: `${file.name} (${sheetName})`,
+                    conteudo_html: htmlTable
+                  });
+                  totalExtras++;
                 }
               }
             }
@@ -8581,16 +8787,16 @@
         }
         // 3. IMAGEM PNG / JPG
         else if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+          const dataUrl = await new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.onerror = rej;
+            reader.readAsDataURL(file);
+          });
           const matchedProf = forcedProfId
             ? allProfs.find(x => Number(x.id) === Number(forcedProfId))
             : matchProfissionalByText(file.name);
           if (matchedProf) {
-            const dataUrl = await new Promise((res, rej) => {
-              const reader = new FileReader();
-              reader.onload = () => res(reader.result);
-              reader.onerror = rej;
-              reader.readAsDataURL(file);
-            });
             await api('fechamento-profissionais', {
               action: 'save_recibo_recortado',
               competencia: fechamentoCompetencia,
@@ -8599,19 +8805,28 @@
               nome_curto: matchedProf.nome_curto,
               unidade: matchedProf.unidade,
               origem_arquivo: file.name,
-              imagem_data_url: dataUrl
+              imagem_data_url: dataUrl,
+              append_if_exists: true
             });
             totalMatched++;
+          } else {
+            await api('fechamento-profissionais', {
+              action: 'save_recibo_recortado',
+              competencia: fechamentoCompetencia,
+              profissional_id: null,
+              profissional: file.name.replace(/\.[^.]+$/, ''),
+              nome_curto: file.name.replace(/\.[^.]+$/, ''),
+              unidade: 'Paulista',
+              origem_arquivo: file.name,
+              imagem_data_url: dataUrl
+            });
+            totalExtras++;
           }
         }
       }
 
       await loadFechamentoData(false);
-      if (totalMatched > 0) {
-        toast(`✅ ${totalMatched} recibo(s) recortado(s) e vinculado(s) automaticamente aos profissionais!`);
-      } else {
-        toast('ℹ️ Arquivo lido. Use o botão "📎 Anexar" na linha do profissional caso o arquivo não contenha o nome digitado.', true);
-      }
+      toast(`✅ ${fileList.length} arquivo(s) processado(s): ${totalMatched} vinculado(s) aos profissionais + ${totalExtras} recibo(s) CLT/extra recortado(s)!`);
     }
 
     async function handleBpoSheetImport(file) {

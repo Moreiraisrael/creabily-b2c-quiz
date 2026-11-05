@@ -566,40 +566,129 @@ exports.handler = async (event) => {
     }
 
     if (action === 'save_whatsapp_prof') {
-      const profId = parseInt(body.profissional_id, 10);
-      const profNome = String(body.profissional_nome || '').trim();
-      const phone = String(body.telefone_whatsapp || '').replace(/\D/g, '');
+      const profId = parseInt(body.profissional_id || body.id, 10);
+      const profNome = String(body.profissional_nome || body.nome_curto || '').trim();
+      const recToken = String(body.token || '').trim();
+      const phone = String(body.telefone_whatsapp || '').trim();
       if (profId) {
-        await client.query(`UPDATE public.fechamento_profissionais_mensal SET telefone_whatsapp = $1, updated_at = NOW() WHERE id = $2 OR profissional = $3`, [phone, profId, profNome]);
-        await client.query(`UPDATE public.fechamento_recibos_contabilidade SET telefone_whatsapp = $1, updated_at = NOW() WHERE profissional_id = $2 OR profissional_nome = $3`, [phone, profId, profNome]);
+        await client.query(`UPDATE public.fechamento_profissionais_mensal SET telefone_whatsapp = $1, updated_at = NOW() WHERE id = $2`, [phone, profId]);
+        await client.query(`UPDATE public.fechamento_recibos_contabilidade SET telefone_whatsapp = $1, updated_at = NOW() WHERE profissional_id = $2`, [phone, profId]);
+      } else if (recToken) {
+        await client.query(`
+          UPDATE public.fechamento_recibos_contabilidade
+          SET telefone_whatsapp = $1,
+              nome_curto = COALESCE(NULLIF($2, ''), nome_curto),
+              profissional_nome = COALESCE(NULLIF($2, ''), profissional_nome),
+              updated_at = NOW()
+          WHERE token = $3
+        `, [phone, profNome, recToken]);
       }
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true, telefone_whatsapp: phone }) };
     }
 
     if (action === 'save_recibo_recortado') {
-      const r = body.recibo || {};
-      const tok = `rec_${competencia.replace('/', '')}_prof_${r.profissional_id}`;
-      await client.query(`
-        UPDATE public.fechamento_recibos_contabilidade
-        SET origem_arquivo = $1,
-            pagina_aba_origem = $2,
-            valor_liquido_recibo = COALESCE($3, valor_liquido_recibo),
-            resumo_recibo = COALESCE(NULLIF($4, ''), resumo_recibo),
-            conteudo_html = COALESCE(NULLIF($5, ''), conteudo_html),
-            imagem_data_url = COALESCE(NULLIF($6, ''), imagem_data_url),
-            status_envio = 'RECORTADO_CONTABILIDADE',
-            updated_at = NOW()
-        WHERE token = $7
-      `, [
-        r.origem_arquivo || 'Folha Contabilidade',
-        r.pagina_aba_origem || 'Página Recortada',
-        r.valor_liquido_recibo ? parseFloat(r.valor_liquido_recibo) : null,
-        r.resumo_recibo || '',
-        r.conteudo_html || '',
-        r.imagem_data_url || '',
-        tok
-      ]);
+      const r = body.recibo || body || {};
+      const profId = r.profissional_id ? parseInt(r.profissional_id, 10) : null;
+      const compSlug = competencia.replace('/', '');
+      const tok = r.token || (profId ? `rec_${compSlug}_prof_${profId}` : `rec_${compSlug}_clt_${Date.now()}_${Math.floor(Math.random() * 1000)}`);
+
+      // Se for profissional vinculado e já tiver um anexo anterior de outro arquivo (ex: subiu Paulista e depois subiu CLT), podemos acumular ou atualizar
+      const existingRes = await client.query(`SELECT id, origem_arquivo, conteudo_html, imagem_data_url FROM public.fechamento_recibos_contabilidade WHERE token = $1 LIMIT 1`, [tok]);
+      if (existingRes.rows.length > 0) {
+        const ex = existingRes.rows[0];
+        let finalHtml = r.conteudo_html || '';
+        let finalImg = r.imagem_data_url || '';
+        let finalOrigem = r.origem_arquivo || 'Folha Contabilidade';
+
+        if (r.append_if_exists && (ex.imagem_data_url || ex.conteudo_html)) {
+          const prevBlock = ex.imagem_data_url
+            ? `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:#493477;margin-bottom:4px;">📄 ${ex.origem_arquivo || 'Arquivo 1'}</div><img src="${ex.imagem_data_url}" style="max-width:100%;border:1px solid #CBD5E1;border-radius:8px;"></div>`
+            : (ex.conteudo_html || '');
+          const newBlock = r.imagem_data_url
+            ? `<div style="margin-top:14px;"><div style="font-size:11px;font-weight:700;color:#0F766E;margin-bottom:4px;">📄 ${r.origem_arquivo || 'Arquivo Adicional'}</div><img src="${r.imagem_data_url}" style="max-width:100%;border:1px solid #CBD5E1;border-radius:8px;"></div>`
+            : (r.conteudo_html || '');
+          finalHtml = prevBlock + newBlock;
+          finalImg = '';
+          finalOrigem = ex.origem_arquivo && !ex.origem_arquivo.includes('Gerado Automaticamente')
+            ? `${ex.origem_arquivo} + ${r.origem_arquivo}`
+            : (r.origem_arquivo || 'Folha Contabilidade');
+        }
+
+        await client.query(`
+          UPDATE public.fechamento_recibos_contabilidade
+          SET origem_arquivo = $1,
+              pagina_aba_origem = $2,
+              valor_liquido_recibo = COALESCE($3, valor_liquido_recibo),
+              resumo_recibo = COALESCE(NULLIF($4, ''), resumo_recibo),
+              conteudo_html = CASE WHEN $5 <> '' THEN $5 ELSE conteudo_html END,
+              imagem_data_url = CASE WHEN $6 <> '' THEN $6 ELSE (CASE WHEN $5 <> '' THEN NULL ELSE imagem_data_url END) END,
+              status_envio = 'RECORTADO_CONTABILIDADE',
+              updated_at = NOW()
+          WHERE token = $7
+        `, [
+          finalOrigem,
+          r.pagina_aba_origem || 'Página Recortada',
+          r.valor_liquido_recibo ? parseFloat(r.valor_liquido_recibo) : null,
+          r.resumo_recibo || r.conteudo_texto || '',
+          finalHtml,
+          finalImg,
+          tok
+        ]);
+      } else {
+        await client.query(`
+          INSERT INTO public.fechamento_recibos_contabilidade (
+            token, competencia, profissional_id, profissional_nome, nome_curto, unidade,
+            telefone_whatsapp, origem_arquivo, pagina_aba_origem, valor_liquido_recibo,
+            resumo_recibo, conteudo_html, imagem_data_url, status_envio
+          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'RECORTADO_CONTABILIDADE')
+        `, [
+          tok,
+          competencia,
+          profId,
+          r.profissional || r.profissional_nome || r.nome_curto || 'Funcionário CLT / Contabilidade',
+          r.nome_curto || r.profissional || 'Recibo CLT / Contabilidade',
+          r.unidade || 'Paulista',
+          r.telefone_whatsapp || '',
+          r.origem_arquivo || 'Folha Contabilidade',
+          r.pagina_aba_origem || 'Página Recortada',
+          r.valor_liquido_recibo ? parseFloat(r.valor_liquido_recibo) : 0,
+          r.resumo_recibo || r.conteudo_texto || '',
+          r.conteudo_html || '',
+          r.imagem_data_url || ''
+        ]);
+      }
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true, token: tok }) };
+    }
+
+    if (action === 'link_recibo_prof') {
+      const fromToken = String(body.from_token || '').trim();
+      const targetProfId = parseInt(body.profissional_id, 10);
+      if (!fromToken || !targetProfId) {
+        return { statusCode: 400, headers, body: JSON.stringify({ ok: false, error: 'Token e profissional obrigatórios' }) };
+      }
+      const srcRes = await client.query(`SELECT * FROM public.fechamento_recibos_contabilidade WHERE token = $1 LIMIT 1`, [fromToken]);
+      if (srcRes.rows.length > 0) {
+        const src = srcRes.rows[0];
+        const compSlug = competencia.replace('/', '');
+        const destTok = `rec_${compSlug}_prof_${targetProfId}`;
+        await client.query(`
+          UPDATE public.fechamento_recibos_contabilidade
+          SET origem_arquivo = $1,
+              conteudo_html = COALESCE(NULLIF($2, ''), conteudo_html),
+              imagem_data_url = COALESCE(NULLIF($3, ''), imagem_data_url),
+              status_envio = 'RECORTADO_CONTABILIDADE',
+              updated_at = NOW()
+          WHERE token = $4
+        `, [src.origem_arquivo, src.conteudo_html || '', src.imagem_data_url || '', destTok]);
+        await client.query(`DELETE FROM public.fechamento_recibos_contabilidade WHERE token = $1`, [fromToken]);
+      }
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+    }
+
+    if (action === 'delete_recibo_extra') {
+      const tok = String(body.token || '').trim();
+      await client.query(`DELETE FROM public.fechamento_recibos_contabilidade WHERE token = $1 AND profissional_id IS NULL`, [tok]);
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
     }
 
     if (action === 'mark_recibo_enviado') {
