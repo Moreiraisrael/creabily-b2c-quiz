@@ -346,6 +346,129 @@ exports.handler = async (event) => {
   try {
     await client.connect();
 
+    if (action === 'view_recibo') {
+      const token = String((event.queryStringParameters && event.queryStringParameters.token) || body.token || '').trim();
+      const recRes = await client.query(`
+        SELECT r.*, p.funcao, p.atendimentos_total, p.finalizados, p.nao_compareceu, p.valor_repasse_confirmado,
+               p.valor_particular, p.valor_convenio, p.composicao_json, p.observacao_auditoria
+        FROM public.fechamento_recibos_contabilidade r
+        LEFT JOIN public.fechamento_profissionais_mensal p ON p.id = r.profissional_id
+        WHERE r.token = $1
+        LIMIT 1
+      `, [token]);
+
+      if (recRes.rows.length === 0) {
+        return {
+          statusCode: 404,
+          headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' },
+          body: '<h3>Recibo não encontrado.</h3>'
+        };
+      }
+
+      const rec = recRes.rows[0];
+      const valorFinal = Number(rec.valor_liquido_recibo || rec.valor_repasse_confirmado || 0);
+      const compList = Array.isArray(rec.composicao_json) ? rec.composicao_json : [];
+
+      const htmlPage = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recibo & Demonstrativo Individual - ${rec.nome_curto || rec.profissional_nome} (${rec.competencia})</title>
+  <style>
+    @page { size: A4 portrait; margin: 12mm; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
+    body { margin: 0; padding: 20px; background: #F4F1F8; color: #1F2933; }
+    .sheet { max-width: 820px; margin: 0 auto; background: #fff; border-radius: 14px; padding: 26px; box-shadow: 0 10px 30px rgba(73,52,119,0.12); border-top: 6px solid #493477; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: #1F2933; color: #fff; padding: 10px 16px; border-radius: 10px; }
+    .header { background: #493477; color: #fff; padding: 18px 22px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid #1DAAA9; }
+    .header h1 { margin: 0; font-size: 18px; }
+    .header .sub { margin-top: 4px; font-size: 12.5px; color: #E2DCF0; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+    .kpi { background: #F4F1F8; border: 1px solid #D8CEE8; border-top: 3px solid #493477; border-radius: 8px; padding: 10px 12px; }
+    .kpi .lbl { font-size: 10px; text-transform: uppercase; color: #667085; font-weight: 700; }
+    .kpi .val { font-size: 18px; font-weight: 800; color: #493477; margin-top: 4px; }
+    .sec { background: #493477; color: #fff; padding: 7px 12px; font-size: 11.5px; font-weight: 800; border-radius: 6px; margin: 16px 0 8px; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 12px; }
+    th { background: #E8F6F6; padding: 7px 8px; border: 1px solid #D8D2E5; text-align: left; }
+    td { padding: 6px 8px; border: 1px solid #D8D2E5; }
+    .cropped-box { border: 2px solid #1DAAA9; border-radius: 10px; padding: 14px; background: #FAF9FC; margin: 14px 0; text-align: center; }
+    .cropped-box img { max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #D8D2E5; }
+    @media print { .no-print { display: none !important; } body { background: #fff; padding: 0; } .sheet { box-shadow: none; padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="sheet">
+    <div class="top-bar no-print">
+      <span>📄 <b>Recibo Individual &amp; Demonstrativo Creabily</b> (${rec.competencia})</span>
+      <button onclick="window.print()" style="background:#1DAAA9; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:800; cursor:pointer;">🖨️ Baixar PDF / Imprimir</button>
+    </div>
+    <div class="header">
+      <div>
+        <h1>CREABILY ARTE DA CURA — RECIBO &amp; FECHAMENTO INDIVIDUAL</h1>
+        <div class="sub">${rec.profissional_nome} • Competência ${rec.competencia} • Unidade ${rec.unidade || 'Paulista'}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:11px; color:#E2DCF0;">Origem</div>
+        <div style="font-size:12px; font-weight:800; color:#1DAAA9; background:#fff; padding:3px 10px; border-radius:999px; margin-top:3px;">${rec.pagina_aba_origem || 'Recibo Individual'}</div>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">Atendimentos no Mês</div><div class="val">${rec.atendimentos_total || 0}</div></div>
+      <div class="kpi"><div class="lbl">Finalizados</div><div class="val" style="color:#16A34A;">${rec.finalizados || 0}</div></div>
+      <div class="kpi"><div class="lbl">Não Compareceu (Pago)</div><div class="val" style="color:#D97706;">${rec.nao_compareceu || 0}</div></div>
+      <div class="kpi" style="background:#E8F6F6; border-top-color:#1DAAA9;"><div class="lbl" style="color:#0F766E;">Valor do Recibo / Repasse</div><div class="val" style="color:#0F766E;">R$ ${valorFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
+    </div>
+
+    ${rec.imagem_data_url ? `
+      <div class="sec">Recibo Oficial da Contabilidade (Recorte Individual — ${rec.pagina_aba_origem || 'Folha'})</div>
+      <div class="cropped-box">
+        <img src="${rec.imagem_data_url}" alt="Recibo Recortado da Contabilidade">
+      </div>
+    ` : ''}
+
+    ${rec.conteudo_html ? `
+      <div class="sec">Espelho do Recibo da Contabilidade (${rec.pagina_aba_origem || 'Aba Individual'})</div>
+      <div style="overflow-x:auto; background:#FAF9FC; border:1px solid #D8CEE8; border-radius:8px; padding:10px; margin-bottom:14px;">
+        ${rec.conteudo_html}
+      </div>
+    ` : ''}
+
+    ${compList.length > 0 ? `
+      <div class="sec">Composição Detalhada dos Atendimentos (${rec.competencia})</div>
+      <table>
+        <thead>
+          <tr><th>Modalidade / Procedimento</th><th>Convênio</th><th style="text-align:center;">Qtd</th><th style="text-align:right;">Unitário</th><th style="text-align:right;">Total (R$)</th></tr>
+        </thead>
+        <tbody>
+          ${compList.map(c => `
+            <tr>
+              <td style="font-weight:700;">${c.modalidade || ''}</td>
+              <td>${c.convenio || ''}</td>
+              <td style="text-align:center;">${c.qtd || 0}</td>
+              <td style="text-align:right;">R$ ${(Number(c.unitario) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+              <td style="text-align:right; font-weight:700;">R$ ${(Number(c.total) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    ` : ''}
+
+    <div style="background:#F4F1F8; border-left:4px solid #1DAAA9; padding:10px 14px; border-radius:6px; font-size:11.5px;">
+      <b>Observação:</b> ${rec.resumo_recibo || rec.observacao_auditoria || 'Conferência individual emitida pelo Sistema Executivo Creabily.'}
+    </div>
+  </div>
+</body>
+</html>`;
+
+      return {
+        statusCode: 200,
+        headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' },
+        body: htmlPage
+      };
+    }
+
     if (action === 'list') {
       const rulesRes = await client.query(`
         SELECT * FROM public.fechamento_regras_honorarios
@@ -368,13 +491,44 @@ exports.handler = async (event) => {
         `, [competencia]);
       }
 
+      // Garantir que cada profissional da competência tenha um registro de recibo individual pronto
+      for (const p of profsRes.rows) {
+        const tok = `rec_${competencia.replace('/', '')}_prof_${p.id}`;
+        const rep = Number(p.valor_repasse_confirmado) || 0;
+        const resTxt = `${p.atendimentos_total} atendimentos (${p.finalizados} finalizados / ${p.nao_compareceu} faltas) • Repasse: R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        await client.query(`
+          INSERT INTO public.fechamento_recibos_contabilidade (
+            token, competencia, profissional_id, profissional_nome, nome_curto, unidade,
+            telefone_whatsapp, origem_arquivo, pagina_aba_origem, valor_liquido_recibo,
+            resumo_recibo, status_envio
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, 'Demonstrativo Oficial Creabily', $8, $9, $10, 'PRONTO')
+          ON CONFLICT (token) DO UPDATE SET
+            telefone_whatsapp = COALESCE(NULLIF(EXCLUDED.telefone_whatsapp, ''), public.fechamento_recibos_contabilidade.telefone_whatsapp),
+            valor_liquido_recibo = CASE WHEN public.fechamento_recibos_contabilidade.origem_arquivo = 'Demonstrativo Oficial Creabily' THEN EXCLUDED.valor_liquido_recibo ELSE public.fechamento_recibos_contabilidade.valor_liquido_recibo END
+        `, [
+          tok, competencia, p.id, p.profissional, p.nome_curto, p.unidade,
+          p.telefone_whatsapp || '', `Demonstrativo #${p.id}`, rep, resTxt
+        ]);
+      }
+
+      const recibosRes = await client.query(`
+        SELECT id, token, competencia, profissional_id, profissional_nome, nome_curto, unidade,
+               telefone_whatsapp, origem_arquivo, pagina_aba_origem, valor_liquido_recibo,
+               resumo_recibo, status_envio, enviado_em,
+               (CASE WHEN imagem_data_url IS NOT NULL AND imagem_data_url <> '' THEN true ELSE false END) as tem_imagem,
+               (CASE WHEN conteudo_html IS NOT NULL AND conteudo_html <> '' THEN true ELSE false END) as tem_planilha
+        FROM public.fechamento_recibos_contabilidade
+        WHERE competencia = $1
+        ORDER BY unidade DESC, nome_curto ASC
+      `, [competencia]);
+
       let bpoRes = await client.query(`
         SELECT * FROM public.fechamento_bpo_mensal WHERE competencia = $1
       `, [competencia]);
       if (bpoRes.rows.length === 0) {
         await client.query(`
-          INSERT INTO public.fechamento_bpo_mensal (competencia, faturamento_bruto_estimado, receita_particular, receita_convenios)
-          VALUES ($1, 185000.00, 55000.00, 130000.00)
+          INSERT INTO public.fechamento_bpo_mensal (competencia, faturamento_bruto_estimado, receita_particular, receita_convenios, impostos_nf_pct, custos_fixos_paulista, custos_fixos_granja, custos_variaveis_operacionais, meta_margem_liquida_pct)
+          VALUES ($1, 206250.00, 64250.00, 142000.00, 16.00, 36459.00, 18500.00, 10000.00, 20.00)
           ON CONFLICT (competencia) DO NOTHING
         `, [competencia]);
         bpoRes = await client.query(`SELECT * FROM public.fechamento_bpo_mensal WHERE competencia = $1`, [competencia]);
@@ -402,12 +556,62 @@ exports.handler = async (event) => {
           data: {
             competencia,
             profissionais: profsRes.rows,
+            recibos: recibosRes.rows,
             regras: rules,
             bpo: bpoRes.rows[0] || {},
             compCounts
           }
         })
       };
+    }
+
+    if (action === 'save_whatsapp_prof') {
+      const profId = parseInt(body.profissional_id, 10);
+      const profNome = String(body.profissional_nome || '').trim();
+      const phone = String(body.telefone_whatsapp || '').replace(/\D/g, '');
+      if (profId) {
+        await client.query(`UPDATE public.fechamento_profissionais_mensal SET telefone_whatsapp = $1, updated_at = NOW() WHERE id = $2 OR profissional = $3`, [phone, profId, profNome]);
+        await client.query(`UPDATE public.fechamento_recibos_contabilidade SET telefone_whatsapp = $1, updated_at = NOW() WHERE profissional_id = $2 OR profissional_nome = $3`, [phone, profId, profNome]);
+      }
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true, telefone_whatsapp: phone }) };
+    }
+
+    if (action === 'save_recibo_recortado') {
+      const r = body.recibo || {};
+      const tok = `rec_${competencia.replace('/', '')}_prof_${r.profissional_id}`;
+      await client.query(`
+        UPDATE public.fechamento_recibos_contabilidade
+        SET origem_arquivo = $1,
+            pagina_aba_origem = $2,
+            valor_liquido_recibo = COALESCE($3, valor_liquido_recibo),
+            resumo_recibo = COALESCE(NULLIF($4, ''), resumo_recibo),
+            conteudo_html = COALESCE(NULLIF($5, ''), conteudo_html),
+            imagem_data_url = COALESCE(NULLIF($6, ''), imagem_data_url),
+            status_envio = 'RECORTADO_CONTABILIDADE',
+            updated_at = NOW()
+        WHERE token = $7
+      `, [
+        r.origem_arquivo || 'Folha Contabilidade',
+        r.pagina_aba_origem || 'Página Recortada',
+        r.valor_liquido_recibo ? parseFloat(r.valor_liquido_recibo) : null,
+        r.resumo_recibo || '',
+        r.conteudo_html || '',
+        r.imagem_data_url || '',
+        tok
+      ]);
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true, token: tok }) };
+    }
+
+    if (action === 'mark_recibo_enviado') {
+      const tok = String(body.token || '').trim();
+      await client.query(`
+        UPDATE public.fechamento_recibos_contabilidade
+        SET status_envio = 'ENVIADO_WHATSAPP',
+            enviado_em = NOW(),
+            updated_at = NOW()
+        WHERE token = $1
+      `, [tok]);
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
     }
 
     if (action === 'toggle_angela_outubro') {

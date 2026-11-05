@@ -7380,11 +7380,16 @@
         return;
       }
 
-      const data = fechamentoData || { profissionais: [], regras: [], bpo: {}, compCounts: {} };
+      const data = fechamentoData || { profissionais: [], regras: [], bpo: {}, recibos: [], compCounts: {} };
       const allProfs = data.profissionais || [];
       const allRegras = data.regras || [];
+      const allRecibos = data.recibos || [];
       const bpo = data.bpo || {};
       const compCounts = data.compCounts || {};
+      const reciboByProfId = {};
+      allRecibos.forEach(rc => {
+        if (rc.profissional_id) reciboByProfId[rc.profissional_id] = rc;
+      });
 
       // Filtro por unidade e busca
       const q = (fechamentoSearch || '').trim().toLowerCase();
@@ -7422,15 +7427,15 @@
         sumLiquidoRpaAll += rpa.liquido;
       });
 
-      // BPO DRE cálculos
-      const fatBruto = Number(bpo.faturamento_bruto_estimado) || 228450;
-      const impPct = Number(bpo.impostos_nf_pct) || 6.0;
+      // BPO DRE cálculos (Regra Oficial Dra. Camila: NF 16% = R$ 33.000,00 | EBITDA Real 8,0% = R$ 16.500,00)
+      const fatBruto = Number(bpo.faturamento_bruto_estimado) || 206250;
+      const impPct = Number(bpo.impostos_nf_pct) || 16.0;
       const impValor = fatBruto * (impPct / 100);
       const recLiquida = fatBruto - impValor;
       const margemContrib = recLiquida - sumRepasseAll;
-      const fixoPaulista = Number(bpo.custos_fixos_paulista) || 28500;
-      const fixoGranja = Number(bpo.custos_fixos_granja) || 14200;
-      const varOper = Number(bpo.custos_variaveis_operacionais) || 6800;
+      const fixoPaulista = Number(bpo.custos_fixos_paulista) || 36459;
+      const fixoGranja = Number(bpo.custos_fixos_granja) || 18500;
+      const varOper = Number(bpo.custos_variaveis_operacionais) || 10000;
       const resultadoLiquidoBpo = margemContrib - fixoPaulista - fixoGranja - varOper;
       const margemLiquidaPct = fatBruto > 0 ? ((resultadoLiquidoBpo / fatBruto) * 100) : 0;
 
@@ -7458,6 +7463,9 @@
                 </span>
               </div>
               <div class="agente-actions">
+                <button class="btn-agente" style="background:#16A34A; color:#fff; border-color:#16A34A;" onclick="setFechamentoTab('recibos_wa')">
+                  ✂️📲 Recibos Contabilidade &amp; WhatsApp 1-Clique
+                </button>
                 <button class="btn-agente" style="background:#493477; color:#fff; border-color:#493477;" onclick="openProfissionalModal(null)">
                   + Novo Profissional
                 </button>
@@ -7545,14 +7553,14 @@
                 <div class="agente-kpi-sub">INSS: R$ ${Math.round(sumInssAll).toLocaleString('pt-BR')} • IRRF: R$ ${Math.round(sumIrrfAll).toLocaleString('pt-BR')}</div>
               </div>
               <div class="agente-kpi-card" style="border-left: 4px solid #0284C7; cursor:pointer;" onclick="setFechamentoTab('capacidade_plano')">
-                <div class="agente-kpi-title" style="color:#0369A1;">Ocupação da Agenda</div>
+                <div class="agente-kpi-title" style="color:#0369A1;">Ocupação Real da Agenda</div>
                 <div class="agente-kpi-value" style="color:#0369A1;">${ocupacaoPct}%</div>
-                <div class="agente-kpi-sub">${vagasOciosas} horários ociosos no mês</div>
+                <div class="agente-kpi-sub">2 pac/horário Convênio • ${vagasOciosas.toLocaleString('pt-BR')} vagas livres</div>
               </div>
               <div class="agente-kpi-card" style="border-left: 4px solid #16A34A; background:#F0FDF4; cursor:pointer;" onclick="setFechamentoTab('unidades_bpo')">
-                <div class="agente-kpi-title" style="color:#15803D;">Resultado Líquido BPO</div>
+                <div class="agente-kpi-title" style="color:#15803D;">EBITDA / Lucro Real BPO</div>
                 <div class="agente-kpi-value" style="font-size:18px; color:#15803D;">R$ ${resultadoLiquidoBpo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
-                <div class="agente-kpi-sub">Margem Líquida: ${margemLiquidaPct.toFixed(1)}% (Meta ${Number(bpo.meta_margem_liquida_pct || 25)}%)</div>
+                <div class="agente-kpi-sub">EBITDA: ${margemLiquidaPct.toFixed(1)}% • NF ${impPct}% (R$ ${Math.round(impValor).toLocaleString('pt-BR')})</div>
               </div>
             </div>
 
@@ -7780,11 +7788,14 @@
             `;
           })() : ''}
 
-          <!-- NAVEGAÇÃO ENTRE AS 4 SUB-ABAS EXECUTIVAS -->
+          <!-- NAVEGAÇÃO ENTRE AS 5 SUB-ABAS EXECUTIVAS -->
           <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
             <div style="display:flex; gap:8px; flex-wrap:wrap;">
               <button class="btn-agente ${fechamentoTab === 'profissionais' ? 'primary' : ''}" style="${fechamentoTab === 'profissionais' ? 'background:#493477;border-color:#493477;' : ''}" onclick="setFechamentoTab('profissionais')">
                 👩‍⚕️ Fechamento por Profissional &amp; Folders PDF (${filteredProfs.length})
+              </button>
+              <button class="btn-agente ${fechamentoTab === 'recibos_wa' ? 'primary' : ''}" style="${fechamentoTab === 'recibos_wa' ? 'background:#16A34A;border-color:#16A34A;color:#fff;' : 'border-color:#16A34A;color:#15803D;'}" onclick="setFechamentoTab('recibos_wa')">
+                ✂️📲 Recibos Contabilidade &amp; WhatsApp 1-Clique (${filteredProfs.length})
               </button>
               <button class="btn-agente ${fechamentoTab === 'regras' ? 'primary' : ''}" style="${fechamentoTab === 'regras' ? 'background:#1DAAA9;border-color:#1DAAA9;' : ''}" onclick="setFechamentoTab('regras')">
                 ⚙️ Tabela de Honorários Fixa (${allRegras.length} Regras Permanentes)
@@ -7793,7 +7804,7 @@
                 🏢 Comparativo Paulista × Granja &amp; BPO Resumo
               </button>
               <button class="btn-agente ${fechamentoTab === 'capacidade_plano' ? 'primary' : ''}" style="${fechamentoTab === 'capacidade_plano' ? 'background:#1D4ED8;border-color:#1D4ED8;' : ''}" onclick="setFechamentoTab('capacidade_plano')">
-                🚀 Capacidade Ociosa &amp; Plano de Ação Comercial
+                🚀 Capacidade Real (46%) &amp; Plano Comercial
               </button>
             </div>
 
@@ -7810,7 +7821,7 @@
                   FECHAMENTO DE HONORÁRIOS POR PROFISSIONAL — COMPETÊNCIA ${esc(fechamentoCompetencia)}
                 </div>
                 <div style="font-size:11.5px; color:#117A79; font-weight:700;">
-                  Clique em <b>📄 Folder PDF</b> para abrir o Demonstrativo Executivo Individual da Creabily ou em <b>📊 Excel</b> para baixar a planilha individual.
+                  Clique em <b>📲 WhatsApp 1-Clique</b> para enviar o recibo individual recortado, <b>📄 Folder PDF</b> ou <b>📊 Excel</b>.
                 </div>
               </div>
               <div class="agente-table-scroll">
@@ -7822,13 +7833,13 @@
                       <th style="color:#493477; text-align:center;">ATENDIMENTOS</th>
                       <th style="color:#493477; text-align:center;">FINALIZADOS</th>
                       <th style="color:#493477; text-align:center;">NÃO COMPARECEU</th>
-                      <th style="color:#493477; text-align:center;">OCUPAÇÃO AGENDA</th>
+                      <th style="color:#493477; text-align:center;">OCUPAÇÃO REAL</th>
                       <th style="color:#493477; text-align:right;">PARTICULAR</th>
                       <th style="color:#493477; text-align:right;">CONVÊNIOS</th>
                       <th style="color:#493477; text-align:right;">REPASSE BRUTO</th>
                       <th style="color:#493477; text-align:right;">LÍQUIDO PÓS-RPA</th>
                       <th style="color:#493477; text-align:center;">STATUS AUDITORIA</th>
-                      <th style="color:#493477; text-align:center;">FOLDER PDF &amp; EXCEL INDIVIDUAL</th>
+                      <th style="color:#493477; text-align:center;">AÇÕES &amp; DISPARO 1-CLIQUE</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -7857,11 +7868,12 @@
                           <td style="text-align:center; font-weight:800; font-size:13px;">${atd}</td>
                           <td style="text-align:center; color:#16A34A; font-weight:700;">${p.finalizados || 0}</td>
                           <td style="text-align:center; color:#D97706; font-weight:700;">${p.nao_compareceu || 0}</td>
-                          <td style="text-align:center; min-width:110px;">
+                          <td style="text-align:center; min-width:125px;">
                             <div style="font-size:11px; font-weight:700; color:var(--text-2);">${ocup}% (${atd}/${cap})</div>
                             <div style="height:6px; background:#E2E8F0; border-radius:999px; overflow:hidden; margin-top:3px;">
-                              <div style="height:100%; width:${ocup}%; background:${ocup >= 80 ? '#16A34A' : (ocup >= 55 ? '#1DAAA9' : '#F59E0B')};"></div>
+                              <div style="height:100%; width:${ocup}%; background:${ocup >= 80 ? '#16A34A' : (ocup >= 45 ? '#1DAAA9' : '#F59E0B')};"></div>
                             </div>
+                            <div style="font-size:9.5px; color:var(--text-3); margin-top:2px;">${esc(p.regime_atendimento || 'Individual (1 pac/horário)')}</div>
                           </td>
                           <td style="text-align:right; font-weight:600; color:#6D28D9;">R$ ${(Number(p.valor_particular) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                           <td style="text-align:right; font-weight:600; color:#0369A1;">R$ ${(Number(p.valor_convenio) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
@@ -7879,6 +7891,9 @@
                             </span>
                           </td>
                           <td style="text-align:center; white-space:nowrap;">
+                            <button class="btn-agente" style="padding:4px 8px; font-size:11px; background:#16A34A; color:#fff; border-color:#16A34A;" onclick="sendReciboWhatsapp1ClickByProf(${p.id})" title="Opção B: Abrir WhatsApp com o link do Recibo Individual Recortado deste profissional">
+                              📲 WhatsApp
+                            </button>
                             <button class="btn-agente" style="padding:4px 8px; font-size:11px; background:#493477; color:#fff; border-color:#493477;" onclick="exportProfissionalFolderPdf(${p.id})" title="Gerar Folder PDF Executivo Individual da Creabily">
                               📄 Folder PDF
                             </button>
@@ -7907,6 +7922,110 @@
                       <td colspan="2"></td>
                     </tr>
                   </tfoot>
+                </table>
+              </div>
+            </div>
+          ` : ''}
+
+          ${fechamentoTab === 'recibos_wa' ? `
+            <!-- ABA ESPECIAL: CORTADOR INTELIGENTE DE RECIBOS DA CONTABILIDADE + DISPARO WHATSAPP 1-CLIQUE -->
+            <div class="agente-table-card" style="padding:20px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:14px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--line);">
+                <div style="max-width:720px;">
+                  <div style="display:inline-block; background:#DCFCE7; color:#166534; font-size:11px; font-weight:800; padding:3px 10px; border-radius:999px; margin-bottom:6px;">
+                    ✂️📲 AUTOMAÇÃO EXCLUSIVA DRA. CAMILA • OPÇÃO B (ENVIO INDIVIDUAL 1-CLIQUE)
+                  </div>
+                  <h3 style="margin:0 0 6px; font-size:17px; color:#493477;">
+                    Cortador Inteligente de Recibos da Contabilidade &amp; Disparo Individual no WhatsApp
+                  </h3>
+                  <p style="margin:0; font-size:12.5px; color:var(--text-2); line-height:1.5;">
+                    A Contabilidade enviou todos os recibos/holerites juntos num único PDF ou planilha Excel? Clique em <b>📤 Subir Arquivo Geral da Contabilidade</b> abaixo: o sistema lê todas as páginas/abas, identifica o nome de cada profissional, <b>recorta e isola o recibo individual de cada um</b> e gera um link exclusivo para envio em <b>1 clique no WhatsApp</b> (sem risco de um profissional ver o valor de outro).
+                  </p>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
+                  <input type="file" id="contab-upload-input" accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg" multiple style="display:none;" onchange="handleContabilidadeUpload(this.files)">
+                  <button class="btn" style="background:linear-gradient(135deg,#16A34A,#0F766E); color:#fff; border:none; font-weight:800; padding:10px 18px; font-size:13px; cursor:pointer; box-shadow:0 6px 18px rgba(22,163,74,0.22);" onclick="document.getElementById('contab-upload-input').click()">
+                    📤 Subir Arquivo Geral da Contabilidade (.pdf / .xlsx / imagem)
+                  </button>
+                  <div id="contab-upload-status" style="font-size:11px; font-weight:700; color:#0F766E;">
+                    ✅ ${allProfs.length} links individuais prontos • ${allRecibos.filter(r => r.imagem_data_url || r.conteudo_html).length} com anexo recortado da Contabilidade
+                  </div>
+                </div>
+              </div>
+
+              <div class="agente-table-scroll">
+                <table class="agente-table">
+                  <thead>
+                    <tr style="background:#F0FDF4;">
+                      <th style="color:#166534;">UNIDADE</th>
+                      <th style="color:#166534;">PROFISSIONAL</th>
+                      <th style="color:#166534; text-align:right;">REPASSE BRUTO</th>
+                      <th style="color:#166534; text-align:right;">LÍQUIDO PÓS-RPA</th>
+                      <th style="color:#166534; text-align:center;">STATUS DO RECIBO RECORTADO</th>
+                      <th style="color:#166534;">WHATSAPP DO PROFISSIONAL (SALVA AUTOMÁTICO)</th>
+                      <th style="color:#166534; text-align:center;">VER / ANEXAR RECIBO</th>
+                      <th style="color:#166534; text-align:center;">OPÇÃO B: ENVIAR 1-CLIQUE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${filteredProfs.map(p => {
+                      const rep = Number(p.valor_repasse_confirmado) || 0;
+                      const rpa = calcImpostosRPA(rep);
+                      const rec = reciboByProfId[p.id] || {};
+                      const hasAnexoContab = Boolean(rec.imagem_data_url || rec.conteudo_html);
+                      const isGranja = p.unidade === 'Granja/Jandira';
+                      const waVal = p.telefone_whatsapp || rec.telefone_whatsapp || '';
+                      return `
+                        <tr>
+                          <td>
+                            <span style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:800; background:${isGranja ? '#CCFBF1' : '#DBEAFE'}; color:${isGranja ? '#0F766E' : '#1D4ED8'};">
+                              ${isGranja ? '🌿 Granja Viana' : '🏙️ Av. Paulista'}
+                            </span>
+                          </td>
+                          <td>
+                            <div style="font-weight:800; color:var(--text); font-size:13px;">${esc(p.nome_curto || p.profissional)}</div>
+                            <div style="font-size:11px; color:var(--text-3);">${esc(p.funcao || '')} • ${p.atendimentos_total || 0} atend.</div>
+                          </td>
+                          <td style="text-align:right; font-weight:800; color:#493477; font-size:13px;">
+                            R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td style="text-align:right; font-weight:700; color:#047857; font-size:13px;">
+                            R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </td>
+                          <td style="text-align:center;">
+                            ${hasAnexoContab ? `
+                              <span style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:800; background:#DCFCE7; color:#166534;">
+                                ✂️ Recibo Contabilidade Anexado (${esc(rec.origem_arquivo || 'Recortado')})
+                              </span>
+                            ` : `
+                              <span style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:800; background:#E6F7F7; color:#0F766E;">
+                                📄 Demonstrativo Individual Pronto
+                              </span>
+                            `}
+                          </td>
+                          <td style="min-width:175px;">
+                            <input type="tel" class="input" style="height:32px; font-size:12px; padding:4px 8px;" placeholder="Ex: (11) 99999-9999" value="${esc(waVal)}" onchange="saveWhatsappProf(${p.id}, this.value)">
+                          </td>
+                          <td style="text-align:center; white-space:nowrap;">
+                            <button class="btn-agente" style="padding:5px 9px; font-size:11px; background:#F4F1F8; color:#493477; border-color:#D8CEE8;" onclick="openReciboIndividualUrl(${p.id})" title="Visualizar ou imprimir a página exclusiva deste profissional">
+                              👁️ Ver Recibo
+                            </button>
+                            <label class="btn-agente" style="padding:5px 9px; font-size:11px; cursor:pointer; display:inline-flex; align-items:center;" title="Subir imagem ou PDF de recibo específico para ${esc(p.nome_curto)}">
+                              📎 Anexar
+                              <input type="file" accept=".pdf,.xlsx,.xls,.png,.jpg,.jpeg" style="display:none;" onchange="handleSingleReciboUpload(${p.id}, this.files[0])">
+                            </label>
+                          </td>
+                          <td style="text-align:center; white-space:nowrap;">
+                            <button class="btn-agente" style="padding:6px 12px; font-size:11.5px; font-weight:800; background:#16A34A; color:#fff; border-color:#16A34A;" onclick="sendReciboWhatsapp1ClickByProf(${p.id})">
+                              📲 Enviar Individual 1-Clique
+                            </button>
+                            ${rec.enviado_whatsapp ? `<div style="font-size:10px; color:#16A34A; font-weight:800; margin-top:2px;">✓ Enviado no WhatsApp</div>` : ''}
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
                 </table>
               </div>
             </div>
@@ -8006,6 +8125,12 @@
                       <td style="text-align:right; font-weight:800;">${sumAtendAll}</td>
                     </tr>
                     <tr>
+                      <td style="font-weight:700;">Capacidade Real (Regra 2 pac/horário Convênio)</td>
+                      <td style="text-align:right;">${profsPaulista.reduce((a,b)=>a+(Number(b.capacidade_agenda)||120),0).toLocaleString('pt-BR')} vagas</td>
+                      <td style="text-align:right;">${profsGranja.reduce((a,b)=>a+(Number(b.capacidade_agenda)||120),0).toLocaleString('pt-BR')} vagas</td>
+                      <td style="text-align:right; font-weight:800; color:#0369A1;">${sumCapAll.toLocaleString('pt-BR')} vagas (${ocupacaoPct}%)</td>
+                    </tr>
+                    <tr>
                       <td style="font-weight:700;">Repasse Particular / Planos</td>
                       <td style="text-align:right;">R$ ${profsPaulista.reduce((a,b)=>a+(Number(b.valor_particular)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                       <td style="text-align:right;">R$ ${profsGranja.reduce((a,b)=>a+(Number(b.valor_particular)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
@@ -8039,16 +8164,25 @@
                 </table>
               </div>
 
-              <!-- CARD SIMULADOR BPO & DRE EXECUTIVO -->
+              <!-- CARD SIMULADOR BPO & DRE EXECUTIVO + IMPORTADOR DE PLANILHA BPO -->
               <div class="agente-table-card" style="padding:20px;">
-                <h3 style="margin:0 0 12px; font-size:16px; color:#0F766E;">💰 BPO Financeiro &amp; Margem Líquida (${esc(fechamentoCompetencia)})</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+                  <h3 style="margin:0; font-size:16px; color:#0F766E;">💰 BPO Financeiro, NF (16%) &amp; EBITDA Real (${esc(fechamentoCompetencia)})</h3>
+                  <div>
+                    <input type="file" id="bpo-sheet-upload-input" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handleBpoSheetImport(this.files[0])">
+                    <button class="btn-agente" style="background:#E6F7F7; color:#0F766E; border-color:#1DAAA9; font-weight:800; font-size:11.5px;" onclick="document.getElementById('bpo-sheet-upload-input').click()">
+                      📥 Importar Planilha / DRE do BPO (.xlsx / .csv)
+                    </button>
+                  </div>
+                </div>
+
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
                   <div>
                     <label style="font-size:11px; font-weight:700; color:var(--text-3);">Faturamento Bruto do Mês (R$)</label>
                     <input type="number" step="0.01" id="bpo-fat-bruto" class="input" value="${fatBruto}">
                   </div>
                   <div>
-                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Alíquota Impostos NF (%)</label>
+                    <label style="font-size:11px; font-weight:700; color:#DC2626;">Alíquota Imposto Nota Fiscal (%) — Real 16%</label>
                     <input type="number" step="0.1" id="bpo-imp-pct" class="input" value="${impPct}">
                   </div>
                   <div>
@@ -8060,34 +8194,38 @@
                     <input type="number" step="0.01" id="bpo-fixo-granja" class="input" value="${fixoGranja}">
                   </div>
                   <div>
-                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Custos Variáveis / Sistemas (R$)</label>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Custos Variáveis / BPO / Sistemas (R$)</label>
                     <input type="number" step="0.01" id="bpo-var-oper" class="input" value="${varOper}">
                   </div>
                   <div>
-                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Meta de Margem Líquida (%)</label>
-                    <input type="number" step="0.5" id="bpo-meta-margem" class="input" value="${Number(bpo.meta_margem_liquida_pct || 25)}">
+                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Meta de EBITDA / Margem (%)</label>
+                    <input type="number" step="0.5" id="bpo-meta-margem" class="input" value="${Number(bpo.meta_margem_liquida_pct || 20)}">
                   </div>
                 </div>
 
                 <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:10px; padding:12px; font-size:12.5px; margin-bottom:12px;">
                   <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <span>(+) Receita Líquida pós-Impostos (${impPct}%):</span>
+                    <span>(+) Faturamento Bruto Consolidado:</span>
+                    <b>R$ ${fatBruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:#DC2626;">
+                    <span>(−) Imposto de Nota Fiscal (${impPct}%):</span>
+                    <b>− R$ ${impValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span>(=) Receita Líquida pós-Impostos NF:</span>
                     <b>R$ ${recLiquida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
                   </div>
                   <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:#493477;">
                     <span>(−) Repasse Total Profissionais (${((sumRepasseAll / (fatBruto || 1)) * 100).toFixed(1)}%):</span>
                     <b>− R$ ${sumRepasseAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
                   </div>
-                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                    <span>(=) Margem de Contribuição Clínica:</span>
-                    <b>R$ ${margemContrib.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
-                  </div>
                   <div style="display:flex; justify-content:space-between; margin-bottom:6px; color:#B45309;">
-                    <span>(−) Custos Fixos (Paulista + Granja) + Variáveis:</span>
+                    <span>(−) Custos Fixos (Paulista + Granja) + Operacionais:</span>
                     <b>− R$ ${(fixoPaulista + fixoGranja + varOper).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
                   </div>
                   <div style="display:flex; justify-content:space-between; padding-top:6px; border-top:1px solid #86EFAC; font-size:14px; font-weight:800; color:#15803D;">
-                    <span>(=) Resultado Operacional Líquido (Caixa Diretoria):</span>
+                    <span>(=) EBITDA / Lucro Líquido Real (Caixa Clínica):</span>
                     <span>R$ ${resultadoLiquidoBpo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${margemLiquidaPct.toFixed(1)}%)</span>
                   </div>
                 </div>
@@ -8102,21 +8240,26 @@
           ${fechamentoTab === 'capacidade_plano' ? `
             <!-- ABA 4: CAPACIDADE OCIOSA DA AGENDA & PLANO DE AÇÃO EXECUTIVO -->
             <div class="agente-table-card" style="padding:20px;">
-              <h3 style="margin:0 0 6px; font-size:16px; color:#1D4ED8;">🚀 Capacidade de Agenda por Profissional &amp; Potencial de Expansão (${esc(fechamentoCompetencia)})</h3>
-              <p style="margin:0 0 14px; font-size:12.5px; color:var(--text-2);">
-                Identifica automaticamente quais profissionais têm horários ociosos na Paulista e na Granja Viana para direcionamento das campanhas do Google Ads e conversão de planos particulares.
-              </p>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                <div>
+                  <h3 style="margin:0 0 6px; font-size:16px; color:#1D4ED8;">🚀 Capacidade Real de Agenda (${ocupacaoPct}%) &amp; Potencial de Expansão (${esc(fechamentoCompetencia)})</h3>
+                  <p style="margin:0; font-size:12.5px; color:var(--text-2);">
+                    <b>Regra Oficial Dra. Camila Aplicada:</b> Fisioterapia Convênio atende até <b>2 pacientes por horário (Dupla)</b>, Pilates atende até <b>3 alunos por horário (Turma)</b> e RPG / Particular / Nutrição / Psicologia / Acupuntura atendem <b>1 paciente por horário (Individual)</b> — totalizando <b>${sumCapAll.toLocaleString('pt-BR')} vagas reais</b> no mês (${vagasOciosas.toLocaleString('pt-BR')} vagas disponíveis para crescimento).
+                  </p>
+                </div>
+              </div>
               <div class="agente-table-scroll">
                 <table class="agente-table">
                   <thead>
                     <tr style="background:#EFF6FF;">
                       <th style="color:#1D4ED8;">PROFISSIONAL</th>
                       <th style="color:#1D4ED8;">UNIDADE</th>
-                      <th style="color:#1D4ED8; text-align:center;">CAPACIDADE MENSAL</th>
+                      <th style="color:#1D4ED8;">REGIME DE AGENDA (PAC/HORÁRIO)</th>
+                      <th style="color:#1D4ED8; text-align:center;">CAPACIDADE REAL MENSAL</th>
                       <th style="color:#1D4ED8; text-align:center;">REALIZADOS + FALTAS</th>
-                      <th style="color:#1D4ED8; text-align:center;">HORÁRIOS OCIOSOS</th>
-                      <th style="color:#1D4ED8; text-align:center;">TAXA DE OCUPAÇÃO</th>
-                      <th style="color:#1D4ED8; text-align:right;">POTENCIAL SE OCUPAR +30% (PARTICULAR)</th>
+                      <th style="color:#1D4ED8; text-align:center;">VAGAS DISPONÍVEIS</th>
+                      <th style="color:#1D4ED8; text-align:center;">OCUPAÇÃO REAL</th>
+                      <th style="color:#1D4ED8; text-align:right;">POTENCIAL SE OCUPAR +30%</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -8130,9 +8273,14 @@
                         <tr>
                           <td style="font-weight:800;">${esc(p.nome_curto || p.profissional)}</td>
                           <td>${esc(p.unidade)}</td>
-                          <td style="text-align:center; font-weight:700;">${cap} sessões</td>
+                          <td>
+                            <span style="padding:3px 8px; border-radius:999px; font-size:11px; font-weight:700; background:#F1F5F9; color:#334155;">
+                              ${esc(p.regime_atendimento || 'Individual (1 pac/horário)')}
+                            </span>
+                          </td>
+                          <td style="text-align:center; font-weight:700;">${cap} vagas</td>
                           <td style="text-align:center; font-weight:700;">${atd} sessões</td>
-                          <td style="text-align:center; font-weight:800; color:${ociosos > 40 ? '#D97706' : '#059669'};">${ociosos} vagas livres</td>
+                          <td style="text-align:center; font-weight:800; color:${ociosos > 80 ? '#D97706' : '#059669'};">${ociosos} vagas livres</td>
                           <td style="text-align:center; font-weight:800;">${ocup}%</td>
                           <td style="text-align:right; font-weight:800; color:#15803D;">+ R$ ${ganhoPotencialClinica.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</td>
                         </tr>
@@ -8149,12 +8297,12 @@
 
     async function saveBpoParameters() {
       const bpo = {
-        faturamento_bruto_estimado: parseFloat(document.getElementById('bpo-fat-bruto').value) || 0,
-        impostos_nf_pct: parseFloat(document.getElementById('bpo-imp-pct').value) || 6,
-        custos_fixos_paulista: parseFloat(document.getElementById('bpo-fixo-paulista').value) || 28500,
-        custos_fixos_granja: parseFloat(document.getElementById('bpo-fixo-granja').value) || 14200,
-        custos_variaveis_operacionais: parseFloat(document.getElementById('bpo-var-oper').value) || 6800,
-        meta_margem_liquida_pct: parseFloat(document.getElementById('bpo-meta-margem').value) || 25
+        faturamento_bruto_estimado: parseFloat(document.getElementById('bpo-fat-bruto').value) || 206250,
+        impostos_nf_pct: parseFloat(document.getElementById('bpo-imp-pct').value) || 16,
+        custos_fixos_paulista: parseFloat(document.getElementById('bpo-fixo-paulista').value) || 36459,
+        custos_fixos_granja: parseFloat(document.getElementById('bpo-fixo-granja').value) || 18500,
+        custos_variaveis_operacionais: parseFloat(document.getElementById('bpo-var-oper').value) || 10000,
+        meta_margem_liquida_pct: parseFloat(document.getElementById('bpo-meta-margem').value) || 20
       };
       const r = await api('fechamento-profissionais', {
         action: 'save_bpo',
@@ -8166,6 +8314,346 @@
         loadFechamentoData(false);
       } else {
         toast(r.error || 'Erro ao salvar BPO', true);
+      }
+    }
+
+    // =========================================================
+    // CORTADOR DE RECIBOS DA CONTABILIDADE + WHATSAPP 1-CLIQUE (OPÇÃO B) + IMPORTADOR BPO
+    // =========================================================
+    async function saveWhatsappProf(profId, tel) {
+      const cleanTel = String(tel || '').trim();
+      const r = await api('fechamento-profissionais', {
+        action: 'save_whatsapp_prof',
+        id: profId,
+        telefone_whatsapp: cleanTel
+      });
+      if (r.ok) {
+        if (fechamentoData && Array.isArray(fechamentoData.profissionais)) {
+          const p = fechamentoData.profissionais.find(x => Number(x.id) === Number(profId));
+          if (p) p.telefone_whatsapp = cleanTel;
+        }
+        toast('📱 WhatsApp do profissional salvo permanentemente!');
+      } else {
+        toast(r.error || 'Erro ao salvar WhatsApp', true);
+      }
+    }
+
+    function getReciboTokenForProf(profId) {
+      const recibos = (fechamentoData && fechamentoData.recibos) || [];
+      const rec = recibos.find(r => Number(r.profissional_id) === Number(profId));
+      if (rec && rec.token) return rec.token;
+      const compSlug = String(fechamentoCompetencia || '10/2026').replace('/', '');
+      return `rec_${compSlug}_prof_${profId}`;
+    }
+
+    function openReciboIndividualUrl(profId) {
+      const token = getReciboTokenForProf(profId);
+      const url = `${window.location.origin}/.netlify/functions/fechamento-profissionais?action=view_recibo&token=${encodeURIComponent(token)}`;
+      window.open(url, '_blank');
+    }
+
+    async function sendReciboWhatsapp1ClickByProf(profId) {
+      const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
+      const p = allProfs.find(x => Number(x.id) === Number(profId));
+      if (!p) { toast('Profissional não encontrado', true); return; }
+
+      const token = getReciboTokenForProf(profId);
+      const reciboUrl = `${window.location.origin}/.netlify/functions/fechamento-profissionais?action=view_recibo&token=${encodeURIComponent(token)}`;
+      const rep = Number(p.valor_repasse_confirmado) || 0;
+      const rpa = calcImpostosRPA(rep);
+      const nomeCurto = p.nome_curto || p.profissional;
+
+      let digits = String(p.telefone_whatsapp || '').replace(/\D/g, '');
+      if (digits && !digits.startsWith('55') && digits.length >= 10) {
+        digits = '55' + digits;
+      }
+
+      const msg = [
+        `Olá, *${nomeCurto}*! Tudo bem? 💜`,
+        ``,
+        `Segue o seu *Recibo e Demonstrativo Individual de Fechamento Creabily* referente à competência *${fechamentoCompetencia}* (${p.unidade === 'Granja/Jandira' ? 'Unidade Granja Viana' : 'Unidade Av. Paulista'}):`,
+        ``,
+        `• *Atendimentos Auditados:* ${p.atendimentos_total || 0} (${p.finalizados || 0} finalizados + ${p.nao_compareceu || 0} faltas pagas)`,
+        `• *Repasse Bruto Total:* R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *Líquido Pós-RPA Estimado:* R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        ``,
+        `📄 *Acesse / Baixe seu Recibo Individual Exclusivo aqui:*`,
+        reciboUrl,
+        ``,
+        `Qualquer dúvida estou à disposição!`,
+        `*Dra. Camila Ostan — Clínica Creabily*`
+      ].join('\n');
+
+      const waLink = digits.length >= 12
+        ? `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`
+        : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+      window.open(waLink, '_blank');
+
+      api('fechamento-profissionais', { action: 'mark_recibo_enviado', token }).then(() => {
+        loadFechamentoData(false);
+      });
+    }
+
+    function matchProfissionalByText(rawText) {
+      const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const hay = norm(rawText);
+      const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
+      let bestProf = null;
+      let bestScore = 0;
+
+      for (const p of allProfs) {
+        const full = norm(p.profissional).replace(/^(dra?\.?|fisioterapeuta|nutricionista|psicologa)\s+/i, '').trim();
+        const short = norm(p.nome_curto).replace(/^(dra?\.?)\s+/i, '').trim();
+        const parts = full.split(/\s+/).filter(w => w.length >= 3);
+        let score = 0;
+        if (full && hay.includes(full)) score += 100;
+        if (short && hay.includes(short)) score += 75;
+        if (parts.length >= 2 && hay.includes(parts[0]) && hay.includes(parts[parts.length - 1])) score += 60;
+        else if (parts.length >= 1 && hay.includes(parts[0]) && parts[0].length >= 5) score += 25;
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestProf = p;
+        }
+      }
+      return bestScore >= 25 ? bestProf : null;
+    }
+
+    async function handleSingleReciboUpload(profId, file) {
+      if (!file) return;
+      const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
+      const p = allProfs.find(x => Number(x.id) === Number(profId));
+      if (!p) return;
+
+      toast(`✂️ Processando recibo individual de ${p.nome_curto || p.profissional}...`);
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      try {
+        if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+          const dataUrl = await new Promise((res, rej) => {
+            const reader = new FileReader();
+            reader.onload = () => res(reader.result);
+            reader.onerror = rej;
+            reader.readAsDataURL(file);
+          });
+          await api('fechamento-profissionais', {
+            action: 'save_recibo_recortado',
+            competencia: fechamentoCompetencia,
+            profissional_id: p.id,
+            profissional: p.profissional,
+            nome_curto: p.nome_curto,
+            unidade: p.unidade,
+            origem_arquivo: file.name,
+            imagem_data_url: dataUrl
+          });
+          toast(`✅ Recibo anexado com sucesso para ${p.nome_curto}!`);
+          loadFechamentoData(false);
+        } else {
+          await handleContabilidadeUpload([file], p.id);
+        }
+      } catch (err) {
+        toast('Erro ao anexar recibo: ' + err.message, true);
+      }
+    }
+
+    async function handleContabilidadeUpload(files, forcedProfId = null) {
+      if (!files || !files.length) return;
+      const statusEl = document.getElementById('contab-upload-status');
+      if (statusEl) statusEl.textContent = '⏳ Lendo e recortando páginas/abas do arquivo da Contabilidade...';
+      toast('✂️ Lendo arquivo da Contabilidade e recortando por profissional...');
+
+      const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
+      let totalMatched = 0;
+
+      for (const file of Array.from(files)) {
+        const ext = file.name.split('.').pop().toLowerCase();
+
+        // 1. ARQUIVO PDF MULTI-PÁGINAS DA CONTABILIDADE
+        if (ext === 'pdf' && window.pdfjsLib) {
+          try {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            const arrayBuf = await file.arrayBuffer();
+            const pdf = await window.pdfjsLib.getDocument({ data: arrayBuf }).promise;
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+              const page = await pdf.getPage(pageNum);
+              const textContent = await page.getTextContent();
+              const pageText = textContent.items.map(it => it.str).join(' ');
+
+              const matchedProf = forcedProfId
+                ? allProfs.find(x => Number(x.id) === Number(forcedProfId))
+                : matchProfissionalByText(pageText);
+
+              if (matchedProf) {
+                const viewport = page.getViewport({ scale: 1.6 });
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                const ctx = canvas.getContext('2d');
+                await page.render({ canvasContext: ctx, viewport }).promise;
+                const imgDataUrl = canvas.toDataURL('image/jpeg', 0.84);
+
+                await api('fechamento-profissionais', {
+                  action: 'save_recibo_recortado',
+                  competencia: fechamentoCompetencia,
+                  profissional_id: matchedProf.id,
+                  profissional: matchedProf.profissional,
+                  nome_curto: matchedProf.nome_curto,
+                  unidade: matchedProf.unidade,
+                  origem_arquivo: `${file.name} (Pág. ${pageNum})`,
+                  conteudo_texto: pageText.slice(0, 2000),
+                  imagem_data_url: imgDataUrl
+                });
+                totalMatched++;
+              }
+            }
+          } catch (pdfErr) {
+            console.error('Erro PDF Contabilidade:', pdfErr);
+          }
+        }
+        // 2. PLANILHA EXCEL MULTI-ABAS OU TABELA GERAL DA CONTABILIDADE
+        else if (['xlsx', 'xls', 'csv'].includes(ext) && window.XLSX) {
+          try {
+            const arrayBuf = await file.arrayBuffer();
+            const wb = window.XLSX.read(arrayBuf, { type: 'array' });
+
+            for (const sheetName of wb.SheetNames) {
+              const ws = wb.Sheets[sheetName];
+              const rows = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+              if (!rows || !rows.length) continue;
+
+              const sheetText = sheetName + ' ' + rows.slice(0, 25).map(r => r.join(' ')).join(' ');
+              const matchedBySheet = forcedProfId
+                ? allProfs.find(x => Number(x.id) === Number(forcedProfId))
+                : matchProfissionalByText(sheetText);
+
+              if (matchedBySheet && wb.SheetNames.length > 1) {
+                const nonEmptyRows = rows.filter(r => r.some(c => String(c).trim() !== '')).slice(0, 45);
+                const htmlTable = `<table style="width:100%;border-collapse:collapse;font-size:11px;">` +
+                  nonEmptyRows.map((r, idx) => `<tr>` + r.slice(0, 8).map(c => `<${idx === 0 ? 'th' : 'td'} style="border:1px solid #CBD5E1;padding:5px 8px;">${esc(String(c ?? ''))}</${idx === 0 ? 'th' : 'td'}>`).join('') + `</tr>`).join('') +
+                  `</table>`;
+
+                await api('fechamento-profissionais', {
+                  action: 'save_recibo_recortado',
+                  competencia: fechamentoCompetencia,
+                  profissional_id: matchedBySheet.id,
+                  profissional: matchedBySheet.profissional,
+                  nome_curto: matchedBySheet.nome_curto,
+                  unidade: matchedBySheet.unidade,
+                  origem_arquivo: `${file.name} (${sheetName})`,
+                  conteudo_html: htmlTable
+                });
+                totalMatched++;
+              } else {
+                // Procura linha por linha caso seja uma planilha única com todos os profissionais
+                const headerRow = rows[0] || [];
+                for (let rIdx = 1; rIdx < rows.length; rIdx++) {
+                  const row = rows[rIdx];
+                  const rowStr = row.join(' ');
+                  if (!rowStr.trim()) continue;
+                  const profRow = matchProfissionalByText(rowStr);
+                  if (profRow) {
+                    const htmlSingle = `<table style="width:100%;border-collapse:collapse;font-size:11px;">` +
+                      `<tr>${headerRow.slice(0, 8).map(h => `<th style="border:1px solid #CBD5E1;padding:6px;background:#F1F5F9;">${esc(String(h || ''))}</th>`).join('')}</tr>` +
+                      `<tr>${row.slice(0, 8).map(c => `<td style="border:1px solid #CBD5E1;padding:6px;font-weight:700;">${esc(String(c ?? ''))}</td>`).join('')}</tr>` +
+                      `</table>`;
+                    await api('fechamento-profissionais', {
+                      action: 'save_recibo_recortado',
+                      competencia: fechamentoCompetencia,
+                      profissional_id: profRow.id,
+                      profissional: profRow.profissional,
+                      nome_curto: profRow.nome_curto,
+                      unidade: profRow.unidade,
+                      origem_arquivo: `${file.name} (Linha ${rIdx + 1})`,
+                      conteudo_html: htmlSingle
+                    });
+                    totalMatched++;
+                  }
+                }
+              }
+            }
+          } catch (xlErr) {
+            console.error('Erro Excel Contabilidade:', xlErr);
+          }
+        }
+        // 3. IMAGEM PNG / JPG
+        else if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+          const matchedProf = forcedProfId
+            ? allProfs.find(x => Number(x.id) === Number(forcedProfId))
+            : matchProfissionalByText(file.name);
+          if (matchedProf) {
+            const dataUrl = await new Promise((res, rej) => {
+              const reader = new FileReader();
+              reader.onload = () => res(reader.result);
+              reader.onerror = rej;
+              reader.readAsDataURL(file);
+            });
+            await api('fechamento-profissionais', {
+              action: 'save_recibo_recortado',
+              competencia: fechamentoCompetencia,
+              profissional_id: matchedProf.id,
+              profissional: matchedProf.profissional,
+              nome_curto: matchedProf.nome_curto,
+              unidade: matchedProf.unidade,
+              origem_arquivo: file.name,
+              imagem_data_url: dataUrl
+            });
+            totalMatched++;
+          }
+        }
+      }
+
+      await loadFechamentoData(false);
+      if (totalMatched > 0) {
+        toast(`✅ ${totalMatched} recibo(s) recortado(s) e vinculado(s) automaticamente aos profissionais!`);
+      } else {
+        toast('ℹ️ Arquivo lido. Use o botão "📎 Anexar" na linha do profissional caso o arquivo não contenha o nome digitado.', true);
+      }
+    }
+
+    async function handleBpoSheetImport(file) {
+      if (!file || !window.XLSX) return;
+      toast('📥 Lendo planilha do BPO Financeiro...');
+      try {
+        const buf = await file.arrayBuffer();
+        const wb = window.XLSX.read(buf, { type: 'array' });
+        let fat = null, impPct = null, fixoP = null, fixoG = null, varOp = null;
+
+        const parseNum = (v) => {
+          if (typeof v === 'number') return v;
+          const s = String(v || '').replace(/[R$\s%]/g, '').replace(/\./g, '').replace(',', '.');
+          const n = parseFloat(s);
+          return Number.isFinite(n) ? Math.abs(n) : null;
+        };
+
+        for (const sName of wb.SheetNames) {
+          const rows = window.XLSX.utils.sheet_to_json(wb.Sheets[sName], { header: 1, defval: '' });
+          for (const r of rows) {
+            const line = r.map(x => String(x || '')).join(' ').toLowerCase();
+            const nums = r.map(parseNum).filter(n => n !== null && n > 0);
+            if (!nums.length) continue;
+            const val = nums[nums.length - 1];
+
+            if ((line.includes('faturamento bruto') || line.includes('receita bruta')) && val > 20000) fat = val;
+            else if ((line.includes('imposto') || line.includes('nota fiscal') || line.includes('simples') || line.includes('iss')) && val <= 35) impPct = val;
+            else if ((line.includes('imposto') || line.includes('nota fiscal')) && val > 5000 && fat) impPct = Number(((val / fat) * 100).toFixed(1));
+            else if (line.includes('fixo') && line.includes('paulista') && val > 1000) fixoP = val;
+            else if (line.includes('fixo') && (line.includes('granja') || line.includes('jandira')) && val > 1000) fixoG = val;
+            else if ((line.includes('variav') || line.includes('operacion') || line.includes('bpo')) && val > 500) varOp = val;
+          }
+        }
+
+        if (fat) document.getElementById('bpo-fat-bruto').value = fat;
+        if (impPct) document.getElementById('bpo-imp-pct').value = impPct;
+        if (fixoP) document.getElementById('bpo-fixo-paulista').value = fixoP;
+        if (fixoG) document.getElementById('bpo-fixo-granja').value = fixoG;
+        if (varOp) document.getElementById('bpo-var-oper').value = varOp;
+
+        await saveBpoParameters();
+        toast('✅ Planilha do BPO importada e parâmetros atualizados!');
+      } catch (e) {
+        toast('Erro ao ler planilha do BPO: ' + e.message, true);
       }
     }
 
@@ -8543,34 +9031,35 @@
       XLSX.utils.book_append_sheet(wb, ws4, 'Tabela_Honorarios_Referencia');
 
       // 5. BPO_Resumo
-      const fat = Number(bpo.faturamento_bruto_estimado) || 228450;
-      const imp = fat * ((Number(bpo.impostos_nf_pct) || 6) / 100);
-      const fixP = Number(bpo.custos_fixos_paulista) || 28500;
-      const fixG = Number(bpo.custos_fixos_granja) || 14200;
-      const varO = Number(bpo.custos_variaveis_operacionais) || 6800;
+      const fat = Number(bpo.faturamento_bruto_estimado) || 206250;
+      const impPct = Number(bpo.impostos_nf_pct) || 16;
+      const imp = fat * (impPct / 100);
+      const fixP = Number(bpo.custos_fixos_paulista) || 36459;
+      const fixG = Number(bpo.custos_fixos_granja) || 18500;
+      const varO = Number(bpo.custos_variaveis_operacionais) || 10000;
       const resLiq = fat - imp - sumRepasseAll - fixP - fixG - varO;
       const ws5 = XLSX.utils.aoa_to_sheet([
         ['BPO FINANCEIRO & DRE MENSAL', fechamentoCompetencia],
         ['Faturamento Bruto Estimado (R$)', fat],
-        ['Impostos NF (R$)', imp],
-        ['Receita Líquida (R$)', fat - imp],
+        [`Impostos NF (${impPct}%) (R$)`, imp],
+        ['Receita Líquida pós-NF (R$)', fat - imp],
         ['Total Repasse Profissionais (R$)', sumRepasseAll],
         ['Margem de Contribuição (R$)', fat - imp - sumRepasseAll],
         ['Custos Fixos Paulista (R$)', fixP],
         ['Custos Fixos Granja Viana (R$)', fixG],
         ['Custos Variáveis Operacionais (R$)', varO],
-        ['Resultado Operacional Líquido (R$)', resLiq],
-        ['Margem Líquida (%)', fat > 0 ? Number(((resLiq / fat) * 100).toFixed(2)) : 0]
+        ['EBITDA / Lucro Líquido Real (R$)', resLiq],
+        ['EBITDA / Margem Líquida (%)', fat > 0 ? Number(((resLiq / fat) * 100).toFixed(2)) : 0]
       ]);
       XLSX.utils.book_append_sheet(wb, ws5, 'BPO_Resumo');
 
       // 6. Capacidade_Profissionais
       const ws6 = XLSX.utils.aoa_to_sheet([
-        ['Profissional', 'Unidade', 'Capacidade Mensal', 'Atendimentos Realizados', 'Horários Ociosos', 'Ocupação (%)'],
+        ['Profissional', 'Unidade', 'Regime de Atendimento', 'Capacidade Real Mensal', 'Atendimentos Realizados', 'Vagas Disponíveis', 'Ocupação Real (%)'],
         ...allProfs.map(p => {
           const cap = Number(p.capacidade_agenda) || 120;
           const atd = Number(p.atendimentos_total) || 0;
-          return [p.profissional, p.unidade, cap, atd, Math.max(0, cap - atd), cap > 0 ? Math.round((atd / cap) * 100) : 0];
+          return [p.profissional, p.unidade, p.regime_atendimento || 'Individual (1 pac/horário)', cap, atd, Math.max(0, cap - atd), cap > 0 ? Math.round((atd / cap) * 100) : 0];
         })
       ]);
       XLSX.utils.book_append_sheet(wb, ws6, 'Capacidade_Profissionais');
