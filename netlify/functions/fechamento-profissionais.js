@@ -347,7 +347,10 @@ exports.handler = async (event) => {
     await client.connect();
 
     if (action === 'view_recibo') {
-      const token = String((event.queryStringParameters && event.queryStringParameters.token) || body.token || '').trim();
+      let token = String((event.queryStringParameters && event.queryStringParameters.token) || body.token || '').trim();
+      if (token.startsWith('rec_oct26_prof_')) {
+        token = token.replace('rec_oct26_prof_', 'rec_102026_prof_');
+      }
       const recRes = await client.query(`
         SELECT r.*, p.funcao, p.atendimentos_total, p.finalizados, p.nao_compareceu, p.valor_repasse_confirmado,
                p.valor_particular, p.valor_convenio, p.composicao_json, p.observacao_auditoria
@@ -366,7 +369,14 @@ exports.handler = async (event) => {
       }
 
       const rec = recRes.rows[0];
-      const valorFinal = Number(rec.valor_liquido_recibo || rec.valor_repasse_confirmado || 0);
+      const isClt = rec.tipo_documento === 'CLT' || !rec.profissional_id;
+      const brutoRpa = Number(rec.rpa_valor_bruto || rec.valor_repasse_confirmado || rec.valor_liquido_recibo || 0);
+      const inssRpa = Number(rec.rpa_inss || 0);
+      const irrfRpa = Number(rec.rpa_irrf || 0);
+      const issRpa = Number(rec.rpa_iss || 0);
+      const outrosDesc = Number(rec.rpa_outros_descontos || 0);
+      const totalDescontos = inssRpa + irrfRpa + issRpa + outrosDesc;
+      const liquidoRpa = Number(rec.rpa_valor_liquido || rec.valor_liquido_recibo || rec.valor_repasse_confirmado || 0);
       const compList = Array.isArray(rec.composicao_json) ? rec.composicao_json : [];
 
       const htmlPage = `<!DOCTYPE html>
@@ -376,67 +386,85 @@ exports.handler = async (event) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recibo & Demonstrativo Individual - ${rec.nome_curto || rec.profissional_nome} (${rec.competencia})</title>
   <style>
-    @page { size: A4 portrait; margin: 12mm; }
+    @page { size: A4 portrait; margin: 10mm; }
     * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
-    body { margin: 0; padding: 20px; background: #F4F1F8; color: #1F2933; }
-    .sheet { max-width: 820px; margin: 0 auto; background: #fff; border-radius: 14px; padding: 26px; box-shadow: 0 10px 30px rgba(73,52,119,0.12); border-top: 6px solid #493477; }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; background: #1F2933; color: #fff; padding: 10px 16px; border-radius: 10px; }
-    .header { background: #493477; color: #fff; padding: 18px 22px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid #1DAAA9; }
-    .header h1 { margin: 0; font-size: 18px; }
-    .header .sub { margin-top: 4px; font-size: 12.5px; color: #E2DCF0; }
-    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
-    .kpi { background: #F4F1F8; border: 1px solid #D8CEE8; border-top: 3px solid #493477; border-radius: 8px; padding: 10px 12px; }
-    .kpi .lbl { font-size: 10px; text-transform: uppercase; color: #667085; font-weight: 700; }
-    .kpi .val { font-size: 18px; font-weight: 800; color: #493477; margin-top: 4px; }
-    .sec { background: #493477; color: #fff; padding: 7px 12px; font-size: 11.5px; font-weight: 800; border-radius: 6px; margin: 16px 0 8px; text-transform: uppercase; }
+    body { margin: 0; padding: 18px; background: #F4F1F8; color: #1F2933; }
+    .sheet { max-width: 860px; margin: 0 auto; background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 10px 30px rgba(73,52,119,0.12); border-top: 6px solid #493477; }
+    .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; background: #1F2933; color: #fff; padding: 10px 16px; border-radius: 10px; }
+    .header { background: #493477; color: #fff; padding: 16px 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid #1DAAA9; }
+    .header h1 { margin: 0; font-size: 17px; }
+    .header .sub { margin-top: 4px; font-size: 12px; color: #E2DCF0; }
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 9px; margin: 14px 0; }
+    .kpi { background: #F4F1F8; border: 1px solid #D8CEE8; border-top: 3px solid #493477; border-radius: 8px; padding: 9px 11px; }
+    .kpi .lbl { font-size: 9.5px; text-transform: uppercase; color: #667085; font-weight: 700; }
+    .kpi .val { font-size: 16.5px; font-weight: 800; color: #493477; margin-top: 3px; }
+    .sec { background: #493477; color: #fff; padding: 7px 12px; font-size: 11px; font-weight: 800; border-radius: 6px; margin: 14px 0 8px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
     table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 12px; }
     th { background: #E8F6F6; padding: 7px 8px; border: 1px solid #D8D2E5; text-align: left; }
     td { padding: 6px 8px; border: 1px solid #D8D2E5; }
-    .cropped-box { border: 2px solid #1DAAA9; border-radius: 10px; padding: 14px; background: #FAF9FC; margin: 14px 0; text-align: center; }
+    .cropped-box { border: 2px solid #1DAAA9; border-radius: 10px; padding: 12px; background: #FAF9FC; margin: 10px 0 14px; text-align: center; }
     .cropped-box img { max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #D8D2E5; }
-    @media print { .no-print { display: none !important; } body { background: #fff; padding: 0; } .sheet { box-shadow: none; padding: 0; } }
+    @media print { .no-print { display: none !important; } body { background: #fff; padding: 0; } .sheet { box-shadow: none; padding: 0; border-top: none; } }
   </style>
 </head>
 <body>
   <div class="sheet">
     <div class="top-bar no-print">
-      <span>📄 <b>Recibo Individual &amp; Demonstrativo Creabily</b> (${rec.competencia})</span>
+      <span>📄 <b>Recibo Oficial ${isClt ? 'CLT' : 'RPA'} &amp; Demonstrativo Creabily</b> (${rec.competencia})</span>
       <button onclick="window.print()" style="background:#1DAAA9; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:800; cursor:pointer;">🖨️ Baixar PDF / Imprimir</button>
     </div>
     <div class="header">
       <div>
-        <h1>CREABILY ARTE DA CURA — RECIBO &amp; FECHAMENTO INDIVIDUAL</h1>
-        <div class="sub">${rec.profissional_nome} • Competência ${rec.competencia} • Unidade ${rec.unidade || 'Paulista'}</div>
+        <h1>CREABILY ARTE DA CURA — ${isClt ? 'RECIBO DE SALÁRIO MENSAL (CLT)' : 'RECIBO RPA &amp; DEMONSTRATIVO INDIVIDUAL'}</h1>
+        <div class="sub">${rec.profissional_nome} • Competência ${rec.competencia} • Unidade ${rec.unidade === 'Granja/Jandira' ? 'Granja Viana (CNPJ 13.504.275/0002-95)' : 'Av. Paulista (CNPJ 13.504.275/0001-04)'}</div>
       </div>
       <div style="text-align:right;">
-        <div style="font-size:11px; color:#E2DCF0;">Origem</div>
-        <div style="font-size:12px; font-weight:800; color:#1DAAA9; background:#fff; padding:3px 10px; border-radius:999px; margin-top:3px;">${rec.pagina_aba_origem || 'Recibo Individual'}</div>
+        <div style="font-size:10.5px; color:#E2DCF0;">Documento Oficial</div>
+        <div style="font-size:12px; font-weight:800; color:#493477; background:#fff; padding:3px 10px; border-radius:999px; margin-top:3px;">${rec.pagina_aba_origem || (rec.rpa_numero_recibo ? `RPA Nº ${rec.rpa_numero_recibo}` : 'Recibo Individual')}</div>
       </div>
     </div>
 
+    ${!isClt ? `
     <div class="kpis">
-      <div class="kpi"><div class="lbl">Atendimentos no Mês</div><div class="val">${rec.atendimentos_total || 0}</div></div>
-      <div class="kpi"><div class="lbl">Finalizados</div><div class="val" style="color:#16A34A;">${rec.finalizados || 0}</div></div>
-      <div class="kpi"><div class="lbl">Não Compareceu (Pago)</div><div class="val" style="color:#D97706;">${rec.nao_compareceu || 0}</div></div>
-      <div class="kpi" style="background:#E8F6F6; border-top-color:#1DAAA9;"><div class="lbl" style="color:#0F766E;">Valor do Recibo / Repasse</div><div class="val" style="color:#0F766E;">R$ ${valorFinal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
+      <div class="kpi"><div class="lbl">Atendimentos Auditados</div><div class="val">${rec.atendimentos_total || 0} <span style="font-size:11px;font-weight:600;color:#16A34A;">(${rec.finalizados || 0} fin. / ${rec.nao_compareceu || 0} faltas)</span></div></div>
+      <div class="kpi"><div class="lbl">Valor Bruto (Serviço Prestado)</div><div class="val">R$ ${brutoRpa.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
+      <div class="kpi"><div class="lbl">(-) INSS + IRRF + ISS (RPA)</div><div class="val" style="color:#DC2626;">- R$ ${totalDescontos.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
+      <div class="kpi" style="background:#ECFDF5; border-top-color:#16A34A;"><div class="lbl" style="color:#15803D;">(=) Valor Líquido a Receber (RPA)</div><div class="val" style="color:#15803D;">R$ ${liquidoRpa.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
     </div>
-
-    ${rec.imagem_data_url ? `
-      <div class="sec">Recibo Oficial da Contabilidade (Recorte Individual — ${rec.pagina_aba_origem || 'Folha'})</div>
-      <div class="cropped-box">
-        <img src="${rec.imagem_data_url}" alt="Recibo Recortado da Contabilidade">
-      </div>
-    ` : ''}
+    ` : `
+    <div class="kpis">
+      <div class="kpi"><div class="lbl">Total de Vencimentos (Bruto)</div><div class="val">R$ ${brutoRpa.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
+      <div class="kpi"><div class="lbl">(-) INSS Retido</div><div class="val" style="color:#DC2626;">- R$ ${inssRpa.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
+      <div class="kpi"><div class="lbl">(-) Outros Descontos (VT/Contrib)</div><div class="val" style="color:#D97706;">- R$ ${outrosDesc.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
+      <div class="kpi" style="background:#ECFDF5; border-top-color:#16A34A;"><div class="lbl" style="color:#15803D;">(=) Líquido a Receber (Holerite)</div><div class="val" style="color:#15803D;">R$ ${liquidoRpa.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div></div>
+    </div>
+    `}
 
     ${rec.conteudo_html ? `
-      <div class="sec">Espelho do Recibo da Contabilidade (${rec.pagina_aba_origem || 'Aba Individual'})</div>
-      <div style="overflow-x:auto; background:#FAF9FC; border:1px solid #D8CEE8; border-radius:8px; padding:10px; margin-bottom:14px;">
+      <div class="sec">
+        <span>Quadros de Valores e Retenções da Contabilidade (${rec.pagina_aba_origem || 'RPA Oficial'})</span>
+        <span>${rec.origem_arquivo || ''}</span>
+      </div>
+      <div style="overflow-x:auto; margin-bottom:12px;">
         ${rec.conteudo_html}
       </div>
     ` : ''}
 
+    ${rec.imagem_data_url ? `
+      <div class="sec">
+        <span>Recibo Oficial da Contabilidade — 1ª e 2ª Via para Assinatura (${rec.pagina_aba_origem || 'Folha'})</span>
+        <span>Prosoft Contabilidade</span>
+      </div>
+      <div class="cropped-box">
+        <img src="${rec.imagem_data_url}" alt="Recibo Oficial da Contabilidade">
+      </div>
+    ` : ''}
+
     ${compList.length > 0 ? `
-      <div class="sec">Composição Detalhada dos Atendimentos (${rec.competencia})</div>
+      <div class="sec">
+        <span>Composição Detalhada dos Atendimentos Auditados na Agenda Ágil (${rec.competencia})</span>
+        <span>Total: ${rec.atendimentos_total || 0} atendimentos</span>
+      </div>
       <table>
         <thead>
           <tr><th>Modalidade / Procedimento</th><th>Convênio</th><th style="text-align:center;">Qtd</th><th style="text-align:right;">Unitário</th><th style="text-align:right;">Total (R$)</th></tr>
@@ -456,7 +484,7 @@ exports.handler = async (event) => {
     ` : ''}
 
     <div style="background:#F4F1F8; border-left:4px solid #1DAAA9; padding:10px 14px; border-radius:6px; font-size:11.5px;">
-      <b>Observação:</b> ${rec.resumo_recibo || rec.observacao_auditoria || 'Conferência individual emitida pelo Sistema Executivo Creabily.'}
+      <b>Resumo Contábil:</b> ${rec.resumo_recibo || rec.observacao_auditoria || 'Conferência individual emitida pelo Sistema Executivo Creabily.'}
     </div>
   </div>
 </body>
@@ -494,8 +522,8 @@ exports.handler = async (event) => {
       // Garantir que cada profissional da competência tenha um registro de recibo individual pronto
       for (const p of profsRes.rows) {
         const tok = `rec_${competencia.replace('/', '')}_prof_${p.id}`;
-        const rep = Number(p.valor_repasse_confirmado) || 0;
-        const resTxt = `${p.atendimentos_total} atendimentos (${p.finalizados} finalizados / ${p.nao_compareceu} faltas) • Repasse: R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+        const rep = Number(p.rpa_valor_liquido || p.valor_repasse_confirmado) || 0;
+        const resTxt = `${p.atendimentos_total} atendimentos (${p.finalizados} finalizados / ${p.nao_compareceu} faltas) • Repasse Bruto: R$ ${(Number(p.valor_repasse_confirmado) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
         await client.query(`
           INSERT INTO public.fechamento_recibos_contabilidade (
             token, competencia, profissional_id, profissional_nome, nome_curto, unidade,
@@ -515,6 +543,8 @@ exports.handler = async (event) => {
         SELECT id, token, competencia, profissional_id, profissional_nome, nome_curto, unidade,
                telefone_whatsapp, origem_arquivo, pagina_aba_origem, valor_liquido_recibo,
                resumo_recibo, status_envio, enviado_em,
+               rpa_numero_recibo, rpa_cpf, rpa_rg, rpa_inss_insc,
+               rpa_valor_bruto, rpa_irrf, rpa_iss, rpa_inss, rpa_outros_descontos, rpa_valor_liquido, tipo_documento,
                (CASE WHEN imagem_data_url IS NOT NULL AND imagem_data_url <> '' THEN true ELSE false END) as tem_imagem,
                (CASE WHEN conteudo_html IS NOT NULL AND conteudo_html <> '' THEN true ELSE false END) as tem_planilha
         FROM public.fechamento_recibos_contabilidade
@@ -592,7 +622,47 @@ exports.handler = async (event) => {
       const compSlug = competencia.replace('/', '');
       const tok = r.token || (profId ? `rec_${compSlug}_prof_${profId}` : `rec_${compSlug}_clt_${Date.now()}_${Math.floor(Math.random() * 1000)}`);
 
-      // Se for profissional vinculado e já tiver um anexo anterior de outro arquivo (ex: subiu Paulista e depois subiu CLT), podemos acumular ou atualizar
+      const rpaBruto = r.rpa_valor_bruto !== undefined && r.rpa_valor_bruto !== null ? parseFloat(r.rpa_valor_bruto) : null;
+      const rpaIrrf = r.rpa_irrf !== undefined && r.rpa_irrf !== null ? parseFloat(r.rpa_irrf) : null;
+      const rpaIss = r.rpa_iss !== undefined && r.rpa_iss !== null ? parseFloat(r.rpa_iss) : null;
+      const rpaInss = r.rpa_inss !== undefined && r.rpa_inss !== null ? parseFloat(r.rpa_inss) : null;
+      const rpaOutros = r.rpa_outros_descontos !== undefined && r.rpa_outros_descontos !== null ? parseFloat(r.rpa_outros_descontos) : null;
+      const rpaLiq = r.rpa_valor_liquido !== undefined && r.rpa_valor_liquido !== null
+        ? parseFloat(r.rpa_valor_liquido)
+        : (r.valor_liquido_recibo ? parseFloat(r.valor_liquido_recibo) : null);
+
+      if (profId && (rpaLiq !== null || rpaBruto !== null)) {
+        await client.query(`
+          UPDATE public.fechamento_profissionais_mensal
+          SET rpa_numero_recibo = COALESCE(NULLIF($1, ''), rpa_numero_recibo),
+              rpa_cpf = COALESCE(NULLIF($2, ''), rpa_cpf),
+              rpa_rg = COALESCE(NULLIF($3, ''), rpa_rg),
+              rpa_inss_insc = COALESCE(NULLIF($4, ''), rpa_inss_insc),
+              rpa_valor_bruto = COALESCE($5, rpa_valor_bruto),
+              rpa_irrf = COALESCE($6, rpa_irrf),
+              rpa_iss = COALESCE($7, rpa_iss),
+              rpa_inss = COALESCE($8, rpa_inss),
+              rpa_outros_descontos = COALESCE($9, rpa_outros_descontos),
+              rpa_valor_liquido = COALESCE($10, rpa_valor_liquido),
+              tipo_documento = COALESCE(NULLIF($11, ''), tipo_documento),
+              updated_at = NOW()
+          WHERE id = $12
+        `, [
+          r.rpa_numero_recibo || '',
+          r.rpa_cpf || '',
+          r.rpa_rg || '',
+          r.rpa_inss_insc || '',
+          rpaBruto,
+          rpaIrrf,
+          rpaIss,
+          rpaInss,
+          rpaOutros,
+          rpaLiq,
+          r.tipo_documento || 'RPA',
+          profId
+        ]);
+      }
+
       const existingRes = await client.query(`SELECT id, origem_arquivo, conteudo_html, imagem_data_url FROM public.fechamento_recibos_contabilidade WHERE token = $1 LIMIT 1`, [tok]);
       if (existingRes.rows.length > 0) {
         const ex = existingRes.rows[0];
@@ -600,7 +670,7 @@ exports.handler = async (event) => {
         let finalImg = r.imagem_data_url || '';
         let finalOrigem = r.origem_arquivo || 'Folha Contabilidade';
 
-        if (r.append_if_exists && (ex.imagem_data_url || ex.conteudo_html)) {
+        if (r.append_if_exists && (ex.imagem_data_url || ex.conteudo_html) && !r.rpa_numero_recibo) {
           const prevBlock = ex.imagem_data_url
             ? `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:#493477;margin-bottom:4px;">📄 ${ex.origem_arquivo || 'Arquivo 1'}</div><img src="${ex.imagem_data_url}" style="max-width:100%;border:1px solid #CBD5E1;border-radius:8px;"></div>`
             : (ex.conteudo_html || '');
@@ -609,7 +679,7 @@ exports.handler = async (event) => {
             : (r.conteudo_html || '');
           finalHtml = prevBlock + newBlock;
           finalImg = '';
-          finalOrigem = ex.origem_arquivo && !ex.origem_arquivo.includes('Gerado Automaticamente')
+          finalOrigem = ex.origem_arquivo && !ex.origem_arquivo.includes('Demonstrativo Oficial')
             ? `${ex.origem_arquivo} + ${r.origem_arquivo}`
             : (r.origem_arquivo || 'Folha Contabilidade');
         }
@@ -621,17 +691,38 @@ exports.handler = async (event) => {
               valor_liquido_recibo = COALESCE($3, valor_liquido_recibo),
               resumo_recibo = COALESCE(NULLIF($4, ''), resumo_recibo),
               conteudo_html = CASE WHEN $5 <> '' THEN $5 ELSE conteudo_html END,
-              imagem_data_url = CASE WHEN $6 <> '' THEN $6 ELSE (CASE WHEN $5 <> '' THEN NULL ELSE imagem_data_url END) END,
+              imagem_data_url = CASE WHEN $6 <> '' THEN $6 ELSE imagem_data_url END,
+              rpa_numero_recibo = COALESCE(NULLIF($7, ''), rpa_numero_recibo),
+              rpa_cpf = COALESCE(NULLIF($8, ''), rpa_cpf),
+              rpa_rg = COALESCE(NULLIF($9, ''), rpa_rg),
+              rpa_inss_insc = COALESCE(NULLIF($10, ''), rpa_inss_insc),
+              rpa_valor_bruto = COALESCE($11, rpa_valor_bruto),
+              rpa_irrf = COALESCE($12, rpa_irrf),
+              rpa_iss = COALESCE($13, rpa_iss),
+              rpa_inss = COALESCE($14, rpa_inss),
+              rpa_outros_descontos = COALESCE($15, rpa_outros_descontos),
+              rpa_valor_liquido = COALESCE($3, rpa_valor_liquido),
+              tipo_documento = COALESCE(NULLIF($16, ''), tipo_documento),
               status_envio = 'RECORTADO_CONTABILIDADE',
               updated_at = NOW()
-          WHERE token = $7
+          WHERE token = $17
         `, [
           finalOrigem,
-          r.pagina_aba_origem || 'Página Recortada',
-          r.valor_liquido_recibo ? parseFloat(r.valor_liquido_recibo) : null,
+          r.pagina_aba_origem || (r.rpa_numero_recibo ? `RPA Nº ${r.rpa_numero_recibo}` : 'Página Recortada'),
+          rpaLiq,
           r.resumo_recibo || r.conteudo_texto || '',
           finalHtml,
           finalImg,
+          r.rpa_numero_recibo || '',
+          r.rpa_cpf || '',
+          r.rpa_rg || '',
+          r.rpa_inss_insc || '',
+          rpaBruto,
+          rpaIrrf,
+          rpaIss,
+          rpaInss,
+          rpaOutros,
+          r.tipo_documento || (profId ? 'RPA' : 'CLT'),
           tok
         ]);
       } else {
@@ -639,8 +730,10 @@ exports.handler = async (event) => {
           INSERT INTO public.fechamento_recibos_contabilidade (
             token, competencia, profissional_id, profissional_nome, nome_curto, unidade,
             telefone_whatsapp, origem_arquivo, pagina_aba_origem, valor_liquido_recibo,
-            resumo_recibo, conteudo_html, imagem_data_url, status_envio
-          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'RECORTADO_CONTABILIDADE')
+            resumo_recibo, conteudo_html, imagem_data_url, status_envio,
+            rpa_numero_recibo, rpa_cpf, rpa_rg, rpa_inss_insc,
+            rpa_valor_bruto, rpa_irrf, rpa_iss, rpa_inss, rpa_outros_descontos, rpa_valor_liquido, tipo_documento
+          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'RECORTADO_CONTABILIDADE',$14,$15,$16,$17,$18,$19,$20,$21,$22,$10,$23)
         `, [
           tok,
           competencia,
@@ -650,11 +743,21 @@ exports.handler = async (event) => {
           r.unidade || 'Paulista',
           r.telefone_whatsapp || '',
           r.origem_arquivo || 'Folha Contabilidade',
-          r.pagina_aba_origem || 'Página Recortada',
-          r.valor_liquido_recibo ? parseFloat(r.valor_liquido_recibo) : 0,
+          r.pagina_aba_origem || (r.rpa_numero_recibo ? `RPA Nº ${r.rpa_numero_recibo}` : 'Página Recortada'),
+          rpaLiq || 0,
           r.resumo_recibo || r.conteudo_texto || '',
           r.conteudo_html || '',
-          r.imagem_data_url || ''
+          r.imagem_data_url || '',
+          r.rpa_numero_recibo || '',
+          r.rpa_cpf || '',
+          r.rpa_rg || '',
+          r.rpa_inss_insc || '',
+          rpaBruto || 0,
+          rpaIrrf || 0,
+          rpaIss || 0,
+          rpaInss || 0,
+          rpaOutros || 0,
+          r.tipo_documento || (profId ? 'RPA' : 'CLT')
         ]);
       }
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true, token: tok }) };

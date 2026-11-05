@@ -7158,19 +7158,45 @@
     // =========================================================
     // MÓDULO EXECUTIVO: FECHAMENTO PROFISSIONAIS & BPO — EXCLUSIVO DIRETORIA
     // =========================================================
-    function calcImpostosRPA(bruto) {
-      const val = Number(bruto) || 0;
+    function calcImpostosRPA(profOrBruto) {
+      if (profOrBruto && typeof profOrBruto === 'object') {
+        const p = profOrBruto;
+        if ((p.rpa_valor_liquido !== null && p.rpa_valor_liquido !== undefined && Number(p.rpa_valor_liquido) > 0) || p.tipo_documento === 'ISENTO_RPA') {
+          const bruto = Number(p.rpa_valor_bruto || p.valor_repasse_confirmado || 0);
+          const inss = Number(p.rpa_inss || 0);
+          const irrf = Number(p.rpa_irrf || 0);
+          const iss = Number(p.rpa_iss || 0);
+          const liquido = Number(p.rpa_valor_liquido || p.valor_repasse_confirmado || 0);
+          return {
+            bruto,
+            inss,
+            irrf,
+            iss,
+            baseIrrf: Math.max(0, Number((bruto - inss).toFixed(2))),
+            liquido,
+            recibo: p.rpa_numero_recibo || '',
+            cpf: p.rpa_cpf || '',
+            inssInsc: p.rpa_inss_insc || '',
+            isOficial: Boolean(p.rpa_numero_recibo),
+            isIsento: p.tipo_documento === 'ISENTO_RPA'
+          };
+        }
+        profOrBruto = p.valor_repasse_confirmado;
+      }
+      const val = Number(profOrBruto) || 0;
       const tetoInss = 8475.55;
       const inss = Number((Math.min(val, tetoInss) * 0.11).toFixed(2));
       const baseIrrf = Math.max(0, val - inss);
       let irrf = 0;
-      if (baseIrrf > 4664.68) irrf = (baseIrrf * 0.275) - 896.00;
-      else if (baseIrrf > 3751.05) irrf = (baseIrrf * 0.225) - 662.77;
-      else if (baseIrrf > 2826.65) irrf = (baseIrrf * 0.15) - 381.44;
-      else if (baseIrrf > 2259.20) irrf = (baseIrrf * 0.075) - 169.44;
+      if (val > 5000) {
+        if (baseIrrf > 4664.68) irrf = (baseIrrf * 0.275) - 908.73;
+        else if (baseIrrf > 3751.05) irrf = (baseIrrf * 0.225) - 675.49;
+        else if (baseIrrf > 2826.65) irrf = (baseIrrf * 0.15) - 394.16;
+        else if (baseIrrf > 2428.80) irrf = (baseIrrf * 0.075) - 182.16;
+      }
       irrf = Math.max(0, Number(irrf.toFixed(2)));
       const liquido = Number((val - inss - irrf).toFixed(2));
-      return { bruto: val, inss, baseIrrf: Number(baseIrrf.toFixed(2)), irrf, liquido };
+      return { bruto: val, inss, irrf, iss: 0, baseIrrf: Number(baseIrrf.toFixed(2)), liquido, recibo: '', cpf: '', inssInsc: '', isOficial: false, isIsento: false };
     }
 
     async function loadFechamentoData(forceToast = false) {
@@ -7421,7 +7447,7 @@
       let sumIrrfAll = 0;
       let sumLiquidoRpaAll = 0;
       allProfs.forEach(p => {
-        const rpa = calcImpostosRPA(p.valor_repasse_confirmado);
+        const rpa = calcImpostosRPA(p);
         sumInssAll += rpa.inss;
         sumIrrfAll += rpa.irrf;
         sumLiquidoRpaAll += rpa.liquido;
@@ -7850,7 +7876,7 @@
                     ` : filteredProfs.map(p => {
                       const rep = Number(p.valor_repasse_confirmado) || 0;
                       const calc = Number(p.valor_repasse_calculado) || 0;
-                      const rpa = calcImpostosRPA(rep);
+                      const rpa = calcImpostosRPA(p);
                       const cap = Number(p.capacidade_agenda) || 120;
                       const atd = Number(p.atendimentos_total) || 0;
                       const ocup = cap > 0 ? Math.min(100, Math.round((atd / cap) * 100)) : 0;
@@ -7884,8 +7910,15 @@
                             ${hasDiff ? `<div style="font-size:10px; color:#B45309;">Planilha: R$ ${calc.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>` : ''}
                           </td>
                           <td style="text-align:right; font-weight:700; color:#047857;">
-                            R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                            <div style="font-size:10px; color:var(--text-3);">INSS: R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                            <div style="font-weight:800; font-size:13.5px;">R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                            ${rpa.isOficial ? `
+                              <div style="font-size:10px; color:#15803D; font-weight:800;">✅ RPA Nº ${esc(rpa.recibo)}</div>
+                              <div style="font-size:9.5px; color:var(--text-3);">INSS: R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}${rpa.irrf > 0 ? ' • IRRF: R$ ' + rpa.irrf.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}${rpa.iss > 0 ? ' • ISS: R$ ' + rpa.iss.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}</div>
+                            ` : rpa.isIsento ? `
+                              <div style="font-size:10px; color:#493477; font-weight:700;">Demonstrativo Integral</div>
+                            ` : `
+                              <div style="font-size:10px; color:var(--text-3);">INSS: R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}${rpa.irrf > 0 ? ' • IRRF: R$ ' + rpa.irrf.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}</div>
+                            `}
                           </td>
                           <td style="text-align:center;">
                             <span style="display:inline-block; padding:3px 8px; border-radius:6px; font-size:10.5px; font-weight:800; background:${p.status_auditoria === 'REVISAR DIVERGÊNCIA' ? '#FEF3C7' : '#DCFCE7'}; color:${p.status_auditoria === 'REVISAR DIVERGÊNCIA' ? '#B45309' : '#166534'};">
@@ -7893,8 +7926,11 @@
                             </span>
                           </td>
                           <td style="text-align:center; white-space:nowrap;">
-                            <button class="btn-agente" style="padding:4px 8px; font-size:11px; background:#16A34A; color:#fff; border-color:#16A34A;" onclick="sendReciboWhatsapp1ClickByProf(${p.id})" title="Opção B: Abrir WhatsApp com o link do Recibo Individual Recortado deste profissional">
+                            <button class="btn-agente" style="padding:4px 8px; font-size:11px; background:#16A34A; color:#fff; border-color:#16A34A;" onclick="sendReciboWhatsapp1ClickByProf(${p.id})" title="Opção B: Abrir WhatsApp com os dados oficiais do RPA + link do Recibo Individual Recortado">
                               📲 WhatsApp
+                            </button>
+                            <button class="btn-agente" style="padding:4px 8px; font-size:11px; background:#F4F1F8; color:#493477; border-color:#D8CEE8;" onclick="openReciboIndividualUrl(${p.id})" title="Visualizar o Recibo RPA Oficial da Contabilidade + Demonstrativo">
+                              👁️ RPA
                             </button>
                             <button class="btn-agente" style="padding:4px 8px; font-size:11px; background:#493477; color:#fff; border-color:#493477;" onclick="exportProfissionalFolderPdf(${p.id})" title="Gerar Folder PDF Executivo Individual da Creabily">
                               📄 Folder PDF
@@ -7920,22 +7956,102 @@
                       <td style="text-align:right; color:#6D28D9;">R$ ${filteredProfs.reduce((a,b)=>a+(Number(b.valor_particular)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                       <td style="text-align:right; color:#0369A1;">R$ ${filteredProfs.reduce((a,b)=>a+(Number(b.valor_convenio)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                       <td style="text-align:right; color:#493477; font-size:14px;">R$ ${filteredProfs.reduce((a,b)=>a+(Number(b.valor_repasse_confirmado)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      <td style="text-align:right; color:#047857;">R$ ${filteredProfs.reduce((a,b)=>a+calcImpostosRPA(b.valor_repasse_confirmado).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; color:#047857;">R$ ${filteredProfs.reduce((a,b)=>a+calcImpostosRPA(b).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                       <td colspan="2"></td>
                     </tr>
                   </tfoot>
                 </table>
               </div>
             </div>
+
+            ${(() => {
+              const cltList = allRecibos.filter(r => !r.profissional_id && (r.tem_imagem || r.tem_planilha || r.imagem_data_url || r.conteudo_html || r.tipo_documento === 'CLT'));
+              const filteredClt = cltList.filter(c => {
+                if (fechamentoUnidadeFilter !== 'all' && c.unidade !== fechamentoUnidadeFilter) return false;
+                if (!q) return true;
+                return `${c.profissional_nome} ${c.nome_curto} ${c.unidade} ${c.resumo_recibo}`.toLowerCase().includes(q);
+              });
+              if (filteredClt.length === 0) return '';
+              return `
+                <div class="agente-table-card" style="margin-top:16px;">
+                  <div style="padding:12px 16px; background:linear-gradient(90deg,#EFF6FF,#ECFDF5); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div style="font-size:12.5px; font-weight:800; color:#0369A1;">
+                      📋 FOLHA DE SALÁRIO MENSAL CLT (ADMINISTRATIVO &amp; RECEPÇÃO) — ${filteredClt.length} COLABORADORAS (${esc(fechamentoCompetencia)})
+                    </div>
+                    <div style="font-size:11.5px; color:#0F766E; font-weight:700;">
+                      Holerites oficiais da Contabilidade Prosoft (Av. Paulista &amp; Granja Viana) prontos para impressão ou envio em 1 clique
+                    </div>
+                  </div>
+                  <div class="agente-table-scroll">
+                    <table class="agente-table">
+                      <thead>
+                        <tr style="background:#F0F9FF;">
+                          <th style="color:#0369A1;">UNIDADE</th>
+                          <th style="color:#0369A1;">COLABORADORA / FUNÇÃO (CLT)</th>
+                          <th style="color:#0369A1;">CPF / REGISTRO</th>
+                          <th style="color:#0369A1; text-align:right;">TOTAL VENCIMENTOS</th>
+                          <th style="color:#0369A1; text-align:right;">(-) INSS RETIDO</th>
+                          <th style="color:#0369A1; text-align:right;">(-) VT / CONTRIB.</th>
+                          <th style="color:#0369A1; text-align:right;">(=) LÍQUIDO HOLERITE</th>
+                          <th style="color:#0369A1;">WHATSAPP</th>
+                          <th style="color:#0369A1; text-align:center;">AÇÕES 1-CLIQUE</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${filteredClt.map(c => {
+                          const isGranja = c.unidade === 'Granja/Jandira';
+                          const bruto = Number(c.rpa_valor_bruto || c.valor_liquido_recibo || 0);
+                          const inss = Number(c.rpa_inss || 0);
+                          const outros = Number(c.rpa_outros_descontos || 0);
+                          const liq = Number(c.rpa_valor_liquido || c.valor_liquido_recibo || 0);
+                          return `
+                            <tr>
+                              <td>
+                                <span style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:800; background:${isGranja ? '#CCFBF1' : '#DBEAFE'}; color:${isGranja ? '#0F766E' : '#1D4ED8'};">
+                                  ${isGranja ? '🌿 Granja Viana' : '🏙️ Av. Paulista'}
+                                </span>
+                              </td>
+                              <td>
+                                <div style="font-weight:800; color:var(--text); font-size:13px;">${esc(c.nome_curto || c.profissional_nome)}</div>
+                                <div style="font-size:10.5px; color:var(--text-3);">${esc(c.origem_arquivo || 'Holerite CLT')}</div>
+                              </td>
+                              <td style="font-size:11.5px; font-weight:700; color:var(--text-2);">
+                                CPF: ${esc(c.rpa_cpf || '-')}
+                                <div style="font-size:10px; color:#0369A1;">Reg. Nº ${esc(c.rpa_numero_recibo || '00001')}</div>
+                              </td>
+                              <td style="text-align:right; font-weight:800; color:#1E293B;">R$ ${bruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                              <td style="text-align:right; font-weight:700; color:#DC2626;">- R$ ${inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                              <td style="text-align:right; font-weight:700; color:#D97706;">- R$ ${outros.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                              <td style="text-align:right; font-weight:800; font-size:13.5px; color:#15803D;">R$ ${liq.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                              <td style="min-width:155px;">
+                                <input type="tel" class="input" style="height:30px; font-size:11.5px; padding:3px 7px;" placeholder="(11) 99999-9999" value="${esc(c.telefone_whatsapp || '')}" onchange="saveExtraReciboMeta('${esc(c.token)}', null, this.value)">
+                              </td>
+                              <td style="text-align:center; white-space:nowrap;">
+                                <button class="btn-agente" style="padding:4px 9px; font-size:11px; background:#16A34A; color:#fff; border-color:#16A34A;" onclick="sendExtraReciboWhatsapp1Click('${esc(c.token)}')">
+                                  📲 WhatsApp
+                                </button>
+                                <button class="btn-agente" style="padding:4px 9px; font-size:11px; background:#F0F9FF; color:#0369A1; border-color:#BAE6FD;" onclick="window.open('${window.location.origin}/.netlify/functions/fechamento-profissionais?action=view_recibo&token=${encodeURIComponent(c.token)}', '_blank')">
+                                  👁️ Ver Holerite
+                                </button>
+                              </td>
+                            </tr>
+                          `;
+                        }).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              `;
+            })()}
           ` : ''}
 
           ${fechamentoTab === 'recibos_wa' ? (() => {
-            const extraCltRecibos = allRecibos.filter(r => !r.profissional_id && (r.imagem_data_url || r.conteudo_html));
-            const anexadosCount = allRecibos.filter(r => r.imagem_data_url || r.conteudo_html).length;
+            const extraCltRecibos = allRecibos.filter(r => !r.profissional_id && (r.tem_imagem || r.tem_planilha || r.imagem_data_url || r.conteudo_html || r.tipo_documento === 'CLT'));
+            const anexadosCount = allRecibos.filter(r => r.tem_imagem || r.tem_planilha || r.imagem_data_url || r.conteudo_html || r.rpa_numero_recibo).length;
             const origensUnicas = Array.from(new Set(
               allRecibos
                 .map(r => String(r.origem_arquivo || '').trim())
-                .filter(o => o && !o.includes('Gerado Automaticamente'))
+                .filter(o => o && !o.includes('Gerado Automaticamente') && !o.includes('Demonstrativo Oficial'))
             ));
             return `
             <!-- ABA ESPECIAL: CORTADOR INTELIGENTE DE VÁRIOS ARQUIVOS DA CONTABILIDADE + DISPARO WHATSAPP 1-CLIQUE -->
@@ -7949,10 +8065,10 @@
                     Subir Vários Arquivos da Contabilidade &amp; Disparar no WhatsApp
                   </h3>
                   <p style="margin:0 0 10px; font-size:12.5px; color:var(--text-2); line-height:1.5;">
-                    Você pode subir <b>todos os arquivos da Contabilidade de uma só vez</b> (ex: os <b>4 arquivos: Paulista, Granja e os de CLT</b>) ou enviar um por um. O sistema acumula todos os arquivos, identifica cada profissional/colaborador automaticamente, recorta a página/aba de cada um e libera o envio individual em <b>1 clique no WhatsApp</b>.
+                    Você pode subir <b>todos os arquivos da Contabilidade de uma só vez</b> (ex: os <b>arquivos de RPA Paulista, RPA Granja e os Holerites CLT</b>) ou enviar um por um. O sistema extrai automaticamente os <b>valores oficiais do RPA/Holerite (Bruto, INSS, IRRF, ISS e Líquido)</b>, recorta a página de cada um e libera o envio individual em <b>1 clique no WhatsApp</b>.
                   </p>
                   <div id="contab-upload-status" style="font-size:11.5px; font-weight:800; color:#0F766E; background:#E6F7F7; padding:8px 12px; border-radius:8px; display:inline-block;">
-                    ✅ ${allProfs.length} links de profissionais + ${extraCltRecibos.length} holerites CLT/extras • ${anexadosCount} recibo(s) recortado(s) da Contabilidade
+                    ✅ ${allProfs.length} links de profissionais + ${extraCltRecibos.length} holerites CLT • ${anexadosCount} recibo(s) oficial(is) da Contabilidade carregado(s)
                   </div>
                 </div>
 
@@ -7984,8 +8100,8 @@
 
               ${origensUnicas.length > 0 ? `
                 <div style="margin-bottom:14px; padding:10px 14px; background:#FAF8FC; border:1px solid #D8CEE8; border-radius:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                  <span style="font-size:11px; font-weight:800; color:#493477;">📁 Páginas / Abas já recortadas neste mês (${origensUnicas.length}):</span>
-                  ${origensUnicas.slice(0, 14).map(or => `
+                  <span style="font-size:11px; font-weight:800; color:#493477;">📁 Páginas / Recibos Oficiais já recortados neste mês (${origensUnicas.length}):</span>
+                  ${origensUnicas.slice(0, 22).map(or => `
                     <span style="font-size:10.5px; font-weight:700; background:#fff; border:1px solid #CBD5E1; color:#334155; padding:2px 8px; border-radius:999px;">
                       📄 ${esc(or)}
                     </span>
@@ -7999,20 +8115,21 @@
                     <tr style="background:#F0FDF4;">
                       <th style="color:#166534;">UNIDADE</th>
                       <th style="color:#166534;">PROFISSIONAL</th>
-                      <th style="color:#166534; text-align:right;">REPASSE BRUTO</th>
-                      <th style="color:#166534; text-align:right;">LÍQUIDO PÓS-RPA</th>
-                      <th style="color:#166534; text-align:center;">STATUS DO RECIBO RECORTADO</th>
-                      <th style="color:#166534;">WHATSAPP DO PROFISSIONAL (SALVA AUTOMÁTICO)</th>
-                      <th style="color:#166534; text-align:center;">VER / ANEXAR RECIBO</th>
+                      <th style="color:#166534; text-align:right;">BRUTO (SERVIÇO)</th>
+                      <th style="color:#166534; text-align:right;">RETENÇÕES RPA (INSS/IRRF/ISS)</th>
+                      <th style="color:#166534; text-align:right;">LÍQUIDO OFICIAL RPA</th>
+                      <th style="color:#166534; text-align:center;">RECIBO RECORTADO</th>
+                      <th style="color:#166534;">WHATSAPP DO PROFISSIONAL</th>
+                      <th style="color:#166534; text-align:center;">VER / ANEXAR</th>
                       <th style="color:#166534; text-align:center;">OPÇÃO B: ENVIAR 1-CLIQUE</th>
                     </tr>
                   </thead>
                   <tbody>
                     ${filteredProfs.map(p => {
                       const rep = Number(p.valor_repasse_confirmado) || 0;
-                      const rpa = calcImpostosRPA(rep);
+                      const rpa = calcImpostosRPA(p);
                       const rec = reciboByProfId[p.id] || {};
-                      const hasAnexoContab = Boolean(rec.imagem_data_url || rec.conteudo_html);
+                      const hasAnexoContab = Boolean(rec.tem_imagem || rec.tem_planilha || rec.imagem_data_url || rec.conteudo_html || rec.rpa_numero_recibo);
                       const isGranja = p.unidade === 'Granja/Jandira';
                       const waVal = p.telefone_whatsapp || rec.telefone_whatsapp || '';
                       return `
@@ -8029,13 +8146,21 @@
                           <td style="text-align:right; font-weight:800; color:#493477; font-size:13px;">
                             R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </td>
-                          <td style="text-align:right; font-weight:700; color:#047857; font-size:13px;">
+                          <td style="text-align:right; font-size:11px; color:#DC2626; font-weight:700;">
+                            ${rpa.isIsento ? `<span style="color:#493477;">Isento / Integral</span>` : `
+                              INSS: R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              ${rpa.irrf > 0 ? `<br>IRRF: R$ ${rpa.irrf.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : ''}
+                              ${rpa.iss > 0 ? `<br>ISS: R$ ${rpa.iss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : ''}
+                            `}
+                          </td>
+                          <td style="text-align:right; font-weight:800; color:#15803D; font-size:13.5px;">
                             R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            ${rpa.recibo ? `<div style="font-size:10px; color:#0F766E;">RPA Nº ${esc(rpa.recibo)}</div>` : ''}
                           </td>
                           <td style="text-align:center;">
                             ${hasAnexoContab ? `
                               <span style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:800; background:#DCFCE7; color:#166534;">
-                                ✂️ Recibo Contabilidade Anexado (${esc(rec.origem_arquivo || 'Recortado')})
+                                ✂️ ${esc(rec.origem_arquivo || 'RPA Anexado')}
                               </span>
                             ` : `
                               <span style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:800; background:#E6F7F7; color:#0F766E;">
@@ -8043,7 +8168,7 @@
                               </span>
                             `}
                           </td>
-                          <td style="min-width:175px;">
+                          <td style="min-width:165px;">
                             <input type="tel" class="input" style="height:32px; font-size:12px; padding:4px 8px;" placeholder="Ex: (11) 99999-9999" value="${esc(waVal)}" onchange="saveWhatsappProf(${p.id}, this.value)">
                           </td>
                           <td style="text-align:center; white-space:nowrap;">
@@ -8072,42 +8197,49 @@
                 <!-- TABELA AUTOMÁTICA PARA HOLERITES CLT E RECIBOS EXTRAS RECORTADOS DOS ARQUIVOS -->
                 <div style="margin-top:22px; padding-top:16px; border-top:2px dashed #CBD5E1;">
                   <h4 style="margin:0 0 6px; font-size:15px; color:#493477;">
-                    📋 Holerites CLT &amp; Recibos Extras Recortados (${extraCltRecibos.length})
+                    📋 Holerites de Salário Mensal CLT &amp; Recibos Extras (${extraCltRecibos.length})
                   </h4>
                   <p style="margin:0 0 12px; font-size:12px; color:var(--text-2);">
-                    Páginas ou abas dos arquivos de <b>CLT / Contabilidade</b> de colaboradores que não estavam na lista dos 22 profissionais (ou cujo nome estava abreviado). Você pode enviar direto no WhatsApp em 1 clique ou vincular a um profissional da tabela acima:
+                    Holerites de salário mensal (CLT) da Recepção e Administrativo (Av. Paulista e Granja Viana). Clique em <b>👁️ Ver Recorte</b> para abrir o holerite de 2 vias ou <b>📲 Enviar 1-Clique</b> para disparar no WhatsApp:
                   </p>
                   <div class="agente-table-scroll">
                     <table class="agente-table">
                       <thead>
                         <tr style="background:#F4F1F8;">
-                          <th style="color:#493477;">ARQUIVO / PÁGINA RECORTADA</th>
-                          <th style="color:#493477;">NOME DO COLABORADOR (CLT / EXTRA)</th>
-                          <th style="color:#493477;">VINCULAR A UM PROFISSIONAL</th>
-                          <th style="color:#493477;">WHATSAPP DO COLABORADOR</th>
-                          <th style="color:#493477; text-align:center;">VER RECIBO</th>
+                          <th style="color:#493477;">UNIDADE / ARQUIVO</th>
+                          <th style="color:#493477;">COLABORADORA (CLT)</th>
+                          <th style="color:#493477; text-align:right;">VENCIMENTOS</th>
+                          <th style="color:#493477; text-align:right;">DESCONTOS (INSS/VT)</th>
+                          <th style="color:#493477; text-align:right;">LÍQUIDO A RECEBER</th>
+                          <th style="color:#493477;">WHATSAPP DA COLABORADORA</th>
+                          <th style="color:#493477; text-align:center;">VER HOLERITE</th>
                           <th style="color:#493477; text-align:center;">ENVIAR 1-CLIQUE</th>
                         </tr>
                       </thead>
                       <tbody>
-                        ${extraCltRecibos.map(ex => `
+                        ${extraCltRecibos.map(ex => {
+                          const brutoClt = Number(ex.rpa_valor_bruto || ex.valor_liquido_recibo || 0);
+                          const descClt = Number(ex.rpa_inss || 0) + Number(ex.rpa_outros_descontos || 0);
+                          const liqClt = Number(ex.rpa_valor_liquido || ex.valor_liquido_recibo || 0);
+                          return `
                           <tr>
-                            <td style="font-size:11.5px; font-weight:700; color:#0F766E;">📄 ${esc(ex.origem_arquivo || 'Arquivo CLT')}</td>
+                            <td style="font-size:11.5px; font-weight:700; color:#0F766E;">
+                              <div>${ex.unidade === 'Granja/Jandira' ? '🌿 Granja Viana' : '🏙️ Av. Paulista'}</div>
+                              <div style="font-size:10px; color:var(--text-3);">📄 ${esc(ex.origem_arquivo || 'Arquivo CLT')}</div>
+                            </td>
                             <td>
                               <input type="text" class="input" style="height:30px; font-size:12px; font-weight:700;" value="${esc(ex.nome_curto || ex.profissional_nome || '')}" onchange="saveExtraReciboMeta('${esc(ex.token)}', this.value, null)">
+                              <div style="font-size:10px; color:var(--text-3); margin-top:2px;">CPF: ${esc(ex.rpa_cpf || '-')} • Reg: ${esc(ex.rpa_numero_recibo || '-')}</div>
                             </td>
-                            <td>
-                              <select class="agente-filter-select" style="height:30px; font-size:11.5px;" onchange="if(this.value) linkExtraReciboToProf('${esc(ex.token)}', this.value)">
-                                <option value="">🔗 Manter como CLT / Separado...</option>
-                                ${allProfs.map(pr => `<option value="${pr.id}">Vincular a ${esc(pr.nome_curto || pr.profissional)} (${esc(pr.unidade)})</option>`).join('')}
-                              </select>
-                            </td>
+                            <td style="text-align:right; font-weight:800; color:#1E293B;">R$ ${brutoClt.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                            <td style="text-align:right; font-weight:700; color:#DC2626;">- R$ ${descClt.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                            <td style="text-align:right; font-weight:800; font-size:13.5px; color:#15803D;">R$ ${liqClt.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                             <td>
                               <input type="tel" class="input" style="height:30px; font-size:12px;" placeholder="(11) 99999-9999" value="${esc(ex.telefone_whatsapp || '')}" onchange="saveExtraReciboMeta('${esc(ex.token)}', null, this.value)">
                             </td>
                             <td style="text-align:center; white-space:nowrap;">
                               <button class="btn-agente" style="padding:4px 9px; font-size:11px;" onclick="window.open('${window.location.origin}/.netlify/functions/fechamento-profissionais?action=view_recibo&token=${encodeURIComponent(ex.token)}', '_blank')">
-                                👁️ Ver Recorte
+                                👁️ Ver Holerite
                               </button>
                               <button class="btn-agente" style="padding:4px 8px; font-size:11px; color:#DC2626;" onclick="deleteExtraRecibo('${esc(ex.token)}')" title="Remover recorte">🗑️</button>
                             </td>
@@ -8117,7 +8249,8 @@
                               </button>
                             </td>
                           </tr>
-                        `).join('')}
+                        `;
+                        }).join('')}
                       </tbody>
                     </table>
                   </div>
@@ -8251,9 +8384,9 @@
                       <td style="text-align:right; font-weight:800;">R$ ${(sumAtendAll > 0 ? sumRepasseAll / sumAtendAll : 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                     </tr>
                     <tr>
-                      <td style="font-weight:700;">Líquido Pós-RPA (INSS 11% + IRRF)</td>
-                      <td style="text-align:right; color:#047857; font-weight:700;">R$ ${profsPaulista.reduce((a,b)=>a+calcImpostosRPA(b.valor_repasse_confirmado).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-                      <td style="text-align:right; color:#047857; font-weight:700;">R$ ${profsGranja.reduce((a,b)=>a+calcImpostosRPA(b.valor_repasse_confirmado).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="font-weight:700;">Líquido Pós-RPA (INSS 11% + IRRF + ISS)</td>
+                      <td style="text-align:right; color:#047857; font-weight:700;">R$ ${profsPaulista.reduce((a,b)=>a+calcImpostosRPA(b).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; color:#047857; font-weight:700;">R$ ${profsGranja.reduce((a,b)=>a+calcImpostosRPA(b).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                       <td style="text-align:right; color:#047857; font-weight:800;">R$ ${sumLiquidoRpaAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
                     </tr>
                   </tbody>
@@ -8456,24 +8589,40 @@
       const token = getReciboTokenForProf(profId);
       const reciboUrl = `${window.location.origin}/.netlify/functions/fechamento-profissionais?action=view_recibo&token=${encodeURIComponent(token)}`;
       const rep = Number(p.valor_repasse_confirmado) || 0;
-      const rpa = calcImpostosRPA(rep);
+      const rpa = calcImpostosRPA(p);
       const nomeCurto = p.nome_curto || p.profissional;
+      const unidLabel = p.unidade === 'Granja/Jandira' ? 'Unidade Granja Viana' : 'Unidade Av. Paulista';
 
       let digits = String(p.telefone_whatsapp || '').replace(/\D/g, '');
       if (digits && !digits.startsWith('55') && digits.length >= 10) {
         digits = '55' + digits;
       }
 
-      const msg = [
-        `Olá, *${nomeCurto}*! Tudo bem? 💜`,
-        ``,
-        `Segue o seu *Recibo e Demonstrativo Individual de Fechamento Creabily* referente à competência *${fechamentoCompetencia}* (${p.unidade === 'Granja/Jandira' ? 'Unidade Granja Viana' : 'Unidade Av. Paulista'}):`,
-        ``,
+      const rpaLines = rpa.isIsento ? [
+        `*DADOS DO DEMONSTRATIVO:*`,
         `• *Atendimentos Auditados:* ${p.atendimentos_total || 0} (${p.finalizados || 0} finalizados + ${p.nao_compareceu || 0} faltas pagas)`,
-        `• *Repasse Bruto Total:* R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        `• *Líquido Pós-RPA Estimado:* R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *Valor Total a Receber:* *R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}*`
+      ] : [
+        `*1. RESUMO DOS ATENDIMENTOS (AGENDA ÁGIL):*`,
+        `• *Atendimentos Auditados:* ${p.atendimentos_total || 0} (${p.finalizados || 0} finalizados + ${p.nao_compareceu || 0} faltas pagas)`,
+        `• *Repasse Bruto Apurado:* R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
         ``,
-        `📄 *Acesse / Baixe seu Recibo Individual Exclusivo aqui:*`,
+        `*2. DADOS OFICIAIS DO SEU RPA (CONTABILIDADE${rpa.recibo ? ' - RECIBO Nº ' + rpa.recibo : ''}):*`,
+        `• *Valor do Serviço Prestado (Bruto):* R$ ${rpa.bruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *(-) INSS Segurado Retido:* R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *(-) I.R.R.F. Retido:* R$ ${rpa.irrf.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *(-) ISS Retido:* R$ ${rpa.iss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *(=) VALOR LÍQUIDO A RECEBER:* *R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}*`
+      ];
+
+      const msg = [
+        `Olá, *${nomeCurto}*! Tudo bem?`,
+        ``,
+        `Segue o seu *Recibo RPA e Demonstrativo Individual de Fechamento Creabily* referente à competência *${fechamentoCompetencia}* (${unidLabel}):`,
+        ``,
+        ...rpaLines,
+        ``,
+        `*Acesse / Baixe seu Recibo RPA Individual + Demonstrativo aqui:*`,
         reciboUrl,
         ``,
         `Qualquer dúvida estou à disposição!`,
@@ -8491,69 +8640,147 @@
       });
     }
 
-    function matchProfissionalByText(rawText) {
+    function parseProsoftAccountingPage(rawText) {
+      const text = String(rawText || '').replace(/\s+/g, ' ');
+      const parseBrl = (s) => {
+        if (!s) return 0;
+        const clean = String(s).replace(/\./g, '').replace(',', '.').replace(/[^\d.-]/g, '');
+        const n = parseFloat(clean);
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      const isRpa = /AUT[ÔO]NOMO|R\s*P\s*A|SERVI[ÇC]O\s+PRESTADO/i.test(text);
+      const isClt = /SAL[ÁA]RIO\s+MENSAL|Vencimentos|L\s*[ÍI]\s*Q\s*U\s*I\s*D\s*O\s+A\s+R\s*E\s*C\s*E\s*B\s*E\s*R/i.test(text);
+
+      const cpfMatch = text.match(/\b(\d{3}\.\d{3}\.\d{3}-\d{2})\b/);
+      const cpf = cpfMatch ? cpfMatch[1] : '';
+
+      const inssInscMatch = text.match(/INSS\.+:\s*(\d{10,12})/i) || text.match(/\b(\d{11})\s+Conta-FGTS/i);
+      const inssInsc = inssInscMatch ? inssInscMatch[1] : '';
+
+      const rgMatch = text.match(/RG\.+:\s*([0-9.\-X+]+)/i);
+      const rg = rgMatch ? rgMatch[1].trim() : '';
+
+      const recNumMatch = text.match(/\b(000\d{3})\b/) || text.match(/\b(000\d{2})\b/);
+      const reciboNum = recNumMatch ? recNumMatch[1] : '';
+
+      if (isRpa) {
+        const liqImpMatch = text.match(/import[âa]ncia\s+de\s+R\$\s*([\d.,]+)/i);
+        const issMatch = text.match(/ISS\s+retido\s+([\d.,]+)/i);
+        const inssValMatch = text.match(/INSS\s+Segurado\.?\s+([\d.,]+)/i);
+
+        // Extract all monetary numbers in format X.XXX,XX or XXX,XX
+        const allMoneys = (text.match(/\b\d{1,3}(?:\.\d{3})*,\d{2}\b/g) || []).map(parseBrl);
+        let bruto = 0;
+        for (const m of allMoneys) {
+          if (m > bruto && m < 50000) bruto = m;
+        }
+        const inss = inssValMatch ? parseBrl(inssValMatch[1]) : 0;
+        const iss = issMatch ? parseBrl(issMatch[1]) : 0;
+        let liquido = liqImpMatch ? parseFloat(String(liqImpMatch[1]).replace(',', '.')) : 0;
+        if (!liquido && bruto > 0) {
+          const candidates = allMoneys.filter(v => v > 0 && v < bruto && Math.abs(v - inss) > 1 && Math.abs(v - iss) > 1);
+          if (candidates.length) liquido = Math.max(...candidates);
+        }
+        let irrf = 0;
+        if (bruto > 0 && liquido > 0) {
+          irrf = Math.max(0, Number((bruto - liquido - inss - iss).toFixed(2)));
+        }
+
+        let nome = '';
+        const nameMatch = text.match(/INSS\s+Segurado\.?\s+[\d.,]+(?:\s+0,00)*\s+([A-ZÀ-Ú]{2,}(?:\s+[A-ZÀ-Ú]{2,}){1,6})\s+[\d.,]+/);
+        if (nameMatch) nome = nameMatch[1].trim();
+
+        return {
+          tipo_documento: 'RPA',
+          rpa_numero_recibo: reciboNum,
+          rpa_cpf: cpf,
+          rpa_rg: rg,
+          rpa_inss_insc: inssInsc,
+          rpa_valor_bruto: bruto,
+          rpa_irrf: irrf,
+          rpa_iss: iss,
+          rpa_inss: inss,
+          rpa_outros_descontos: 0,
+          rpa_valor_liquido: liquido,
+          nome_completo: nome
+        };
+      }
+
+      if (isClt) {
+        const resumoMatch = text.match(/Total\s+de\s+Descontos\s+[\d.,]+\s+[\d.,]+\s+([\d.,]+)\s+([\d.,]+)/i);
+        const liqMatch = text.match(/A\s*R\s*E\s*C\s*E\s*B\s*E\s*R\s+([\d.,]+)/i);
+        const inssCltMatch = text.match(/101\s+I\.N\.S\.S\s+[\d.,]+\s+([\d.,]+)/i);
+        const nomeCltMatch = text.match(/Chapa\s+Nome\s+([A-ZÀ-Ú]{2,}(?:\s+[A-ZÀ-Ú]{2,}){1,6})\s+Compet[êe]ncia/i);
+
+        const bruto = resumoMatch ? parseBrl(resumoMatch[1]) : 0;
+        const totDesc = resumoMatch ? parseBrl(resumoMatch[2]) : 0;
+        const liquido = liqMatch ? parseBrl(liqMatch[1]) : Math.max(0, Number((bruto - totDesc).toFixed(2)));
+        const inss = inssCltMatch ? parseBrl(inssCltMatch[1]) : 0;
+        const outros = Math.max(0, Number((totDesc - inss).toFixed(2)));
+
+        return {
+          tipo_documento: 'CLT',
+          rpa_numero_recibo: reciboNum,
+          rpa_cpf: cpf,
+          rpa_rg: rg,
+          rpa_inss_insc: inssInsc,
+          rpa_valor_bruto: bruto,
+          rpa_irrf: 0,
+          rpa_iss: 0,
+          rpa_inss: inss,
+          rpa_outros_descontos: outros,
+          rpa_valor_liquido: liquido,
+          nome_completo: nomeCltMatch ? nomeCltMatch[1].trim() : ''
+        };
+      }
+
+      return null;
+    }
+
+    function matchProfissionalByText(rawText, parsedMeta = null) {
       const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
       const hay = norm(rawText);
       const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
+
+      if (parsedMeta && parsedMeta.rpa_cpf) {
+        const byCpf = allProfs.find(p => p.rpa_cpf && p.rpa_cpf.replace(/\D/g, '') === parsedMeta.rpa_cpf.replace(/\D/g, ''));
+        if (byCpf) return byCpf;
+      }
+
       let bestProf = null;
       let bestScore = 0;
 
       for (const p of allProfs) {
-        const full = norm(p.profissional).replace(/^(dra?\.?|fisioterapeuta|nutricionista|psicologa)\s+/i, '').trim();
-        const short = norm(p.nome_curto).replace(/^(dra?\.?)\s+/i, '').trim();
-        const parts = full.split(/\s+/).filter(w => w.length >= 3);
+        const cleanProf = norm(p.profissional).replace(/\(.*?\)/g, '').replace(/^(dra?\.?|fisioterapeuta|nutricionista|psicologa)\s+/i, '').trim();
+        const cleanShort = norm(p.nome_curto).replace(/\(.*?\)/g, '').replace(/^(dra?\.?)\s+/i, '').trim();
+        const parts = cleanProf.split(/\s+/).filter(w => w.length >= 3 && !['dos', 'das', 'silva', 'santos'].includes(w));
+        const allWords = cleanProf.split(/\s+/).filter(w => w.length >= 3);
+
         let score = 0;
-        if (full && hay.includes(full)) score += 100;
-        if (short && hay.includes(short)) score += 75;
-        if (parts.length >= 2 && hay.includes(parts[0]) && hay.includes(parts[parts.length - 1])) score += 60;
-        else if (parts.length >= 1 && hay.includes(parts[0]) && parts[0].length >= 5) score += 25;
+        if (cleanProf && hay.includes(cleanProf)) score += 120;
+        if (cleanShort && hay.includes(cleanShort)) score += 90;
+        if (allWords.length >= 2 && hay.includes(allWords[0]) && hay.includes(allWords[allWords.length - 1])) score += 80;
+        for (const w of parts) {
+          if (hay.includes(w)) score += 35;
+        }
 
         if (score > bestScore) {
           bestScore = score;
           bestProf = p;
         }
       }
-      return bestScore >= 25 ? bestProf : null;
+      return bestScore >= 60 ? bestProf : null;
     }
 
     async function handleSingleReciboUpload(profId, file) {
       if (!file) return;
-      const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
-      const p = allProfs.find(x => Number(x.id) === Number(profId));
-      if (!p) return;
-
-      toast(`✂️ Processando recibo individual de ${p.nome_curto || p.profissional}...`);
-      const ext = file.name.split('.').pop().toLowerCase();
-
-      try {
-        if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
-          const dataUrl = await new Promise((res, rej) => {
-            const reader = new FileReader();
-            reader.onload = () => res(reader.result);
-            reader.onerror = rej;
-            reader.readAsDataURL(file);
-          });
-          await api('fechamento-profissionais', {
-            action: 'save_recibo_recortado',
-            competencia: fechamentoCompetencia,
-            profissional_id: p.id,
-            profissional: p.profissional,
-            nome_curto: p.nome_curto,
-            unidade: p.unidade,
-            origem_arquivo: file.name,
-            imagem_data_url: dataUrl
-          });
-          toast(`✅ Recibo anexado com sucesso para ${p.nome_curto}!`);
-          loadFechamentoData(false);
-        } else {
-          await handleContabilidadeUpload([file], p.id);
-        }
-      } catch (err) {
-        toast('Erro ao anexar recibo: ' + err.message, true);
-      }
+      await handleContabilidadeUpload([file], profId);
     }
 
     function extractCandidateNameFromText(rawText, fallbackLabel) {
+      const parsed = parseProsoftAccountingPage(rawText);
+      if (parsed && parsed.nome_completo) return parsed.nome_completo;
       const text = String(rawText || '');
       const m = text.match(/(?:Funcion[áa]rio|Colaborador|Empregado|Nome|Profissional|Benefici[áa]rio)[:\s\-]+([A-ZÀ-Ú][A-Za-zÀ-ú]+(?:\s+[A-ZÀ-Úa-zà-ú]+){1,4})/i);
       if (m && m[1]) return m[1].trim().slice(0, 60);
@@ -8603,15 +8830,25 @@
       const ex = recibos.find(r => r.token === token) || {};
       const reciboUrl = `${window.location.origin}/.netlify/functions/fechamento-profissionais?action=view_recibo&token=${encodeURIComponent(token)}`;
       const nome = ex.nome_curto || ex.profissional_nome || 'Colaborador(a)';
+      const bruto = Number(ex.rpa_valor_bruto || ex.valor_liquido_recibo || 0);
+      const inss = Number(ex.rpa_inss || 0);
+      const outros = Number(ex.rpa_outros_descontos || 0);
+      const liq = Number(ex.rpa_valor_liquido || ex.valor_liquido_recibo || 0);
+
       let digits = String(ex.telefone_whatsapp || '').replace(/\D/g, '');
       if (digits && !digits.startsWith('55') && digits.length >= 10) digits = '55' + digits;
 
       const msg = [
-        `Olá, *${nome}*! Tudo bem? 💜`,
+        `Olá, *${nome}*! Tudo bem?`,
         ``,
-        `Segue o seu *Recibo / Demonstrativo de Pagamento Creabily* referente à competência *${fechamentoCompetencia}*:`,
+        `Segue o seu *Recibo de Pagamento de Salário Mensal (Holerite CLT)* da *Clínica Creabily* referente à competência *${fechamentoCompetencia}*:`,
         ``,
-        `📄 *Acesse / Baixe seu Recibo Individual Exclusivo aqui:*`,
+        `• *Total de Vencimentos (Bruto):* R$ ${bruto.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *(-) INSS Retido:* R$ ${inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *(-) Outros Descontos (VT / Contrib.):* R$ ${outros.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        `• *(=) VALOR LÍQUIDO A RECEBER:* *R$ ${liq.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}*`,
+        ``,
+        `*Acesse / Baixe seu Holerite Individual aqui:*`,
         reciboUrl,
         ``,
         `Qualquer dúvida estou à disposição!`,
@@ -8630,7 +8867,7 @@
       const fileList = Array.from(files);
       const statusEl = document.getElementById('contab-upload-status');
       if (statusEl) statusEl.textContent = `⏳ Processando ${fileList.length} arquivo(s) da Contabilidade (Paulista, Granja e CLT)...`;
-      toast(`✂️ Lendo ${fileList.length} arquivo(s) da Contabilidade e recortando páginas/abas...`);
+      toast(`✂️ Lendo ${fileList.length} arquivo(s) da Contabilidade, extraindo valores de RPA/Holerite e recortando páginas...`);
 
       const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
       let totalMatched = 0;
@@ -8650,6 +8887,7 @@
               const page = await pdf.getPage(pageNum);
               const textContent = await page.getTextContent();
               const pageText = textContent.items.map(it => it.str).join(' ');
+              const parsedRpa = parseProsoftAccountingPage(pageText);
 
               const viewport = page.getViewport({ scale: 1.55 });
               const canvas = document.createElement('canvas');
@@ -8657,11 +8895,11 @@
               canvas.height = viewport.height;
               const ctx = canvas.getContext('2d');
               await page.render({ canvasContext: ctx, viewport }).promise;
-              const imgDataUrl = canvas.toDataURL('image/jpeg', 0.84);
+              const imgDataUrl = canvas.toDataURL('image/jpeg', 0.85);
 
               const matchedProf = forcedProfId
                 ? allProfs.find(x => Number(x.id) === Number(forcedProfId))
-                : matchProfissionalByText(pageText);
+                : (parsedRpa && parsedRpa.tipo_documento === 'CLT' ? null : matchProfissionalByText(pageText, parsedRpa));
 
               if (matchedProf) {
                 await api('fechamento-profissionais', {
@@ -8672,24 +8910,28 @@
                   nome_curto: matchedProf.nome_curto,
                   unidade: matchedProf.unidade,
                   origem_arquivo: `${file.name} (Pág. ${pageNum})`,
+                  pagina_aba_origem: parsedRpa && parsedRpa.rpa_numero_recibo ? `RPA Nº ${parsedRpa.rpa_numero_recibo}` : `Pág. ${pageNum}`,
                   conteudo_texto: pageText.slice(0, 2000),
                   imagem_data_url: imgDataUrl,
-                  append_if_exists: true
+                  ...(parsedRpa || {}),
+                  append_if_exists: false
                 });
                 totalMatched++;
               } else {
-                // Salva também páginas de CLT ou colaboradores extras para envio 1-clique ou vínculo manual
                 const candName = extractCandidateNameFromText(pageText, `Recibo CLT/Extra — ${file.name} (Pág. ${pageNum})`);
+                const isGranjaFile = /filial|granja|jandira|0002-95/i.test(file.name + ' ' + pageText);
                 await api('fechamento-profissionais', {
                   action: 'save_recibo_recortado',
                   competencia: fechamentoCompetencia,
                   profissional_id: null,
                   profissional: candName,
                   nome_curto: candName,
-                  unidade: file.name.toLowerCase().includes('granja') ? 'Granja/Jandira' : 'Paulista',
+                  unidade: isGranjaFile ? 'Granja/Jandira' : 'Paulista',
                   origem_arquivo: `${file.name} (Pág. ${pageNum})`,
+                  pagina_aba_origem: parsedRpa && parsedRpa.rpa_numero_recibo ? `Holerite Reg. ${parsedRpa.rpa_numero_recibo}` : `Pág. ${pageNum}`,
                   conteudo_texto: pageText.slice(0, 2000),
-                  imagem_data_url: imgDataUrl
+                  imagem_data_url: imgDataUrl,
+                  ...(parsedRpa || {})
                 });
                 totalExtras++;
               }
@@ -8883,7 +9125,7 @@
       if (!p) { toast('Profissional não encontrado', true); return; }
 
       const rep = Number(p.valor_repasse_confirmado) || 0;
-      const rpa = calcImpostosRPA(rep);
+      const rpa = calcImpostosRPA(p);
       const cap = Number(p.capacidade_agenda) || 120;
       const atd = Number(p.atendimentos_total) || 0;
       const ocup = cap > 0 ? Math.min(100, Math.round((atd / cap) * 100)) : 0;
@@ -9062,13 +9304,16 @@
       </table>
     </div>
     <div>
-      <div class="sec-title">3. Indicadores de Capacidade &amp; Retenções</div>
+      <div class="sec-title">3. Indicadores de Capacidade &amp; Retenções RPA Contabilidade</div>
       <table>
         <tbody>
+          ${rpa.numero_recibo ? `<tr><td><b>Nº Recibo RPA Contabilidade</b></td><td style="text-align:right; font-weight:800; color:#493477;">Nº ${esc(rpa.numero_recibo)} ${rpa.cpf ? `(CPF ${esc(rpa.cpf)})` : ''}</td></tr>` : ''}
           <tr><td><b>Capacidade Mensal Estimada</b></td><td style="text-align:right;">${cap} horários (${ocup}% ocupação)</td></tr>
           <tr><td><b>Repasse Particular vs. Convênio</b></td><td style="text-align:right;">R$ ${(Number(p.valor_particular)||0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / R$ ${(Number(p.valor_convenio)||0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
-          <tr><td><b>Simulação INSS RPA (11% teto)</b></td><td style="text-align:right;">R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
-          <tr><td><b>Simulação Líquido Pós-RPA</b></td><td style="text-align:right; font-weight:800; color:#0F766E;">R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+          <tr><td><b>(-) INSS Segurado (11%)</b></td><td style="text-align:right; color:#B45309;">R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+          <tr><td><b>(-) IRRF Retido na Fonte</b></td><td style="text-align:right; color:#DC2626;">R$ ${rpa.irrf.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+          ${rpa.iss > 0 ? `<tr><td><b>(-) ISS Retido</b></td><td style="text-align:right; color:#DC2626;">R$ ${rpa.iss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>` : ''}
+          <tr><td><b>(=) Valor Líquido Pós-RPA a Receber</b></td><td style="text-align:right; font-weight:800; color:#0F766E;">R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
         </tbody>
       </table>
     </div>
@@ -9130,7 +9375,7 @@
       if (!p) return;
 
       const rep = Number(p.valor_repasse_confirmado) || 0;
-      const rpa = calcImpostosRPA(rep);
+      const rpa = calcImpostosRPA(p);
       const wb = XLSX.utils.book_new();
 
       const resumoRows = [
@@ -9139,6 +9384,8 @@
         ['Nome Curto', p.nome_curto],
         ['Especialidade / Função', p.funcao],
         ['Unidade', p.unidade],
+        ['Nº Recibo RPA Contabilidade', rpa.numero_recibo || '-'],
+        ['CPF', rpa.cpf || '-'],
         ['Atendimentos Registrados', Number(p.atendimentos_total) || 0],
         ['Finalizados', Number(p.finalizados) || 0],
         ['Não Compareceu (Pago)', Number(p.nao_compareceu) || 0],
@@ -9146,9 +9393,10 @@
         ['Repasse Particular (R$)', Number(p.valor_particular) || 0],
         ['Repasse Convênios (R$)', Number(p.valor_convenio) || 0],
         ['Repasse Bruto Confirmado (R$)', rep],
-        ['INSS Retido Estimado (R$)', rpa.inss],
-        ['IRRF Estimado (R$)', rpa.irrf],
-        ['Líquido Pós-RPA Estimado (R$)', rpa.liquido],
+        ['INSS Retido RPA (R$)', rpa.inss],
+        ['IRRF Retido RPA (R$)', rpa.irrf],
+        ['ISS Retido RPA (R$)', rpa.iss || 0],
+        ['Líquido Pós-RPA Oficial (R$)', rpa.liquido],
         ['Status de Auditoria', p.status_auditoria || 'CONFERIDO'],
         ['Observação de Auditoria', p.observacao_auditoria || ''],
         [],
@@ -9214,15 +9462,16 @@
 
       // 2. Fechamento_Profissionais
       const ws2 = XLSX.utils.aoa_to_sheet([
-        ['Unidade', 'Profissional', 'Nome Curto', 'Função', 'Atendimentos', 'Finalizados', 'Não Compareceu', 'Capacidade Agenda', 'Particular (R$)', 'Convênios (R$)', 'Repasse Calculado (R$)', 'Repasse Confirmado (R$)', 'INSS RPA (R$)', 'IRRF (R$)', 'Líquido Pós-RPA (R$)', 'Status Auditoria', 'Observações'],
+        ['Unidade', 'Profissional', 'Nome Curto', 'Função', 'Nº Recibo RPA', 'CPF', 'Atendimentos', 'Finalizados', 'Não Compareceu', 'Capacidade Agenda', 'Particular (R$)', 'Convênios (R$)', 'Repasse Calculado (R$)', 'Repasse Confirmado (R$)', 'INSS RPA (R$)', 'IRRF (R$)', 'ISS (R$)', 'Líquido Pós-RPA (R$)', 'Status Auditoria', 'Observações'],
         ...allProfs.map(p => {
-          const rpa = calcImpostosRPA(p.valor_repasse_confirmado);
+          const rpa = calcImpostosRPA(p);
           return [
             p.unidade, p.profissional, p.nome_curto, p.funcao,
+            rpa.numero_recibo || '', rpa.cpf || '',
             Number(p.atendimentos_total) || 0, Number(p.finalizados) || 0, Number(p.nao_compareceu) || 0, Number(p.capacidade_agenda) || 120,
             Number(p.valor_particular) || 0, Number(p.valor_convenio) || 0,
             Number(p.valor_repasse_calculado) || 0, Number(p.valor_repasse_confirmado) || 0,
-            rpa.inss, rpa.irrf, rpa.liquido,
+            rpa.inss, rpa.irrf, rpa.iss || 0, rpa.liquido,
             p.status_auditoria || 'CONFERIDO', p.observacao_auditoria || ''
           ];
         })
