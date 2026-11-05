@@ -588,6 +588,48 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
     }
 
+    if (action === 'verify_pin' || action === 'change_pin') {
+      await client.query(`
+        CREATE TABLE IF NOT EXISTS public.fechamento_config_diretoria (
+          id INT PRIMARY KEY DEFAULT 1,
+          pin_diretoria TEXT NOT NULL DEFAULT '3120',
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+        );
+        INSERT INTO public.fechamento_config_diretoria (id, pin_diretoria)
+        VALUES (1, '3120')
+        ON CONFLICT (id) DO NOTHING;
+      `);
+
+      const cfgRes = await client.query(`SELECT pin_diretoria FROM public.fechamento_config_diretoria WHERE id = 1`);
+      const storedPin = String((cfgRes.rows[0] && cfgRes.rows[0].pin_diretoria) || '3120').trim();
+
+      if (action === 'verify_pin') {
+        const inputPin = String(body.pin || '').trim();
+        const isValid = inputPin.length > 0 && inputPin === storedPin;
+        if (!isValid) {
+          return { statusCode: 200, headers, body: JSON.stringify({ ok: false, error: 'PIN incorreto.' }) };
+        }
+        return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+      }
+
+      if (action === 'change_pin') {
+        const curPin = String(body.currentPin || '').trim();
+        const newPin = String(body.newPin || '').trim();
+        if (curPin !== storedPin) {
+          return { statusCode: 200, headers, body: JSON.stringify({ ok: false, error: 'A senha/PIN atual informada está incorreta.' }) };
+        }
+        if (newPin.length < 4) {
+          return { statusCode: 200, headers, body: JSON.stringify({ ok: false, error: 'O novo PIN/senha deve ter pelo menos 4 caracteres.' }) };
+        }
+        await client.query(`
+          UPDATE public.fechamento_config_diretoria
+          SET pin_diretoria = $1, updated_at = NOW()
+          WHERE id = 1
+        `, [newPin]);
+        return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+      }
+    }
+
     return { statusCode: 400, headers, body: JSON.stringify({ ok: false, error: 'Ação inválida' }) };
   } catch (err) {
     console.error('Erro fechamento-profissionais:', err);

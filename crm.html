@@ -7202,18 +7202,91 @@
       }
     }
 
-    function unlockFechamentoDiretoria(ev) {
+    async function unlockFechamentoDiretoria(ev) {
       if (ev) ev.preventDefault();
       const inp = document.getElementById('fechamento-pin-input');
+      const btn = document.getElementById('fechamento-unlock-btn');
       const val = String(inp ? inp.value : '').trim();
-      const validPins = ['3120', 'honorarios', 'camila2026', 'creabily312@', 'diretoria'];
-      if (validPins.includes(val.toLowerCase())) {
+      if (!val) return;
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ Verificando PIN...'; }
+      const r = await api('fechamento-profissionais', {
+        action: 'verify_pin',
+        pin: val
+      });
+      if (btn) { btn.disabled = false; btn.textContent = '🔓 Desbloquear Painel da Dra. Camila'; }
+      if (r.ok && r.data && r.data.ok !== false) {
         fechamentoUnlocked = true;
         toast('🔓 Acesso Exclusivo Diretoria liberado para Dra. Camila Ostan!');
         if (!fechamentoData) loadFechamentoData();
         renderFechamentoView();
       } else {
-        toast('🔒 PIN/Senha da Diretoria incorreto. Acesso restrito à Dra. Camila.', true);
+        toast('🔒 PIN incorreto. Acesso restrito à Dra. Camila.', true);
+      }
+    }
+
+    function openChangeFechamentoPinModal() {
+      const modalRoot = document.getElementById('modal-root');
+      if (!modalRoot) return;
+      modalRoot.innerHTML = `
+        <div class="modal-backdrop" onclick="if(event.target === this) closeAgenteImportModal()">
+          <div class="modal-box-lg" style="max-width:440px;">
+            <div class="modal-header" style="background:#F4F1F8; border-bottom-color:#D8CEE8;">
+              <div class="modal-title" style="color:#493477;">
+                <span>🔑 Alterar Senha / PIN da Diretoria</span>
+              </div>
+              <button class="modal-close" onclick="closeAgenteImportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+              <form onsubmit="submitChangeFechamentoPin(event)" style="display:flex; flex-direction:column; gap:12px;">
+                <div>
+                  <label style="font-size:11.5px; font-weight:700; color:var(--text-2);">PIN / Senha Atual</label>
+                  <input type="password" id="cp-current-pin" class="input" placeholder="Digite o PIN atual" required autocomplete="off">
+                </div>
+                <div>
+                  <label style="font-size:11.5px; font-weight:700; color:#493477;">Novo PIN / Nova Senha</label>
+                  <input type="password" id="cp-new-pin" class="input" placeholder="Digite o novo PIN (mín. 4 caracteres)" required minlength="4" autocomplete="off">
+                </div>
+                <div>
+                  <label style="font-size:11.5px; font-weight:700; color:#493477;">Confirmar Novo PIN / Nova Senha</label>
+                  <input type="password" id="cp-confirm-pin" class="input" placeholder="Repita o novo PIN" required minlength="4" autocomplete="off">
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:6px;">
+                  <button type="button" class="btn btn-ghost" onclick="closeAgenteImportModal()">Cancelar</button>
+                  <button type="submit" id="cp-save-btn" class="btn btn-primary" style="background:#493477; border-color:#493477;">💾 Salvar Nova Senha</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function submitChangeFechamentoPin(ev) {
+      if (ev) ev.preventDefault();
+      const cur = String(document.getElementById('cp-current-pin').value || '').trim();
+      const nw = String(document.getElementById('cp-new-pin').value || '').trim();
+      const cf = String(document.getElementById('cp-confirm-pin').value || '').trim();
+      if (nw !== cf) {
+        toast('⚠️ O novo PIN e a confirmação não conferem.', true);
+        return;
+      }
+      if (nw.length < 4) {
+        toast('⚠️ O novo PIN deve ter pelo menos 4 caracteres.', true);
+        return;
+      }
+      const btn = document.getElementById('cp-save-btn');
+      if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+      const r = await api('fechamento-profissionais', {
+        action: 'change_pin',
+        currentPin: cur,
+        newPin: nw
+      });
+      if (btn) { btn.disabled = false; btn.textContent = '💾 Salvar Nova Senha'; }
+      if (r.ok && r.data && r.data.ok !== false) {
+        toast('✅ Novo PIN da Diretoria salvo com sucesso!');
+        closeAgenteImportModal();
+      } else {
+        toast((r.data && r.data.error) || r.error || 'PIN atual incorreto.', true);
       }
     }
 
@@ -7286,13 +7359,15 @@
               Esta área contém a <b>Tabela Oficial de Honorários Fixa</b>, os valores de repasse individual dos <b>22 profissionais (Av. Paulista e Granja Viana)</b>, emissão de <b>Folders PDF individuais</b> e o <b>DRE / BPO Financeiro</b>. Bloqueado para visualização da recepção.
             </p>
             <form onsubmit="unlockFechamentoDiretoria(event)" style="display:flex; flex-direction:column; gap:12px;">
-              <input type="password" id="fechamento-pin-input" class="input" placeholder="Digite o PIN da Diretoria (ex: 3120 ou Honorarios)" style="text-align:center; font-size:15px; font-weight:700; height:44px; border-color:#493477;" autocomplete="off" required>
-              <button type="submit" class="btn" style="background:linear-gradient(135deg,#493477,#6b308b); color:#fff; border:none; height:44px; font-weight:800; font-size:14px; justify-content:center; cursor:pointer;">
+              <input type="password" id="fechamento-pin-input" class="input" placeholder="Digite o PIN" style="text-align:center; font-size:15px; font-weight:700; height:44px; border-color:#493477;" autocomplete="off" required>
+              <button type="submit" id="fechamento-unlock-btn" class="btn" style="background:linear-gradient(135deg,#493477,#6b308b); color:#fff; border:none; height:44px; font-weight:800; font-size:14px; justify-content:center; cursor:pointer;">
                 🔓 Desbloquear Painel da Dra. Camila
               </button>
             </form>
-            <div style="margin-top:16px; font-size:11.5px; color:var(--text-3);">
-              💡 Dica: PIN rápido padrão da Diretoria: <code>3120</code> ou <code>Honorarios</code>
+            <div style="margin-top:14px;">
+              <button type="button" class="btn btn-ghost" style="font-size:12px; color:#493477; font-weight:700;" onclick="openChangeFechamentoPinModal()">
+                🔑 Trocar Senha / PIN
+              </button>
             </div>
           </div>
         `;
@@ -7393,6 +7468,9 @@
                 </button>
                 <button class="btn-agente primary" style="background:#1D4ED8; border-color:#1D4ED8;" onclick="exportFechamentoConsolidado10Abas()">
                   📊 Baixar Planilha Consolidada 10 Abas (.xlsx)
+                </button>
+                <button class="btn-agente" style="background:#F4F1F8; color:#493477; border-color:#D8CEE8;" onclick="openChangeFechamentoPinModal()">
+                  🔑 Trocar Senha
                 </button>
                 <button class="btn-agente" style="background:#FEF2F2; color:#B91C1C; border-color:#FECACA;" onclick="lockFechamentoDiretoria()">
                   🔒 Bloquear Tela
