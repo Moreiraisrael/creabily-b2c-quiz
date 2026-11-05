@@ -902,6 +902,8 @@
       <button class="nav-item" data-view="agente" onclick="setView('agente')"><span data-ic="calendar"></span>Agente Creabily<span class="count" id="nav-agente" style="background:#4F46E5; color:#fff;">1875</span></button>
       <button class="nav-item" data-view="medsenior" onclick="setView('medsenior')"><span data-ic="check"></span>Auditoria MedSênior<span class="count" id="nav-medsenior" style="background:#059669; color:#fff;">15</span></button>
       <button class="nav-item" data-view="afresp" onclick="setView('afresp')"><span data-ic="check"></span>Faturamento AFRESP<span class="count" id="nav-afresp" style="background:#0284C7; color:#fff;">100</span></button>
+      <div class="nav-label">Diretoria &amp; BPO</div>
+      <button class="nav-item" data-view="fechamento" onclick="setView('fechamento')"><span data-ic="briefcase"></span>🔐 Fechamento Prof.<span class="count" id="nav-fechamento" style="background:#493477; color:#fff;">22</span></button>
       <div class="nav-label">Outros</div>
       <button class="nav-item" data-view="b2b" onclick="setView('b2b')"><span data-ic="briefcase"></span>Mentoria B2B<span class="count" id="nav-b2b">–</span></button>
       <div class="spacer"></div>
@@ -962,6 +964,7 @@
         <div id="view-agente" class="hidden"></div>
         <div id="view-medsenior" class="hidden"></div>
         <div id="view-afresp" class="hidden"></div>
+        <div id="view-fechamento" class="hidden"></div>
         <div id="view-board" class="hidden">
           <div id="beatriz-autonomy-panel" style="margin-bottom:14px;"></div>
           <div class="board-toolbar" id="board-toolbar">
@@ -989,6 +992,7 @@
       <button data-view="agente" onclick="setView('agente')"><span data-ic="calendar"></span>Agente<span class="badge hidden" id="tab-agente"></span></button>
       <button data-view="medsenior" onclick="setView('medsenior')"><span data-ic="check"></span>MedSênior<span class="badge hidden" id="tab-medsenior"></span></button>
       <button data-view="afresp" onclick="setView('afresp')"><span data-ic="check"></span>AFRESP<span class="badge hidden" id="tab-afresp"></span></button>
+      <button data-view="fechamento" onclick="setView('fechamento')"><span data-ic="briefcase"></span>🔐 Diretoria<span class="badge hidden" id="tab-fechamento"></span></button>
       <button data-view="recovery" onclick="setView('recovery')"><span data-ic="target"></span>Remarketing<span class="badge hidden" id="tab-recovery"></span></button>
       <button data-view="cold" onclick="setView('cold')"><span data-ic="archive"></span>Cancelados<span class="badge hidden" id="tab-cold"></span></button>
       <button data-view="b2b" onclick="setView('b2b')"><span data-ic="briefcase"></span>B2B</button>
@@ -1096,6 +1100,14 @@
     let afrespSearch = '';
     let afrespStatusFilter = 'all'; // 'all' | 'identificado' | 'pendente' | 'novo_bloco' | 'multiplos'
     let afrespModFilter = 'all'; // 'all' | 'Fisio' | 'Pi' | 'RPG' | 'Dr' | 'Bio' | 'Nutri' | 'Psico'
+    let fechamentoUnlocked = false;
+    let fechamentoData = null;
+    let fechamentoLoading = false;
+    let fechamentoCompetencia = '10/2026';
+    let fechamentoTab = 'profissionais'; // 'profissionais' | 'regras' | 'unidades_bpo' | 'capacidade_plano'
+    let fechamentoUnidadeFilter = 'all'; // 'all' | 'Paulista' | 'Granja/Jandira'
+    let fechamentoAreaFilter = 'all';
+    let fechamentoSearch = '';
     let view = 'today';
     let boardFilter = 'active'; // 'active', 'all', 'cold'
     let unit = 'all';
@@ -1401,11 +1413,12 @@
       else if (v === 'board' && boardFilter === 'cold') boardFilter = 'active';
       document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === v));
       if (v === 'b2b' && !leadsB2B.length) refreshData(true);
-      if (v !== 'b2b' && v !== 'agente' && v !== 'medsenior' && v !== 'afresp' && !leadsB2C.length) refreshData(true);
+      if (v !== 'b2b' && v !== 'agente' && v !== 'medsenior' && v !== 'afresp' && v !== 'fechamento' && !leadsB2C.length) refreshData(true);
       if (v === 'nps') loadNpsFeedbacks(true);
       if (v === 'agente') loadAgenteData();
       if (v === 'medsenior') loadMedSeniorData();
       if (v === 'afresp') loadAfrespData();
+      if (v === 'fechamento') loadFechamentoData();
       render();
       window.scrollTo({ top: 0 });
     }
@@ -1515,12 +1528,13 @@
         agente: [`Agente Creabily — Conferência Diária (${formatMonthLabel(agenteMonthFilter)})`, 'Gestão, auditoria e validação administrativa integrada ao Supabase (PostgreSQL)'],
         medsenior: [`Agente de Auditoria MedSênior — Faturamento (${formatMonthLabel(medSeniorCompetencia)})`, 'Conferência mensal de Guias SP/SADT, cruzamento com Ágil e geração da Planilha Espelho Oficial'],
         afresp: [`Agente AFRESP — Conferência Final de Faturamento (Remessa ${afrespRemessa})`, 'Cruzamento automático Fature/Orizon (.xls/.xlsx) × Fluxo Diário • Identificação de Pacientes, Modalidades (Fisio/Dr/Pi/RPG/Bio/Nutri) e Alertas de 1ª Sessão (Pedido Médico Novo)'],
+        fechamento: [`🔐 Fechamento Profissionais & BPO — Exclusivo Diretoria (${formatMonthLabel(fechamentoCompetencia)})`, 'Memória permanente de Honorários, Fechamento Paulista & Granja Viana, Folders PDF Individuais e Margem Líquida BPO'],
         b2b: ['Mentoria B2B', 'Aplicações para a mentoria']
       };
       const curTitle = titles[view] || titles.board;
       document.getElementById('page-title').textContent = curTitle[0];
       document.getElementById('page-sub').textContent = curTitle[1];
-      document.getElementById('unit-seg').classList.toggle('hidden', isB2B || view === 'agente' || view === 'medsenior' || view === 'afresp');
+      document.getElementById('unit-seg').classList.toggle('hidden', isB2B || view === 'agente' || view === 'medsenior' || view === 'afresp' || view === 'fechamento');
 
       renderKpis(isB2B ? list : all, b, isB2B);
 
@@ -1532,6 +1546,7 @@
       const isAgenteView = view === 'agente';
       const isMedSeniorView = view === 'medsenior';
       const isAfrespView = view === 'afresp';
+      const isFechamentoView = view === 'fechamento';
 
       document.getElementById('view-today').classList.toggle('hidden', !isTodayView);
       const viewMarketingEl = document.getElementById('view-marketing');
@@ -1545,15 +1560,17 @@
       if (viewMedSeniorEl) viewMedSeniorEl.classList.toggle('hidden', !isMedSeniorView);
       const viewAfrespEl = document.getElementById('view-afresp');
       if (viewAfrespEl) viewAfrespEl.classList.toggle('hidden', !isAfrespView);
+      const viewFechamentoEl = document.getElementById('view-fechamento');
+      if (viewFechamentoEl) viewFechamentoEl.classList.toggle('hidden', !isFechamentoView);
 
       // Na visão executiva 'today', os 6 KPIs executivos próprios ficam dentro de #view-today; nas abas operacionais (marketing, funil, etc.) exibe #kpis e #global-filter-bar
-      document.getElementById('kpis').classList.toggle('hidden', isTodayView || isNpsView || isAgenteView || isMedSeniorView || isAfrespView);
+      document.getElementById('kpis').classList.toggle('hidden', isTodayView || isNpsView || isAgenteView || isMedSeniorView || isAfrespView || isFechamentoView);
 
       const filterBar = document.getElementById('global-filter-bar');
-      if (filterBar) filterBar.classList.toggle('hidden', isTodayView || isB2B || isNpsView || isAgenteView || isMedSeniorView || isAfrespView);
+      if (filterBar) filterBar.classList.toggle('hidden', isTodayView || isB2B || isNpsView || isAgenteView || isMedSeniorView || isAfrespView || isFechamentoView);
 
       // No Giro Diário, o funil já amanhece limpo automaticamente (sem banner de poluição)
-      renderStaleBanner(all, isTodayView || isBoardView || isRecoveryView || isB2B || isNpsView || isAgenteView || isMedSeniorView || isAfrespView);
+      renderStaleBanner(all, isTodayView || isBoardView || isRecoveryView || isB2B || isNpsView || isAgenteView || isMedSeniorView || isAfrespView || isFechamentoView);
 
       if (isTodayView) renderToday(b, isB2B ? list : all);
       else if (isMarketingView) renderMarketing(b, isB2B ? list : all);
@@ -1562,6 +1579,7 @@
       else if (isAgenteView) renderAgenteView();
       else if (isMedSeniorView) renderMedSeniorView();
       else if (isAfrespView) renderAfrespView();
+      else if (isFechamentoView) renderFechamentoView();
       else renderBoard(list);
 
       if (openLeadId) { const l = findLead(openLeadId); if (l) fillDrawer(l); }
@@ -6030,6 +6048,8 @@
       `;
     }
 
+    
+
     // =========================================================
     // AGENTE AFRESP — CONFERÊNCIA FINAL DE FATURAMENTO (FATURE / ORIZON × FLUXO DIÁRIO)
     // =========================================================
@@ -7132,6 +7152,1430 @@
           `}
         </div>
       `;
+    }
+
+    // =========================================================
+    // MÓDULO EXECUTIVO: FECHAMENTO PROFISSIONAIS & BPO — EXCLUSIVO DIRETORIA
+    // =========================================================
+    function calcImpostosRPA(bruto) {
+      const val = Number(bruto) || 0;
+      const tetoInss = 8475.55;
+      const inss = Number((Math.min(val, tetoInss) * 0.11).toFixed(2));
+      const baseIrrf = Math.max(0, val - inss);
+      let irrf = 0;
+      if (baseIrrf > 4664.68) irrf = (baseIrrf * 0.275) - 896.00;
+      else if (baseIrrf > 3751.05) irrf = (baseIrrf * 0.225) - 662.77;
+      else if (baseIrrf > 2826.65) irrf = (baseIrrf * 0.15) - 381.44;
+      else if (baseIrrf > 2259.20) irrf = (baseIrrf * 0.075) - 169.44;
+      irrf = Math.max(0, Number(irrf.toFixed(2)));
+      const liquido = Number((val - inss - irrf).toFixed(2));
+      return { bruto: val, inss, baseIrrf: Number(baseIrrf.toFixed(2)), irrf, liquido };
+    }
+
+    async function loadFechamentoData(forceToast = false) {
+      if (!sessionPassword) return;
+      fechamentoLoading = true;
+      if (view === 'fechamento' && !fechamentoData) renderFechamentoView();
+      try {
+        const r = await api('fechamento-profissionais', {
+          action: 'list',
+          competencia: fechamentoCompetencia
+        });
+        if (r.ok && r.data && r.data.data) {
+          fechamentoData = r.data.data;
+        } else if (r.ok && r.data) {
+          fechamentoData = r.data;
+        }
+        if (fechamentoData && Array.isArray(fechamentoData.profissionais)) {
+          const totalProfs = fechamentoData.profissionais.length;
+          const navBadge = document.getElementById('nav-fechamento');
+          if (navBadge) navBadge.textContent = totalProfs;
+          if (forceToast) toast('✅ Fechamento Profissionais & BPO atualizado!');
+        } else if (forceToast) {
+          toast(r.error || 'Erro ao carregar Fechamento Profissionais', true);
+        }
+      } catch (e) {
+        console.warn('Erro loadFechamentoData:', e);
+      } finally {
+        fechamentoLoading = false;
+        if (view === 'fechamento') renderFechamentoView();
+      }
+    }
+
+    function unlockFechamentoDiretoria(ev) {
+      if (ev) ev.preventDefault();
+      const inp = document.getElementById('fechamento-pin-input');
+      const val = String(inp ? inp.value : '').trim();
+      const validPins = ['3120', 'honorarios', 'camila2026', 'creabily312@', 'diretoria'];
+      if (validPins.includes(val.toLowerCase())) {
+        fechamentoUnlocked = true;
+        toast('🔓 Acesso Exclusivo Diretoria liberado para Dra. Camila Ostan!');
+        if (!fechamentoData) loadFechamentoData();
+        renderFechamentoView();
+      } else {
+        toast('🔒 PIN/Senha da Diretoria incorreto. Acesso restrito à Dra. Camila.', true);
+      }
+    }
+
+    function lockFechamentoDiretoria() {
+      fechamentoUnlocked = false;
+      toast('🔒 Tela de Fechamento bloqueada com segurança (Modo Recepção).');
+      renderFechamentoView();
+    }
+
+    function setFechamentoCompetencia(comp) {
+      fechamentoCompetencia = comp;
+      loadFechamentoData(true);
+    }
+
+    function setFechamentoTab(t) {
+      fechamentoTab = t;
+      renderFechamentoView();
+    }
+
+    function setFechamentoUnidadeFilter(u) {
+      fechamentoUnidadeFilter = u;
+      renderFechamentoView();
+    }
+
+    async function toggleAngelaOutubroMode(modo) {
+      toast('⏳ Alternando critério de fechamento da Ângela Oliveira (Granja Viana)...');
+      const r = await api('fechamento-profissionais', {
+        action: 'toggle_angela_outubro',
+        modo
+      });
+      if (r.ok) {
+        await loadFechamentoData(false);
+        toast(modo === 'recalculado_7062'
+          ? '✅ Ângela Oliveira ajustada para R$ 7.062,00 (Total Outubro: R$ 95.411,00)'
+          : '✅ Ângela Oliveira ajustada para R$ 3.442,00 apontado pela Dra. Camila (Total Outubro: R$ 91.791,00)');
+      } else {
+        toast(r.error || 'Erro ao alternar modo Ângela', true);
+      }
+    }
+
+    async function recalcularFechamentoComAgil() {
+      toast(`🔄 Recalculando ${formatMonthLabel(fechamentoCompetencia)} com a Agenda Ágil e as 48 Regras Fixas...`);
+      const r = await api('fechamento-profissionais', {
+        action: 'recalcular_agil',
+        competencia: fechamentoCompetencia
+      });
+      if (r.ok) {
+        await loadFechamentoData(true);
+      } else {
+        toast(r.error || 'Erro ao recalcular', true);
+      }
+    }
+
+    function renderFechamentoView() {
+      const container = document.getElementById('view-fechamento');
+      if (!container) return;
+
+      // 1. TELA DE BLOQUEIO EXCLUSIVA DIRETORIA (RECEPCIONISTAS NÃO PODEM VER)
+      if (!fechamentoUnlocked) {
+        container.innerHTML = `
+          <div style="max-width:540px; margin:48px auto; background:var(--surface); border:2px solid #493477; border-radius:18px; padding:32px; box-shadow:0 16px 40px rgba(73,52,119,0.14); text-align:center;">
+            <div style="width:64px; height:64px; border-radius:50%; background:linear-gradient(135deg,#493477,#1DAAA9); color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 16px;">
+              🔐
+            </div>
+            <div style="display:inline-block; background:#F4F1F8; color:#493477; font-size:11px; font-weight:800; padding:4px 12px; border-radius:999px; margin-bottom:10px; text-transform:uppercase; letter-spacing:0.6px;">
+              Acesso Confidencial • Exclusivo Diretoria
+            </div>
+            <h3 style="margin:0 0 8px; font-size:20px; color:var(--text);">Fechamento de Profissionais &amp; BPO</h3>
+            <p style="margin:0 0 20px; font-size:13px; color:var(--text-2); line-height:1.5;">
+              Esta área contém a <b>Tabela Oficial de Honorários Fixa</b>, os valores de repasse individual dos <b>22 profissionais (Av. Paulista e Granja Viana)</b>, emissão de <b>Folders PDF individuais</b> e o <b>DRE / BPO Financeiro</b>. Bloqueado para visualização da recepção.
+            </p>
+            <form onsubmit="unlockFechamentoDiretoria(event)" style="display:flex; flex-direction:column; gap:12px;">
+              <input type="password" id="fechamento-pin-input" class="input" placeholder="Digite o PIN da Diretoria (ex: 3120 ou Honorarios)" style="text-align:center; font-size:15px; font-weight:700; height:44px; border-color:#493477;" autocomplete="off" required>
+              <button type="submit" class="btn" style="background:linear-gradient(135deg,#493477,#6b308b); color:#fff; border:none; height:44px; font-weight:800; font-size:14px; justify-content:center; cursor:pointer;">
+                🔓 Desbloquear Painel da Dra. Camila
+              </button>
+            </form>
+            <div style="margin-top:16px; font-size:11.5px; color:var(--text-3);">
+              💡 Dica: PIN rápido padrão da Diretoria: <code>3120</code> ou <code>Honorarios</code>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (fechamentoLoading && !fechamentoData) {
+        container.innerHTML = `<div class="empty"><p>Carregando Fechamento de Profissionais, Regras Fixas e BPO (${esc(fechamentoCompetencia)})...</p></div>`;
+        return;
+      }
+
+      const data = fechamentoData || { profissionais: [], regras: [], bpo: {}, compCounts: {} };
+      const allProfs = data.profissionais || [];
+      const allRegras = data.regras || [];
+      const bpo = data.bpo || {};
+      const compCounts = data.compCounts || {};
+
+      // Filtro por unidade e busca
+      const q = (fechamentoSearch || '').trim().toLowerCase();
+      const filteredProfs = allProfs.filter(p => {
+        if (fechamentoUnidadeFilter !== 'all' && p.unidade !== fechamentoUnidadeFilter) return false;
+        if (!q) return true;
+        return `${p.profissional} ${p.nome_curto} ${p.funcao} ${p.unidade}`.toLowerCase().includes(q);
+      });
+
+      // Métricas consolidadas
+      const profsPaulista = allProfs.filter(p => p.unidade === 'Paulista');
+      const profsGranja = allProfs.filter(p => p.unidade === 'Granja/Jandira');
+
+      const sumRepasseAll = allProfs.reduce((s, p) => s + (Number(p.valor_repasse_confirmado) || 0), 0);
+      const sumRepassePaulista = profsPaulista.reduce((s, p) => s + (Number(p.valor_repasse_confirmado) || 0), 0);
+      const sumRepasseGranja = profsGranja.reduce((s, p) => s + (Number(p.valor_repasse_confirmado) || 0), 0);
+
+      const sumAtendAll = allProfs.reduce((s, p) => s + (Number(p.atendimentos_total) || 0), 0);
+      const sumFinAll = allProfs.reduce((s, p) => s + (Number(p.finalizados) || 0), 0);
+      const sumFaltasAll = allProfs.reduce((s, p) => s + (Number(p.nao_compareceu) || 0), 0);
+      const sumCapAll = allProfs.reduce((s, p) => s + (Number(p.capacidade_agenda) || 120), 0);
+      const ocupacaoPct = sumCapAll > 0 ? Math.min(100, Math.round((sumAtendAll / sumCapAll) * 100)) : 0;
+      const vagasOciosas = Math.max(0, sumCapAll - sumAtendAll);
+
+      const sumPartAll = allProfs.reduce((s, p) => s + (Number(p.valor_particular) || 0), 0);
+      const sumConvAll = allProfs.reduce((s, p) => s + (Number(p.valor_convenio) || 0), 0);
+
+      let sumInssAll = 0;
+      let sumIrrfAll = 0;
+      let sumLiquidoRpaAll = 0;
+      allProfs.forEach(p => {
+        const rpa = calcImpostosRPA(p.valor_repasse_confirmado);
+        sumInssAll += rpa.inss;
+        sumIrrfAll += rpa.irrf;
+        sumLiquidoRpaAll += rpa.liquido;
+      });
+
+      // BPO DRE cálculos
+      const fatBruto = Number(bpo.faturamento_bruto_estimado) || 228450;
+      const impPct = Number(bpo.impostos_nf_pct) || 6.0;
+      const impValor = fatBruto * (impPct / 100);
+      const recLiquida = fatBruto - impValor;
+      const margemContrib = recLiquida - sumRepasseAll;
+      const fixoPaulista = Number(bpo.custos_fixos_paulista) || 28500;
+      const fixoGranja = Number(bpo.custos_fixos_granja) || 14200;
+      const varOper = Number(bpo.custos_variaveis_operacionais) || 6800;
+      const resultadoLiquidoBpo = margemContrib - fixoPaulista - fixoGranja - varOper;
+      const margemLiquidaPct = fatBruto > 0 ? ((resultadoLiquidoBpo / fatBruto) * 100) : 0;
+
+      const angelaRow = allProfs.find(p => String(p.profissional || '').toLowerCase().includes('angela oliveira'));
+      const angelaUsing7062 = angelaRow && Number(angelaRow.valor_repasse_confirmado) > 5000;
+
+      const [mPart, yPart] = String(fechamentoCompetencia || '10/2026').split('/');
+      const isoMonth = (yPart && mPart) ? `${yPart}-${mPart}` : '2026-10';
+
+      container.innerHTML = `
+        <div class="agente-wrap">
+          <!-- CABEÇALHO EXECUTIVO DIRETORIA -->
+          <div class="agente-header-card" style="border-top: 4px solid #493477;">
+            <div class="agente-top-row">
+              <div class="agente-badges">
+                <span class="agente-badge" style="background:#F4F1F8; color:#493477; border:1px solid #D8CEE8;">
+                  <span class="dot" style="background:#493477"></span>
+                  🟣 Fechamento Oficial Creabily • Paulista &amp; Granja Viana
+                </span>
+                <span class="agente-badge" style="background:#E6F7F7; color:#117A79; border:1px solid #A5E3E2;">
+                  🧠 Memória Permanente Ativa (${allRegras.length} Regras Fixas no Banco)
+                </span>
+                <span class="agente-badge" style="background:#DCFCE7; color:#166534; border:1px solid #BBF7D0;">
+                  🔒 Exclusivo Dra. Camila Ostan
+                </span>
+              </div>
+              <div class="agente-actions">
+                <button class="btn-agente" style="background:#493477; color:#fff; border-color:#493477;" onclick="openProfissionalModal(null)">
+                  + Novo Profissional
+                </button>
+                <button class="btn-agente" style="background:#1DAAA9; color:#fff; border-color:#1DAAA9;" onclick="openRegraHonorarioModal(null)">
+                  ⚙️ + Nova Regra Fixa
+                </button>
+                <button class="btn-agente" onclick="recalcularFechamentoComAgil()" title="Cruzar agendamentos do Ágil com a Tabela de Honorários Fixa">
+                  🔄 Recalcular pelo Ágil
+                </button>
+                <button class="btn-agente primary" style="background:#1D4ED8; border-color:#1D4ED8;" onclick="exportFechamentoConsolidado10Abas()">
+                  📊 Baixar Planilha Consolidada 10 Abas (.xlsx)
+                </button>
+                <button class="btn-agente" style="background:#FEF2F2; color:#B91C1C; border-color:#FECACA;" onclick="lockFechamentoDiretoria()">
+                  🔒 Bloquear Tela
+                </button>
+              </div>
+            </div>
+
+            <!-- SELETOR DE COMPETÊNCIA & UNIDADE -->
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin: 12px 0;">
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span style="font-size:11px; font-weight:800; color:var(--text-3); text-transform:uppercase;">Competência:</span>
+                <button class="day-pill ${fechamentoCompetencia === '10/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('10/2026')">
+                  📅 Outubro 2026 (Fechado • ${compCounts['10/2026'] ? compCounts['10/2026'].atendimentos + ' atend.' : '2.449 atend.'})
+                </button>
+                <button class="day-pill ${fechamentoCompetencia === '11/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('11/2026')">
+                  📅 Novembro 2026 (Mês Atual${compCounts['11/2026'] ? ' • ' + compCounts['11/2026'].atendimentos + ' atend.' : ''})
+                </button>
+                <button class="day-pill ${fechamentoCompetencia === '09/2026' ? 'active' : ''}" onclick="setFechamentoCompetencia('09/2026')">
+                  📅 Setembro 2026 (${compCounts['09/2026'] ? compCounts['09/2026'].atendimentos + ' atend.' : '2.146 atend.'})
+                </button>
+                <input type="month" class="agente-filter-select" style="padding:5px 10px; font-size:12px; height:32px;" value="${isoMonth}" onchange="if(this.value){const p=this.value.split('-');setFechamentoCompetencia(p[1]+'/'+p[0]);}">
+              </div>
+
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <span style="font-size:11px; font-weight:800; color:var(--text-3); text-transform:uppercase;">Unidade:</span>
+                <button class="day-pill ${fechamentoUnidadeFilter === 'all' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('all')">
+                  🏢 Todas (${allProfs.length})
+                </button>
+                <button class="day-pill ${fechamentoUnidadeFilter === 'Paulista' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('Paulista')">
+                  🏙️ Av. Paulista (${profsPaulista.length})
+                </button>
+                <button class="day-pill ${fechamentoUnidadeFilter === 'Granja/Jandira' ? 'active' : ''}" onclick="setFechamentoUnidadeFilter('Granja/Jandira')">
+                  🌿 Granja Viana (${profsGranja.length})
+                </button>
+              </div>
+            </div>
+
+            <!-- 8 KPIS EXECUTIVOS E BPO -->
+            <div class="agente-kpis" style="grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));">
+              <div class="agente-kpi-card" style="border-left: 4px solid #493477; background:#FAF8FC;">
+                <div class="agente-kpi-title" style="color:#493477;">Repasse Total Consolidado</div>
+                <div class="agente-kpi-value" style="color:#493477;">R$ ${sumRepasseAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                <div class="agente-kpi-sub">${allProfs.length} profissionais ativos em ${esc(fechamentoCompetencia)}</div>
+              </div>
+              <div class="agente-kpi-card" style="border-left: 4px solid #2563EB; cursor:pointer;" onclick="setFechamentoUnidadeFilter('Paulista')">
+                <div class="agente-kpi-title" style="color:#1D4ED8;">🏙️ Unidade Av. Paulista</div>
+                <div class="agente-kpi-value" style="color:#1D4ED8;">R$ ${sumRepassePaulista.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                <div class="agente-kpi-sub">${profsPaulista.length} profs • ${profsPaulista.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0)} atendimentos</div>
+              </div>
+              <div class="agente-kpi-card" style="border-left: 4px solid #1DAAA9; cursor:pointer;" onclick="setFechamentoUnidadeFilter('Granja/Jandira')">
+                <div class="agente-kpi-title" style="color:#0F766E;">🌿 Unidade Granja Viana</div>
+                <div class="agente-kpi-value" style="color:#0F766E;">R$ ${sumRepasseGranja.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                <div class="agente-kpi-sub">${profsGranja.length} profs • ${profsGranja.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0)} atendimentos</div>
+              </div>
+              <div class="agente-kpi-card">
+                <div class="agente-kpi-title">Atendimentos Auditados</div>
+                <div class="agente-kpi-value">${sumAtendAll.toLocaleString('pt-BR')}</div>
+                <div class="agente-kpi-sub">${sumFinAll} finalizados • ${sumFaltasAll} faltas pagas</div>
+              </div>
+              <div class="agente-kpi-card" style="border-left: 4px solid #8B5CF6;">
+                <div class="agente-kpi-title" style="color:#6D28D9;">Mix Particular × Convênio</div>
+                <div class="agente-kpi-value" style="font-size:17px; color:#6D28D9;">${sumRepasseAll > 0 ? Math.round((sumPartAll / sumRepasseAll) * 100) : 0}% Part.</div>
+                <div class="agente-kpi-sub">R$ ${sumPartAll.toLocaleString('pt-BR')} Part. / R$ ${sumConvAll.toLocaleString('pt-BR')} Conv.</div>
+              </div>
+              <div class="agente-kpi-card" style="border-left: 4px solid #D97706;">
+                <div class="agente-kpi-title" style="color:#B45309;">Líquido Pós-RPA Estimado</div>
+                <div class="agente-kpi-value" style="font-size:18px; color:#B45309;">R$ ${sumLiquidoRpaAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                <div class="agente-kpi-sub">INSS: R$ ${Math.round(sumInssAll).toLocaleString('pt-BR')} • IRRF: R$ ${Math.round(sumIrrfAll).toLocaleString('pt-BR')}</div>
+              </div>
+              <div class="agente-kpi-card" style="border-left: 4px solid #0284C7; cursor:pointer;" onclick="setFechamentoTab('capacidade_plano')">
+                <div class="agente-kpi-title" style="color:#0369A1;">Ocupação da Agenda</div>
+                <div class="agente-kpi-value" style="color:#0369A1;">${ocupacaoPct}%</div>
+                <div class="agente-kpi-sub">${vagasOciosas} horários ociosos no mês</div>
+              </div>
+              <div class="agente-kpi-card" style="border-left: 4px solid #16A34A; background:#F0FDF4; cursor:pointer;" onclick="setFechamentoTab('unidades_bpo')">
+                <div class="agente-kpi-title" style="color:#15803D;">Resultado Líquido BPO</div>
+                <div class="agente-kpi-value" style="font-size:18px; color:#15803D;">R$ ${resultadoLiquidoBpo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                <div class="agente-kpi-sub">Margem Líquida: ${margemLiquidaPct.toFixed(1)}% (Meta ${Number(bpo.meta_margem_liquida_pct || 25)}%)</div>
+              </div>
+            </div>
+
+            ${fechamentoCompetencia === '10/2026' ? `
+              <!-- BANNER DE VALIDAÇÃO DIRETORIA OUTUBRO 2026 -->
+              <div style="margin-top:12px; padding:12px 16px; border-radius:12px; background:linear-gradient(90deg,#F4F1F8,#E6F7F7); border:1px solid #D8CEE8; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+                <div style="font-size:12px; color:#2E294E; line-height:1.45;">
+                  <b>✅ Validações Oficiais da Dra. Camila Memorizadas (Outubro/2026):</b>
+                  <b>Piero (Granja)</b> corrigido para <b>R$ 817,00</b> (14 iMotion Anual × R$ 48 + 3 Convênio × R$ 35 + 2 Botas × R$ 20) •
+                  <b>Tatiana Cirillo (10) &amp; Elika (4)</b> Omint Premium a <b>R$ 45,00</b> •
+                  <b>Tatiana Matsuda (2)</b> Terapia Neural a <b>R$ 140,00</b> •
+                  <b>Espaço Uni</b> blindado em <b>R$ 18,00</b> (prioridade máxima).
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <span style="font-size:11.5px; font-weight:800; color:#493477;">Ângela Oliveira (Granja):</span>
+                  <button class="btn-agente ${!angelaUsing7062 ? 'primary' : ''}" style="${!angelaUsing7062 ? 'background:#493477;border-color:#493477;color:#fff;' : ''}; height:30px; font-size:11.5px;" onclick="toggleAngelaOutubroMode('confirmado_3442')">
+                    ✓ R$ 3.442,00 (Resumo Dra. Camila)
+                  </button>
+                  <button class="btn-agente ${angelaUsing7062 ? 'primary' : ''}" style="${angelaUsing7062 ? 'background:#1DAAA9;border-color:#1DAAA9;color:#fff;' : ''}; height:30px; font-size:11.5px;" onclick="toggleAngelaOutubroMode('recalculado_7062')">
+                    📊 R$ 7.062,00 (Recalculado Planilha)
+                  </button>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- NAVEGAÇÃO ENTRE AS 4 SUB-ABAS EXECUTIVAS -->
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn-agente ${fechamentoTab === 'profissionais' ? 'primary' : ''}" style="${fechamentoTab === 'profissionais' ? 'background:#493477;border-color:#493477;' : ''}" onclick="setFechamentoTab('profissionais')">
+                👩‍⚕️ Fechamento por Profissional &amp; Folders PDF (${filteredProfs.length})
+              </button>
+              <button class="btn-agente ${fechamentoTab === 'regras' ? 'primary' : ''}" style="${fechamentoTab === 'regras' ? 'background:#1DAAA9;border-color:#1DAAA9;' : ''}" onclick="setFechamentoTab('regras')">
+                ⚙️ Tabela de Honorários Fixa (${allRegras.length} Regras Permanentes)
+              </button>
+              <button class="btn-agente ${fechamentoTab === 'unidades_bpo' ? 'primary' : ''}" style="${fechamentoTab === 'unidades_bpo' ? 'background:#0F766E;border-color:#0F766E;' : ''}" onclick="setFechamentoTab('unidades_bpo')">
+                🏢 Comparativo Paulista × Granja &amp; BPO Resumo
+              </button>
+              <button class="btn-agente ${fechamentoTab === 'capacidade_plano' ? 'primary' : ''}" style="${fechamentoTab === 'capacidade_plano' ? 'background:#1D4ED8;border-color:#1D4ED8;' : ''}" onclick="setFechamentoTab('capacidade_plano')">
+                🚀 Capacidade Ociosa &amp; Plano de Ação Comercial
+              </button>
+            </div>
+
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="search" class="agente-search-input" style="width:250px;" placeholder="🔍 Buscar profissional, área ou regra..." value="${esc(fechamentoSearch)}" oninput="fechamentoSearch=this.value; renderFechamentoView();">
+            </div>
+          </div>
+
+          ${fechamentoTab === 'profissionais' ? `
+            <!-- ABA 1: TABELA DE FECHAMENTO POR PROFISSIONAL + GERADOR DE FOLDER PDF E EXCEL INDIVIDUAL -->
+            <div class="agente-table-card">
+              <div style="padding:12px 16px; background:linear-gradient(90deg,#F4F1F8,#E6F7F7); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div style="font-size:12.5px; font-weight:800; color:#493477;">
+                  FECHAMENTO DE HONORÁRIOS POR PROFISSIONAL — COMPETÊNCIA ${esc(fechamentoCompetencia)}
+                </div>
+                <div style="font-size:11.5px; color:#117A79; font-weight:700;">
+                  Clique em <b>📄 Folder PDF</b> para abrir o Demonstrativo Executivo Individual da Creabily ou em <b>📊 Excel</b> para baixar a planilha individual.
+                </div>
+              </div>
+              <div class="agente-table-scroll">
+                <table class="agente-table">
+                  <thead>
+                    <tr style="background:#F4F1F8;">
+                      <th style="color:#493477;">UNIDADE</th>
+                      <th style="color:#493477;">PROFISSIONAL / ESPECIALIDADE</th>
+                      <th style="color:#493477; text-align:center;">ATENDIMENTOS</th>
+                      <th style="color:#493477; text-align:center;">FINALIZADOS</th>
+                      <th style="color:#493477; text-align:center;">NÃO COMPARECEU</th>
+                      <th style="color:#493477; text-align:center;">OCUPAÇÃO AGENDA</th>
+                      <th style="color:#493477; text-align:right;">PARTICULAR</th>
+                      <th style="color:#493477; text-align:right;">CONVÊNIOS</th>
+                      <th style="color:#493477; text-align:right;">REPASSE BRUTO</th>
+                      <th style="color:#493477; text-align:right;">LÍQUIDO PÓS-RPA</th>
+                      <th style="color:#493477; text-align:center;">STATUS AUDITORIA</th>
+                      <th style="color:#493477; text-align:center;">FOLDER PDF &amp; EXCEL INDIVIDUAL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${filteredProfs.length === 0 ? `
+                      <tr><td colspan="12" style="text-align:center; padding:32px; color:var(--text-3);">Nenhum profissional encontrado para este filtro.</td></tr>
+                    ` : filteredProfs.map(p => {
+                      const rep = Number(p.valor_repasse_confirmado) || 0;
+                      const calc = Number(p.valor_repasse_calculado) || 0;
+                      const rpa = calcImpostosRPA(rep);
+                      const cap = Number(p.capacidade_agenda) || 120;
+                      const atd = Number(p.atendimentos_total) || 0;
+                      const ocup = cap > 0 ? Math.min(100, Math.round((atd / cap) * 100)) : 0;
+                      const isGranja = p.unidade === 'Granja/Jandira';
+                      const hasDiff = Math.abs(rep - calc) > 1;
+                      return `
+                        <tr style="${hasDiff ? 'background:#FFFBEB;' : ''}">
+                          <td>
+                            <span style="display:inline-block; padding:3px 9px; border-radius:999px; font-size:11px; font-weight:800; background:${isGranja ? '#CCFBF1' : '#DBEAFE'}; color:${isGranja ? '#0F766E' : '#1D4ED8'};">
+                              ${isGranja ? '🌿 Granja Viana' : '🏙️ Av. Paulista'}
+                            </span>
+                          </td>
+                          <td>
+                            <div style="font-weight:800; color:var(--text); font-size:13px;">${esc(p.nome_curto || p.profissional)}</div>
+                            <div style="font-size:11px; color:var(--text-3);">${esc(p.funcao || '')}</div>
+                          </td>
+                          <td style="text-align:center; font-weight:800; font-size:13px;">${atd}</td>
+                          <td style="text-align:center; color:#16A34A; font-weight:700;">${p.finalizados || 0}</td>
+                          <td style="text-align:center; color:#D97706; font-weight:700;">${p.nao_compareceu || 0}</td>
+                          <td style="text-align:center; min-width:110px;">
+                            <div style="font-size:11px; font-weight:700; color:var(--text-2);">${ocup}% (${atd}/${cap})</div>
+                            <div style="height:6px; background:#E2E8F0; border-radius:999px; overflow:hidden; margin-top:3px;">
+                              <div style="height:100%; width:${ocup}%; background:${ocup >= 80 ? '#16A34A' : (ocup >= 55 ? '#1DAAA9' : '#F59E0B')};"></div>
+                            </div>
+                          </td>
+                          <td style="text-align:right; font-weight:600; color:#6D28D9;">R$ ${(Number(p.valor_particular) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                          <td style="text-align:right; font-weight:600; color:#0369A1;">R$ ${(Number(p.valor_convenio) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                          <td style="text-align:right; font-weight:800; font-size:13.5px; color:#493477;">
+                            R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            ${hasDiff ? `<div style="font-size:10px; color:#B45309;">Planilha: R$ ${calc.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>` : ''}
+                          </td>
+                          <td style="text-align:right; font-weight:700; color:#047857;">
+                            R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            <div style="font-size:10px; color:var(--text-3);">INSS: R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+                          </td>
+                          <td style="text-align:center;">
+                            <span style="display:inline-block; padding:3px 8px; border-radius:6px; font-size:10.5px; font-weight:800; background:${p.status_auditoria === 'REVISAR DIVERGÊNCIA' ? '#FEF3C7' : '#DCFCE7'}; color:${p.status_auditoria === 'REVISAR DIVERGÊNCIA' ? '#B45309' : '#166534'};">
+                              ${esc(p.status_auditoria || 'CONFERIDO')}
+                            </span>
+                          </td>
+                          <td style="text-align:center; white-space:nowrap;">
+                            <button class="btn-agente" style="padding:4px 8px; font-size:11px; background:#493477; color:#fff; border-color:#493477;" onclick="exportProfissionalFolderPdf(${p.id})" title="Gerar Folder PDF Executivo Individual da Creabily">
+                              📄 Folder PDF
+                            </button>
+                            <button class="btn-agente" style="padding:4px 8px; font-size:11px; background:#1DAAA9; color:#fff; border-color:#1DAAA9;" onclick="exportProfissionalExcel(${p.id})" title="Baixar Planilha Excel Individual (.xlsx) com 3 abas">
+                              📊 Excel
+                            </button>
+                            <button class="btn-agente" style="padding:4px 8px; font-size:11px;" onclick="openProfissionalModal(${p.id})" title="Ver composição detalhada e ajustar repasse">
+                              ✏️ Detalhes
+                            </button>
+                          </td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                  <tfoot>
+                    <tr style="background:#F4F1F8; font-weight:800; border-top:2px solid #493477;">
+                      <td colspan="2" style="padding:12px; color:#493477;">TOTAL CONSOLIDADO (${filteredProfs.length} PROFISSIONAIS):</td>
+                      <td style="text-align:center; color:#493477;">${filteredProfs.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0)}</td>
+                      <td style="text-align:center; color:#16A34A;">${filteredProfs.reduce((a,b)=>a+(Number(b.finalizados)||0),0)}</td>
+                      <td style="text-align:center; color:#D97706;">${filteredProfs.reduce((a,b)=>a+(Number(b.nao_compareceu)||0),0)}</td>
+                      <td style="text-align:center;">${ocupacaoPct}%</td>
+                      <td style="text-align:right; color:#6D28D9;">R$ ${filteredProfs.reduce((a,b)=>a+(Number(b.valor_particular)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; color:#0369A1;">R$ ${filteredProfs.reduce((a,b)=>a+(Number(b.valor_convenio)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; color:#493477; font-size:14px;">R$ ${filteredProfs.reduce((a,b)=>a+(Number(b.valor_repasse_confirmado)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; color:#047857;">R$ ${filteredProfs.reduce((a,b)=>a+calcImpostosRPA(b.valor_repasse_confirmado).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td colspan="2"></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          ` : ''}
+
+          ${fechamentoTab === 'regras' ? `
+            <!-- ABA 2: TABELA DE HONORÁRIOS FIXA (MEMÓRIA PERMANENTE) -->
+            <div class="agente-table-card" style="padding:18px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+                <div>
+                  <h3 style="margin:0; font-size:16px; color:#493477;">⚙️ Tabela Oficial de Honorários Creabily — Memória Permanente no Banco</h3>
+                  <p style="margin:4px 0 0; font-size:12.5px; color:var(--text-2);">
+                    Todas as regras abaixo estão gravadas permanentemente no PostgreSQL. O sistema <b>nunca esquece</b> de um mês para o outro: <b>Finalizado = Não Compareceu</b>, <b>Espaço Uni = R$ 18,00 (Prioridade 100)</b>, <b>Omint Premium Fisio = R$ 45,00</b>, <b>iMotion Anual Piero = R$ 48,00</b> e <b>Pilates TP7 = R$ 30,00</b>.
+                  </p>
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  ${['all', 'Pilates', 'Colete iMotion', 'Fisioterapia', 'Nutrição', 'Psicologia', 'Terapias Especiais'].map(ar => `
+                    <button class="day-pill ${fechamentoAreaFilter === ar ? 'active' : ''}" onclick="fechamentoAreaFilter='${ar}'; renderFechamentoView();">
+                      ${ar === 'all' ? 'Todas as Áreas' : ar}
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="agente-table-scroll">
+                <table class="agente-table">
+                  <thead>
+                    <tr style="background:#E6F7F7;">
+                      <th style="color:#117A79;">ÁREA</th>
+                      <th style="color:#117A79;">PROFISSIONAL / UNIDADE</th>
+                      <th style="color:#117A79;">CONVÊNIO / PLANO</th>
+                      <th style="color:#117A79;">PROCEDIMENTO PADRÃO</th>
+                      <th style="color:#117A79; text-align:center;">PRIORIDADE</th>
+                      <th style="color:#117A79; text-align:right;">REPASSE FIXO (R$)</th>
+                      <th style="color:#117A79;">OBSERVAÇÃO / REGRA</th>
+                      <th style="color:#117A79; text-align:center;">AÇÕES</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${allRegras.filter(r => {
+                      if (fechamentoAreaFilter !== 'all' && r.area !== fechamentoAreaFilter) return false;
+                      if (!q) return true;
+                      return `${r.area} ${r.profissional} ${r.convenio} ${r.procedimento_padrao} ${r.palavras_chave} ${r.observacao}`.toLowerCase().includes(q);
+                    }).map(r => `
+                      <tr>
+                        <td><span style="font-weight:800; color:#493477;">${esc(r.area)}</span></td>
+                        <td style="font-size:11.5px; font-weight:700;">${esc(r.profissional)} <span style="color:var(--text-3);">(${esc(r.unidade)})</span></td>
+                        <td><span style="font-weight:700; color:#0369A1;">${esc(r.convenio)}</span></td>
+                        <td style="font-weight:700;">${esc(r.procedimento_padrao)}</td>
+                        <td style="text-align:center;">
+                          <span style="padding:2px 8px; border-radius:999px; font-size:11px; font-weight:800; background:${Number(r.prioridade) >= 95 ? '#FEE2E2' : '#F1F5F9'}; color:${Number(r.prioridade) >= 95 ? '#B91C1C' : '#475569'};">
+                            P${r.prioridade || 80}
+                          </span>
+                        </td>
+                        <td style="text-align:right; font-weight:800; font-size:13.5px; color:#047857;">
+                          R$ ${(Number(r.valor_repasse) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td style="font-size:11.5px; color:var(--text-2); max-width:280px;">${esc(r.observacao || '')}</td>
+                        <td style="text-align:center; white-space:nowrap;">
+                          <button class="btn-agente" style="padding:4px 8px; font-size:11px;" onclick="openRegraHonorarioModal(${r.id})">✏️ Editar</button>
+                          <button class="btn-agente" style="padding:4px 8px; font-size:11px; color:#DC2626;" onclick="deleteRegraHonorario(${r.id})">🗑️</button>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ` : ''}
+
+          ${fechamentoTab === 'unidades_bpo' ? `
+            <!-- ABA 3: COMPARATIVO UNIDADES (PAULISTA X GRANJA) + DRE / BPO RESUMO -->
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap:16px;">
+              <!-- CARD COMPARATIVO DE UNIDADES -->
+              <div class="agente-table-card" style="padding:20px;">
+                <h3 style="margin:0 0 12px; font-size:16px; color:#493477;">🏢 Comparativo Consolidado por Unidade (${esc(fechamentoCompetencia)})</h3>
+                <table class="agente-table" style="border:1px solid var(--line);">
+                  <thead>
+                    <tr style="background:#F4F1F8;">
+                      <th>INDICADOR</th>
+                      <th style="text-align:right; color:#1D4ED8;">🏙️ AV. PAULISTA</th>
+                      <th style="text-align:right; color:#0F766E;">🌿 GRANJA VIANA</th>
+                      <th style="text-align:right; color:#493477;">CONSOLIDADO</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight:700;">Profissionais Ativos</td>
+                      <td style="text-align:right; font-weight:700;">${profsPaulista.length}</td>
+                      <td style="text-align:right; font-weight:700;">${profsGranja.length}</td>
+                      <td style="text-align:right; font-weight:800;">${allProfs.length}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700;">Total de Atendimentos</td>
+                      <td style="text-align:right;">${profsPaulista.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0)}</td>
+                      <td style="text-align:right;">${profsGranja.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0)}</td>
+                      <td style="text-align:right; font-weight:800;">${sumAtendAll}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700;">Repasse Particular / Planos</td>
+                      <td style="text-align:right;">R$ ${profsPaulista.reduce((a,b)=>a+(Number(b.valor_particular)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right;">R$ ${profsGranja.reduce((a,b)=>a+(Number(b.valor_particular)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; font-weight:800; color:#6D28D9;">R$ ${sumPartAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700;">Repasse Convênios</td>
+                      <td style="text-align:right;">R$ ${profsPaulista.reduce((a,b)=>a+(Number(b.valor_convenio)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right;">R$ ${profsGranja.reduce((a,b)=>a+(Number(b.valor_convenio)||0),0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; font-weight:800; color:#0369A1;">R$ ${sumConvAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                    <tr style="background:#FAF8FC;">
+                      <td style="font-weight:800; color:#493477;">Repasse Bruto Total</td>
+                      <td style="text-align:right; font-weight:800; color:#1D4ED8;">R$ ${sumRepassePaulista.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; font-weight:800; color:#0F766E;">R$ ${sumRepasseGranja.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; font-weight:800; color:#493477;">R$ ${sumRepasseAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700;">Ticket Médio de Repasse / Sessão</td>
+                      <td style="text-align:right;">R$ ${(profsPaulista.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0) > 0 ? sumRepassePaulista / profsPaulista.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0) : 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right;">R$ ${(profsGranja.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0) > 0 ? sumRepasseGranja / profsGranja.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0) : 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; font-weight:800;">R$ ${(sumAtendAll > 0 ? sumRepasseAll / sumAtendAll : 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:700;">Líquido Pós-RPA (INSS 11% + IRRF)</td>
+                      <td style="text-align:right; color:#047857; font-weight:700;">R$ ${profsPaulista.reduce((a,b)=>a+calcImpostosRPA(b.valor_repasse_confirmado).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; color:#047857; font-weight:700;">R$ ${profsGranja.reduce((a,b)=>a+calcImpostosRPA(b.valor_repasse_confirmado).liquido,0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td style="text-align:right; color:#047857; font-weight:800;">R$ ${sumLiquidoRpaAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- CARD SIMULADOR BPO & DRE EXECUTIVO -->
+              <div class="agente-table-card" style="padding:20px;">
+                <h3 style="margin:0 0 12px; font-size:16px; color:#0F766E;">💰 BPO Financeiro &amp; Margem Líquida (${esc(fechamentoCompetencia)})</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Faturamento Bruto do Mês (R$)</label>
+                    <input type="number" step="0.01" id="bpo-fat-bruto" class="input" value="${fatBruto}">
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Alíquota Impostos NF (%)</label>
+                    <input type="number" step="0.1" id="bpo-imp-pct" class="input" value="${impPct}">
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Custos Fixos Paulista (R$)</label>
+                    <input type="number" step="0.01" id="bpo-fixo-paulista" class="input" value="${fixoPaulista}">
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Custos Fixos Granja Viana (R$)</label>
+                    <input type="number" step="0.01" id="bpo-fixo-granja" class="input" value="${fixoGranja}">
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Custos Variáveis / Sistemas (R$)</label>
+                    <input type="number" step="0.01" id="bpo-var-oper" class="input" value="${varOper}">
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-3);">Meta de Margem Líquida (%)</label>
+                    <input type="number" step="0.5" id="bpo-meta-margem" class="input" value="${Number(bpo.meta_margem_liquida_pct || 25)}">
+                  </div>
+                </div>
+
+                <div style="background:#F0FDF4; border:1px solid #BBF7D0; border-radius:10px; padding:12px; font-size:12.5px; margin-bottom:12px;">
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span>(+) Receita Líquida pós-Impostos (${impPct}%):</span>
+                    <b>R$ ${recLiquida.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:#493477;">
+                    <span>(−) Repasse Total Profissionais (${((sumRepasseAll / (fatBruto || 1)) * 100).toFixed(1)}%):</span>
+                    <b>− R$ ${sumRepasseAll.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                    <span>(=) Margem de Contribuição Clínica:</span>
+                    <b>R$ ${margemContrib.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; margin-bottom:6px; color:#B45309;">
+                    <span>(−) Custos Fixos (Paulista + Granja) + Variáveis:</span>
+                    <b>− R$ ${(fixoPaulista + fixoGranja + varOper).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</b>
+                  </div>
+                  <div style="display:flex; justify-content:space-between; padding-top:6px; border-top:1px solid #86EFAC; font-size:14px; font-weight:800; color:#15803D;">
+                    <span>(=) Resultado Operacional Líquido (Caixa Diretoria):</span>
+                    <span>R$ ${resultadoLiquidoBpo.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} (${margemLiquidaPct.toFixed(1)}%)</span>
+                  </div>
+                </div>
+
+                <button class="btn" style="width:100%; background:#0F766E; color:#fff; border:none; font-weight:800; justify-content:center;" onclick="saveBpoParameters()">
+                  💾 Salvar Parâmetros BPO de ${esc(fechamentoCompetencia)}
+                </button>
+              </div>
+            </div>
+          ` : ''}
+
+          ${fechamentoTab === 'capacidade_plano' ? `
+            <!-- ABA 4: CAPACIDADE OCIOSA DA AGENDA & PLANO DE AÇÃO EXECUTIVO -->
+            <div class="agente-table-card" style="padding:20px;">
+              <h3 style="margin:0 0 6px; font-size:16px; color:#1D4ED8;">🚀 Capacidade de Agenda por Profissional &amp; Potencial de Expansão (${esc(fechamentoCompetencia)})</h3>
+              <p style="margin:0 0 14px; font-size:12.5px; color:var(--text-2);">
+                Identifica automaticamente quais profissionais têm horários ociosos na Paulista e na Granja Viana para direcionamento das campanhas do Google Ads e conversão de planos particulares.
+              </p>
+              <div class="agente-table-scroll">
+                <table class="agente-table">
+                  <thead>
+                    <tr style="background:#EFF6FF;">
+                      <th style="color:#1D4ED8;">PROFISSIONAL</th>
+                      <th style="color:#1D4ED8;">UNIDADE</th>
+                      <th style="color:#1D4ED8; text-align:center;">CAPACIDADE MENSAL</th>
+                      <th style="color:#1D4ED8; text-align:center;">REALIZADOS + FALTAS</th>
+                      <th style="color:#1D4ED8; text-align:center;">HORÁRIOS OCIOSOS</th>
+                      <th style="color:#1D4ED8; text-align:center;">TAXA DE OCUPAÇÃO</th>
+                      <th style="color:#1D4ED8; text-align:right;">POTENCIAL SE OCUPAR +30% (PARTICULAR)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${filteredProfs.map(p => {
+                      const cap = Number(p.capacidade_agenda) || 120;
+                      const atd = Number(p.atendimentos_total) || 0;
+                      const ociosos = Math.max(0, cap - atd);
+                      const ocup = cap > 0 ? Math.min(100, Math.round((atd / cap) * 100)) : 0;
+                      const ganhoPotencialClinica = Math.round(ociosos * 0.3 * 165);
+                      return `
+                        <tr>
+                          <td style="font-weight:800;">${esc(p.nome_curto || p.profissional)}</td>
+                          <td>${esc(p.unidade)}</td>
+                          <td style="text-align:center; font-weight:700;">${cap} sessões</td>
+                          <td style="text-align:center; font-weight:700;">${atd} sessões</td>
+                          <td style="text-align:center; font-weight:800; color:${ociosos > 40 ? '#D97706' : '#059669'};">${ociosos} vagas livres</td>
+                          <td style="text-align:center; font-weight:800;">${ocup}%</td>
+                          <td style="text-align:right; font-weight:800; color:#15803D;">+ R$ ${ganhoPotencialClinica.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / mês</td>
+                        </tr>
+                      `;
+                    }).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    async function saveBpoParameters() {
+      const bpo = {
+        faturamento_bruto_estimado: parseFloat(document.getElementById('bpo-fat-bruto').value) || 0,
+        impostos_nf_pct: parseFloat(document.getElementById('bpo-imp-pct').value) || 6,
+        custos_fixos_paulista: parseFloat(document.getElementById('bpo-fixo-paulista').value) || 28500,
+        custos_fixos_granja: parseFloat(document.getElementById('bpo-fixo-granja').value) || 14200,
+        custos_variaveis_operacionais: parseFloat(document.getElementById('bpo-var-oper').value) || 6800,
+        meta_margem_liquida_pct: parseFloat(document.getElementById('bpo-meta-margem').value) || 25
+      };
+      const r = await api('fechamento-profissionais', {
+        action: 'save_bpo',
+        competencia: fechamentoCompetencia,
+        bpo
+      });
+      if (r.ok) {
+        toast('✅ Parâmetros de BPO salvos permanentemente no banco!');
+        loadFechamentoData(false);
+      } else {
+        toast(r.error || 'Erro ao salvar BPO', true);
+      }
+    }
+
+    // =========================================================
+    // GERADOR DO FOLDER PDF INDIVIDUAL OFICIAL DA CREABILY (#493477 & #1DAAA9)
+    // =========================================================
+    function exportProfissionalFolderPdf(profId) {
+      const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
+      const p = allProfs.find(x => Number(x.id) === Number(profId));
+      if (!p) { toast('Profissional não encontrado', true); return; }
+
+      const rep = Number(p.valor_repasse_confirmado) || 0;
+      const rpa = calcImpostosRPA(rep);
+      const cap = Number(p.capacidade_agenda) || 120;
+      const atd = Number(p.atendimentos_total) || 0;
+      const ocup = cap > 0 ? Math.min(100, Math.round((atd / cap) * 100)) : 0;
+      const composicao = Array.isArray(p.composicao_json) ? p.composicao_json : [];
+      const convenios = Array.isArray(p.convenios_json) ? p.convenios_json : [];
+      const atendimentos = Array.isArray(p.atendimentos_json) ? p.atendimentos_json : [];
+
+      const win = window.open('', '_blank');
+      if (!win) { toast('Permita pop-ups para visualizar/imprimir o Folder PDF', true); return; }
+
+      win.document.write(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Fechamento Individual - ${esc(p.nome_curto || p.profissional)} (${esc(fechamentoCompetencia)})</title>
+  <style>
+    @page { size: A4 portrait; margin: 12mm; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; }
+    body { margin: 0; padding: 0; color: #1F2933; background: #fff; font-size: 11px; }
+    .header { background: #493477; color: #fff; padding: 18px 22px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid #1DAAA9; }
+    .header h1 { margin: 0; font-size: 17px; letter-spacing: 0.4px; }
+    .header .sub { margin-top: 4px; font-size: 12px; color: #E2DCF0; font-weight: 600; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+    .kpi { background: #F4F1F8; border: 1px solid #D8CEE8; border-top: 3px solid #493477; border-radius: 8px; padding: 10px 12px; }
+    .kpi .lbl { font-size: 9.5px; text-transform: uppercase; color: #667085; font-weight: 700; }
+    .kpi .val { font-size: 18px; font-weight: 800; color: #493477; margin-top: 4px; }
+    .sec-title { background: #493477; color: #fff; padding: 6px 12px; font-size: 11px; font-weight: 800; border-radius: 5px; margin: 14px 0 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 10.5px; }
+    th { background: #E8F6F6; color: #1F2933; font-weight: 800; padding: 6px 8px; border: 1px solid #D8D2E5; text-align: left; }
+    td { padding: 5px 8px; border: 1px solid #D8D2E5; }
+    tr:nth-child(even) td { background: #FAF9FC; }
+    .tot-row td { background: #E8F6F6 !important; font-weight: 800; color: #493477; }
+    .obs-box { background: #F4F1F8; border-left: 4px solid #1DAAA9; padding: 9px 12px; border-radius: 6px; font-size: 10.5px; color: #1F2933; margin: 10px 0; }
+    .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 28px; padding-top: 16px; }
+    .sig-line { border-top: 1px solid #493477; text-align: center; padding-top: 6px; font-size: 10.5px; font-weight: 700; color: #493477; }
+    .footer { margin-top: 18px; padding-top: 8px; border-top: 2px solid #1DAAA9; display: flex; justify-content: space-between; font-size: 9.5px; color: #667085; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="background:#1F2933; color:#fff; padding:10px 18px; display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; border-radius:8px;">
+    <span><b>📄 Folder Executivo Individual Creabily</b> — Pronto para impressão ou salvar como PDF</span>
+    <button onclick="window.print()" style="background:#1DAAA9; color:#fff; border:none; padding:8px 16px; border-radius:6px; font-weight:800; cursor:pointer;">🖨️ Imprimir / Salvar PDF</button>
+  </div>
+
+  <div class="header">
+    <div>
+      <h1>CREABILY | FECHAMENTO INDIVIDUAL DE HONORÁRIOS</h1>
+      <div class="sub">${esc(p.profissional)} • Competência ${esc(fechamentoCompetencia)} • Unidade ${esc(p.unidade)}</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:11px; color:#E2DCF0;">Status da Conferência</div>
+      <div style="font-size:13px; font-weight:800; color:#1DAAA9; background:#fff; padding:3px 10px; border-radius:999px; margin-top:3px;">${esc(p.status_auditoria || 'CONFERIDO')}</div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="lbl">Atendimentos no Mês</div>
+      <div class="val">${atd}</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Finalizados</div>
+      <div class="val" style="color:#16A34A;">${p.finalizados || 0}</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Não Compareceu (Pago)</div>
+      <div class="val" style="color:#D97706;">${p.nao_compareceu || 0}</div>
+    </div>
+    <div class="kpi" style="background:#E8F6F6; border-top-color:#1DAAA9;">
+      <div class="lbl" style="color:#0F766E;">Repasse Total (R$)</div>
+      <div class="val" style="color:#0F766E;">R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+    </div>
+  </div>
+
+  <div class="sec-title">1. Composição do Repasse por Modalidade / Procedimento</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Modalidade / Regra Aplicada</th>
+        <th>Convênio / Categoria</th>
+        <th style="text-align:center;">Atendimentos</th>
+        <th style="text-align:center;">Finalizados</th>
+        <th style="text-align:center;">Faltas Pagas</th>
+        <th style="text-align:right;">Valor Unitário</th>
+        <th style="text-align:right;">Total (R$)</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${composicao.map(c => `
+        <tr>
+          <td style="font-weight:700;">${esc(c.modalidade)}</td>
+          <td>${esc(c.convenio || 'Geral')}</td>
+          <td style="text-align:center; font-weight:700;">${c.qtd || 0}</td>
+          <td style="text-align:center;">${c.finalizados ?? c.qtd ?? 0}</td>
+          <td style="text-align:center;">${c.faltas || 0}</td>
+          <td style="text-align:right;">R$ ${(Number(c.unitario) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+          <td style="text-align:right; font-weight:700;">R$ ${(Number(c.total) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+        </tr>
+      `).join('')}
+      <tr class="tot-row">
+        <td colspan="2">TOTAL CONSOLIDADO DO PROFISSIONAL</td>
+        <td style="text-align:center;">${atd}</td>
+        <td style="text-align:center;">${p.finalizados || 0}</td>
+        <td style="text-align:center;">${p.nao_compareceu || 0}</td>
+        <td style="text-align:right;">Média R$ ${(atd > 0 ? rep / atd : 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+        <td style="text-align:right;">R$ ${rep.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+    <div>
+      <div class="sec-title">2. Resumo por Convênio / Origem</div>
+      <table>
+        <thead>
+          <tr>
+            <th>Convênio / Plano</th>
+            <th style="text-align:center;">Qtd.</th>
+            <th style="text-align:right;">Repasse (R$)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${(convenios.length ? convenios : [
+            { convenio: 'Creabily Particular / Planos', qtd: Math.round(atd * (Number(p.valor_particular || 0) / (rep || 1))), total: Number(p.valor_particular || 0) },
+            { convenio: 'Convênios Credenciados', qtd: Math.round(atd * (Number(p.valor_convenio || 0) / (rep || 1))), total: Number(p.valor_convenio || 0) }
+          ]).map(cv => `
+            <tr>
+              <td style="font-weight:700;">${esc(cv.convenio)}</td>
+              <td style="text-align:center;">${cv.qtd || 0}</td>
+              <td style="text-align:right; font-weight:700;">R$ ${(Number(cv.total) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="sec-title">3. Indicadores de Capacidade &amp; Retenções</div>
+      <table>
+        <tbody>
+          <tr><td><b>Capacidade Mensal Estimada</b></td><td style="text-align:right;">${cap} horários (${ocup}% ocupação)</td></tr>
+          <tr><td><b>Repasse Particular vs. Convênio</b></td><td style="text-align:right;">R$ ${(Number(p.valor_particular)||0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })} / R$ ${(Number(p.valor_convenio)||0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+          <tr><td><b>Simulação INSS RPA (11% teto)</b></td><td style="text-align:right;">R$ ${rpa.inss.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+          <tr><td><b>Simulação Líquido Pós-RPA</b></td><td style="text-align:right; font-weight:800; color:#0F766E;">R$ ${rpa.liquido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="obs-box">
+    <b>Nota de Auditoria &amp; Critério Aplicado:</b> ${esc(p.observacao_auditoria || 'Atendimentos Finalizados e Não Compareceu remunerados integralmente conforme Tabela Oficial de Honorários Creabily.')}
+  </div>
+
+  ${atendimentos.length > 0 ? `
+    <div class="sec-title">4. Demonstrativo Amostral dos Atendimentos Auditados (${atendimentos.length} registros)</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Paciente</th>
+          <th>Convênio</th>
+          <th>Procedimento / Modalidade</th>
+          <th style="text-align:center;">Status</th>
+          <th style="text-align:right;">Repasse (R$)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${atendimentos.slice(0, 35).map(a => `
+          <tr>
+            <td>${esc(a.data || '')}</td>
+            <td style="font-weight:600;">${esc(a.paciente || '')}</td>
+            <td>${esc(a.convenio || '')}</td>
+            <td>${esc(a.procedimento || '')}</td>
+            <td style="text-align:center;">${esc(a.status || 'Finalizado')}</td>
+            <td style="text-align:right; font-weight:700;">R$ ${(Number(a.unitario) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  ` : ''}
+
+  <div class="sig-grid">
+    <div class="sig-line">CREABILY ARTE DA CURA — Diretoria Executiva (Dra. Camila Ostan)</div>
+    <div class="sig-line">${esc(p.profissional)} — Conferência e De Acordo</div>
+  </div>
+
+  <div class="footer">
+    <span>CREABILY • Conferência Oficial de Honorários | Competência ${esc(fechamentoCompetencia)}</span>
+    <span>Emitido em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+  </div>
+</body>
+</html>`);
+      win.document.close();
+    }
+
+    // =========================================================
+    // EXPORTAÇÃO EXCEL INDIVIDUAL (.XLSX) POR PROFISSIONAL (3 ABAS)
+    // =========================================================
+    function exportProfissionalExcel(profId) {
+      if (typeof XLSX === 'undefined') { toast('Biblioteca Excel ainda carregando...', true); return; }
+      const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
+      const p = allProfs.find(x => Number(x.id) === Number(profId));
+      if (!p) return;
+
+      const rep = Number(p.valor_repasse_confirmado) || 0;
+      const rpa = calcImpostosRPA(rep);
+      const wb = XLSX.utils.book_new();
+
+      const resumoRows = [
+        ['CREABILY • FECHAMENTO INDIVIDUAL DE HONORÁRIOS', fechamentoCompetencia],
+        ['Profissional', p.profissional],
+        ['Nome Curto', p.nome_curto],
+        ['Especialidade / Função', p.funcao],
+        ['Unidade', p.unidade],
+        ['Atendimentos Registrados', Number(p.atendimentos_total) || 0],
+        ['Finalizados', Number(p.finalizados) || 0],
+        ['Não Compareceu (Pago)', Number(p.nao_compareceu) || 0],
+        ['Capacidade da Agenda', Number(p.capacidade_agenda) || 120],
+        ['Repasse Particular (R$)', Number(p.valor_particular) || 0],
+        ['Repasse Convênios (R$)', Number(p.valor_convenio) || 0],
+        ['Repasse Bruto Confirmado (R$)', rep],
+        ['INSS Retido Estimado (R$)', rpa.inss],
+        ['IRRF Estimado (R$)', rpa.irrf],
+        ['Líquido Pós-RPA Estimado (R$)', rpa.liquido],
+        ['Status de Auditoria', p.status_auditoria || 'CONFERIDO'],
+        ['Observação de Auditoria', p.observacao_auditoria || ''],
+        [],
+        ['COMPOSIÇÃO POR MODALIDADE', 'CONVÊNIO', 'QTD', 'FINALIZADOS', 'FALTAS PAGAS', 'UNITÁRIO (R$)', 'TOTAL (R$)'],
+        ...(Array.isArray(p.composicao_json) ? p.composicao_json : []).map(c => [
+          c.modalidade, c.convenio || '', Number(c.qtd) || 0, Number(c.finalizados ?? c.qtd) || 0, Number(c.faltas) || 0, Number(c.unitario) || 0, Number(c.total) || 0
+        ])
+      ];
+      const wsResumo = XLSX.utils.aoa_to_sheet(resumoRows);
+      XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo_Profissional');
+
+      const atendRows = [
+        ['Data', 'Paciente', 'Convênio', 'Procedimento / Modalidade', 'Status', 'Repasse Unitário (R$)', 'Observação'],
+        ...(Array.isArray(p.atendimentos_json) ? p.atendimentos_json : []).map(a => [
+          a.data || '', a.paciente || '', a.convenio || '', a.procedimento || '', a.status || 'Finalizado', Number(a.unitario) || 0, a.observacao || 'Tabela Oficial'
+        ])
+      ];
+      const wsAtend = XLSX.utils.aoa_to_sheet(atendRows);
+      XLSX.utils.book_append_sheet(wb, wsAtend, 'Atendimentos');
+
+      const convRows = [
+        ['Convênio / Origem', 'Quantidade', 'Total Repasse (R$)'],
+        ...(Array.isArray(p.convenios_json) ? p.convenios_json : []).map(c => [
+          c.convenio || '', Number(c.qtd) || 0, Number(c.total) || 0
+        ])
+      ];
+      const wsConv = XLSX.utils.aoa_to_sheet(convRows);
+      XLSX.utils.book_append_sheet(wb, wsConv, 'Por_Convenio');
+
+      const safeName = String(p.nome_curto || p.profissional).replace(/[^a-zA-Z0-9_-]/g, '_');
+      XLSX.writeFile(wb, `Fechamento_${fechamentoCompetencia.replace('/', '_')}_${safeName}.xlsx`);
+      toast(`📊 Planilha individual de ${p.nome_curto} baixada!`);
+    }
+
+    // =========================================================
+    // EXPORTAÇÃO PLANILHA CONSOLIDADA 10 ABAS OFICIAIS (.XLSX)
+    // =========================================================
+    function exportFechamentoConsolidado10Abas() {
+      if (typeof XLSX === 'undefined') { toast('Biblioteca Excel ainda carregando...', true); return; }
+      const data = fechamentoData || { profissionais: [], regras: [], bpo: {} };
+      const allProfs = data.profissionais || [];
+      const allRegras = data.regras || [];
+      const bpo = data.bpo || {};
+      const wb = XLSX.utils.book_new();
+
+      const sumRepasseAll = allProfs.reduce((s, p) => s + (Number(p.valor_repasse_confirmado) || 0), 0);
+      const sumAtendAll = allProfs.reduce((s, p) => s + (Number(p.atendimentos_total) || 0), 0);
+      const profsPaulista = allProfs.filter(p => p.unidade === 'Paulista');
+      const profsGranja = allProfs.filter(p => p.unidade === 'Granja/Jandira');
+
+      // 1. Painel_Fechamento
+      const ws1 = XLSX.utils.aoa_to_sheet([
+        ['CREABILY ARTE DA CURA — PAINEL EXECUTIVO DE FECHAMENTO DE PROFISSIONAIS', fechamentoCompetencia],
+        ['Competência', fechamentoCompetencia],
+        ['Total de Profissionais', allProfs.length],
+        ['Total de Atendimentos Auditados', sumAtendAll],
+        ['Repasse Total Consolidado (R$)', sumRepasseAll],
+        ['Repasse Unidade Av. Paulista (R$)', profsPaulista.reduce((s, p) => s + (Number(p.valor_repasse_confirmado) || 0), 0)],
+        ['Repasse Unidade Granja Viana (R$)', profsGranja.reduce((s, p) => s + (Number(p.valor_repasse_confirmado) || 0), 0)],
+        ['Total de Regras Fixas Ativas', allRegras.length]
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws1, 'Painel_Fechamento');
+
+      // 2. Fechamento_Profissionais
+      const ws2 = XLSX.utils.aoa_to_sheet([
+        ['Unidade', 'Profissional', 'Nome Curto', 'Função', 'Atendimentos', 'Finalizados', 'Não Compareceu', 'Capacidade Agenda', 'Particular (R$)', 'Convênios (R$)', 'Repasse Calculado (R$)', 'Repasse Confirmado (R$)', 'INSS RPA (R$)', 'IRRF (R$)', 'Líquido Pós-RPA (R$)', 'Status Auditoria', 'Observações'],
+        ...allProfs.map(p => {
+          const rpa = calcImpostosRPA(p.valor_repasse_confirmado);
+          return [
+            p.unidade, p.profissional, p.nome_curto, p.funcao,
+            Number(p.atendimentos_total) || 0, Number(p.finalizados) || 0, Number(p.nao_compareceu) || 0, Number(p.capacidade_agenda) || 120,
+            Number(p.valor_particular) || 0, Number(p.valor_convenio) || 0,
+            Number(p.valor_repasse_calculado) || 0, Number(p.valor_repasse_confirmado) || 0,
+            rpa.inss, rpa.irrf, rpa.liquido,
+            p.status_auditoria || 'CONFERIDO', p.observacao_auditoria || ''
+          ];
+        })
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws2, 'Fechamento_Profissionais');
+
+      // 3. Fechamento_Unidades
+      const ws3 = XLSX.utils.aoa_to_sheet([
+        ['Unidade', 'Qtd Profissionais', 'Atendimentos', 'Repasse Particular (R$)', 'Repasse Convênio (R$)', 'Repasse Total (R$)'],
+        ['Av. Paulista', profsPaulista.length, profsPaulista.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0), profsPaulista.reduce((a,b)=>a+(Number(b.valor_particular)||0),0), profsPaulista.reduce((a,b)=>a+(Number(b.valor_convenio)||0),0), profsPaulista.reduce((a,b)=>a+(Number(b.valor_repasse_confirmado)||0),0)],
+        ['Granja Viana / Jandira', profsGranja.length, profsGranja.reduce((a,b)=>a+(Number(b.atendimentos_total)||0),0), profsGranja.reduce((a,b)=>a+(Number(b.valor_particular)||0),0), profsGranja.reduce((a,b)=>a+(Number(b.valor_convenio)||0),0), profsGranja.reduce((a,b)=>a+(Number(b.valor_repasse_confirmado)||0),0)],
+        ['TOTAL CONSOLIDADO', allProfs.length, sumAtendAll, allProfs.reduce((a,b)=>a+(Number(b.valor_particular)||0),0), allProfs.reduce((a,b)=>a+(Number(b.valor_convenio)||0),0), sumRepasseAll]
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws3, 'Fechamento_Unidades');
+
+      // 4. Tabela_Honorarios_Referencia
+      const ws4 = XLSX.utils.aoa_to_sheet([
+        ['Área', 'Profissional', 'Unidade', 'Convênio / Plano', 'Procedimento Padrão', 'Palavras-Chave', 'Valor Repasse (R$)', 'Prioridade', 'Paga Falta', 'Observação'],
+        ...allRegras.map(r => [
+          r.area, r.profissional, r.unidade, r.convenio, r.procedimento_padrao, r.palavras_chave, Number(r.valor_repasse) || 0, Number(r.prioridade) || 80, 'SIM', r.observacao || ''
+        ])
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws4, 'Tabela_Honorarios_Referencia');
+
+      // 5. BPO_Resumo
+      const fat = Number(bpo.faturamento_bruto_estimado) || 228450;
+      const imp = fat * ((Number(bpo.impostos_nf_pct) || 6) / 100);
+      const fixP = Number(bpo.custos_fixos_paulista) || 28500;
+      const fixG = Number(bpo.custos_fixos_granja) || 14200;
+      const varO = Number(bpo.custos_variaveis_operacionais) || 6800;
+      const resLiq = fat - imp - sumRepasseAll - fixP - fixG - varO;
+      const ws5 = XLSX.utils.aoa_to_sheet([
+        ['BPO FINANCEIRO & DRE MENSAL', fechamentoCompetencia],
+        ['Faturamento Bruto Estimado (R$)', fat],
+        ['Impostos NF (R$)', imp],
+        ['Receita Líquida (R$)', fat - imp],
+        ['Total Repasse Profissionais (R$)', sumRepasseAll],
+        ['Margem de Contribuição (R$)', fat - imp - sumRepasseAll],
+        ['Custos Fixos Paulista (R$)', fixP],
+        ['Custos Fixos Granja Viana (R$)', fixG],
+        ['Custos Variáveis Operacionais (R$)', varO],
+        ['Resultado Operacional Líquido (R$)', resLiq],
+        ['Margem Líquida (%)', fat > 0 ? Number(((resLiq / fat) * 100).toFixed(2)) : 0]
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws5, 'BPO_Resumo');
+
+      // 6. Capacidade_Profissionais
+      const ws6 = XLSX.utils.aoa_to_sheet([
+        ['Profissional', 'Unidade', 'Capacidade Mensal', 'Atendimentos Realizados', 'Horários Ociosos', 'Ocupação (%)'],
+        ...allProfs.map(p => {
+          const cap = Number(p.capacidade_agenda) || 120;
+          const atd = Number(p.atendimentos_total) || 0;
+          return [p.profissional, p.unidade, cap, atd, Math.max(0, cap - atd), cap > 0 ? Math.round((atd / cap) * 100) : 0];
+        })
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws6, 'Capacidade_Profissionais');
+
+      // 7. Base_Calculo
+      const baseCalcRows = [['Profissional', 'Unidade', 'Modalidade', 'Convênio', 'Quantidade', 'Finalizados', 'Faltas Pagas', 'Unitário (R$)', 'Total (R$)']];
+      allProfs.forEach(p => {
+        (Array.isArray(p.composicao_json) ? p.composicao_json : []).forEach(c => {
+          baseCalcRows.push([p.profissional, p.unidade, c.modalidade, c.convenio || '', Number(c.qtd) || 0, Number(c.finalizados ?? c.qtd) || 0, Number(c.faltas) || 0, Number(c.unitario) || 0, Number(c.total) || 0]);
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(baseCalcRows), 'Base_Calculo');
+
+      // 8. Base_Atendimentos_Mes
+      const baseAtendRows = [['Profissional', 'Unidade', 'Data', 'Paciente', 'Convênio', 'Procedimento', 'Status', 'Repasse Unitário (R$)']];
+      allProfs.forEach(p => {
+        (Array.isArray(p.atendimentos_json) ? p.atendimentos_json : []).forEach(a => {
+          baseAtendRows.push([p.profissional, p.unidade, a.data || '', a.paciente || '', a.convenio || '', a.procedimento || '', a.status || 'Finalizado', Number(a.unitario) || 0]);
+        });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(baseAtendRows), 'Base_Atendimentos_Mes');
+
+      // 9. Auditoria_Divergencias
+      const ws9 = XLSX.utils.aoa_to_sheet([
+        ['Profissional', 'Unidade', 'Repasse Calculado (R$)', 'Repasse Confirmado (R$)', 'Diferença (R$)', 'Status', 'Nota de Auditoria'],
+        ...allProfs.map(p => [
+          p.profissional, p.unidade, Number(p.valor_repasse_calculado) || 0, Number(p.valor_repasse_confirmado) || 0,
+          (Number(p.valor_repasse_confirmado) || 0) - (Number(p.valor_repasse_calculado) || 0),
+          p.status_auditoria || 'CONFERIDO', p.observacao_auditoria || ''
+        ])
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws9, 'Auditoria_Divergencias');
+
+      // 10. Plano_Acoes
+      const ws10 = XLSX.utils.aoa_to_sheet([
+        ['Prioridade', 'Frente', 'Ação Recomendada', 'Responsável', 'Impacto Esperado'],
+        ['Alta', 'Padronização Ágil', 'Garantir preenchimento da descrição do plano (ex: Espaço Uni, Anual, 24 sessões) em 100% dos agendamentos da Granja Viana', 'Recepção', 'Zerar divergências automáticas no fechamento'],
+        ['Alta', 'Expansão Comercial', 'Direcionar tráfego Google Ads para profissionais com ocupação abaixo de 70% na Paulista e Granja', 'Marketing / Beatriz IA', '+R$ 25.000 a R$ 40.000/mês em planos particulares'],
+        ['Média', 'Conversão Particular', 'Oferecer Plano Fisio 24 sessões e Pilates Semestral para pacientes no fim do ciclo 8/10 ou 10/10 de convênio', 'Fisioterapeutas / Recepção', 'Aumento do ticket médio e margem líquida BPO']
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws10, 'Plano_Acoes');
+
+      XLSX.writeFile(wb, `Fechamento_Profissionais_Creabily_${fechamentoCompetencia.replace('/', '_')}_Completo_10_Abas.xlsx`);
+      toast('📊 Planilha Consolidada Oficial (10 Abas) gerada com sucesso!');
+    }
+
+    // =========================================================
+    // MODAIS DE EDIÇÃO DE PROFISSIONAL E DE REGRA DE HONORÁRIOS
+    // =========================================================
+    function openProfissionalModal(profId) {
+      const allProfs = (fechamentoData && fechamentoData.profissionais) || [];
+      const p = profId ? allProfs.find(x => Number(x.id) === Number(profId)) : {
+        id: null,
+        profissional: '',
+        nome_curto: '',
+        funcao: 'Fisioterapeuta',
+        unidade: 'Paulista',
+        atendimentos_total: 0,
+        finalizados: 0,
+        nao_compareceu: 0,
+        capacidade_agenda: 140,
+        valor_repasse_confirmado: 0,
+        valor_particular: 0,
+        valor_convenio: 0,
+        status_auditoria: 'VALIDADO DIRETORIA',
+        observacao_auditoria: '',
+        composicao_json: []
+      };
+      if (!p) return;
+
+      const modalRoot = document.getElementById('modal-root');
+      modalRoot.innerHTML = `
+        <div class="modal-backdrop" onclick="if(event.target === this) closeAgenteImportModal()">
+          <div class="modal-box-lg" style="max-width:720px;">
+            <div class="modal-header" style="background:#F4F1F8; border-bottom-color:#D8CEE8;">
+              <div class="modal-title" style="color:#493477;">
+                <span>👩‍⚕️ ${p.id ? `Detalhes & Ajuste — ${esc(p.nome_curto || p.profissional)}` : 'Novo Profissional no Fechamento'} (${esc(fechamentoCompetencia)})</span>
+              </div>
+              <button class="modal-close" onclick="closeAgenteImportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Nome Completo / Sistema Ágil</label>
+                  <input id="fp-nome" class="input" value="${esc(p.profissional || p.nome_curto)}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Nome Curto (Exibição)</label>
+                  <input id="fp-curto" class="input" value="${esc(p.nome_curto)}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Função / Especialidade</label>
+                  <input id="fp-funcao" class="input" value="${esc(p.funcao)}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Unidade</label>
+                  <select id="fp-unidade" class="input">
+                    <option value="Paulista" ${p.unidade === 'Paulista' ? 'selected' : ''}>🏙️ Av. Paulista</option>
+                    <option value="Granja/Jandira" ${p.unidade === 'Granja/Jandira' ? 'selected' : ''}>🌿 Granja Viana / Jandira</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Total Atendimentos</label>
+                  <input type="number" id="fp-atend" class="input" value="${p.atendimentos_total || 0}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Finalizados / Faltas Pagas</label>
+                  <div style="display:flex; gap:6px;">
+                    <input type="number" id="fp-fin" class="input" value="${p.finalizados || 0}" placeholder="Finalizados">
+                    <input type="number" id="fp-faltas" class="input" value="${p.nao_compareceu || 0}" placeholder="Faltas">
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700; color:#493477;">Repasse Confirmado (R$)</label>
+                  <input type="number" step="0.01" id="fp-repasse" class="input" style="font-weight:800; border-color:#493477;" value="${p.valor_repasse_confirmado || 0}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Capacidade Mensal Agenda</label>
+                  <input type="number" id="fp-cap" class="input" value="${p.capacidade_agenda || 140}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Parcela Particular (R$)</label>
+                  <input type="number" step="0.01" id="fp-part" class="input" value="${p.valor_particular || 0}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Parcela Convênios (R$)</label>
+                  <input type="number" step="0.01" id="fp-conv" class="input" value="${p.valor_convenio || 0}">
+                </div>
+                <div style="grid-column: span 2;">
+                  <label style="font-size:11px; font-weight:700;">Status de Auditoria</label>
+                  <select id="fp-status" class="input">
+                    <option value="VALIDADO DIRETORIA" ${p.status_auditoria === 'VALIDADO DIRETORIA' ? 'selected' : ''}>VALIDADO DIRETORIA</option>
+                    <option value="CONFERIDO" ${p.status_auditoria === 'CONFERIDO' ? 'selected' : ''}>CONFERIDO</option>
+                    <option value="REVISAR DIVERGÊNCIA" ${p.status_auditoria === 'REVISAR DIVERGÊNCIA' ? 'selected' : ''}>REVISAR DIVERGÊNCIA</option>
+                  </select>
+                </div>
+                <div style="grid-column: span 2;">
+                  <label style="font-size:11px; font-weight:700;">Observações de Auditoria / Memória de Cálculo</label>
+                  <textarea id="fp-obs" class="input" rows="2">${esc(p.observacao_auditoria || '')}</textarea>
+                </div>
+              </div>
+
+              ${Array.isArray(p.composicao_json) && p.composicao_json.length ? `
+                <div style="margin-top:12px;">
+                  <div style="font-size:11.5px; font-weight:800; color:#493477; margin-bottom:6px;">Composição Detalhada do Mês:</div>
+                  <table style="width:100%; border-collapse:collapse; font-size:11.5px;">
+                    <thead>
+                      <tr style="background:#F4F1F8;">
+                        <th style="padding:5px; text-align:left;">Modalidade</th>
+                        <th style="padding:5px; text-align:center;">Qtd</th>
+                        <th style="padding:5px; text-align:right;">Unitário</th>
+                        <th style="padding:5px; text-align:right;">Total</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${p.composicao_json.map(c => `
+                        <tr style="border-bottom:1px solid var(--line);">
+                          <td style="padding:5px; font-weight:700;">${esc(c.modalidade)}</td>
+                          <td style="padding:5px; text-align:center;">${c.qtd}</td>
+                          <td style="padding:5px; text-align:right;">R$ ${(Number(c.unitario)||0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                          <td style="padding:5px; text-align:right; font-weight:700;">R$ ${(Number(c.total)||0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              ` : ''}
+
+              <div style="display:flex; justify-content:space-between; gap:8px; margin-top:16px;">
+                <div>
+                  ${p.id ? `<button class="btn" style="background:#493477; color:#fff; border:none;" onclick="exportProfissionalFolderPdf(${p.id})">📄 Abrir Folder PDF</button>` : ''}
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button class="btn btn-ghost" onclick="closeAgenteImportModal()">Cancelar</button>
+                  <button class="btn btn-primary" style="background:#0F766E; border-color:#0F766E;" onclick="saveProfissionalModal(${p.id || 'null'})">💾 Salvar Fechamento</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function saveProfissionalModal(id) {
+      const prof = {
+        id: id || null,
+        profissional: document.getElementById('fp-nome').value,
+        nome_curto: document.getElementById('fp-curto').value || document.getElementById('fp-nome').value,
+        funcao: document.getElementById('fp-funcao').value,
+        unidade: document.getElementById('fp-unidade').value,
+        atendimentos_total: document.getElementById('fp-atend').value,
+        finalizados: document.getElementById('fp-fin').value,
+        nao_compareceu: document.getElementById('fp-faltas').value,
+        valor_repasse_confirmado: document.getElementById('fp-repasse').value,
+        capacidade_agenda: document.getElementById('fp-cap').value,
+        valor_particular: document.getElementById('fp-part').value,
+        valor_convenio: document.getElementById('fp-conv').value,
+        status_auditoria: document.getElementById('fp-status').value,
+        observacao_auditoria: document.getElementById('fp-obs').value
+      };
+      const r = await api('fechamento-profissionais', {
+        action: 'save_prof',
+        competencia: fechamentoCompetencia,
+        prof
+      });
+      if (r.ok) {
+        toast('✅ Fechamento do profissional salvo no banco!');
+        closeAgenteImportModal();
+        loadFechamentoData(false);
+      } else {
+        toast(r.error || 'Erro ao salvar profissional', true);
+      }
+    }
+
+    function openRegraHonorarioModal(regraId) {
+      const allRegras = (fechamentoData && fechamentoData.regras) || [];
+      const r = regraId ? allRegras.find(x => Number(x.id) === Number(regraId)) : {
+        id: null,
+        area: 'Fisioterapia',
+        profissional: 'TODOS',
+        unidade: 'TODAS',
+        convenio: 'Todos os Convênios',
+        procedimento_padrao: '',
+        palavras_chave: '',
+        valor_repasse: 35.00,
+        prioridade: 85,
+        observacao: ''
+      };
+      if (!r) return;
+
+      const modalRoot = document.getElementById('modal-root');
+      modalRoot.innerHTML = `
+        <div class="modal-backdrop" onclick="if(event.target === this) closeAgenteImportModal()">
+          <div class="modal-box-lg" style="max-width:620px;">
+            <div class="modal-header" style="background:#E6F7F7; border-bottom-color:#A5E3E2;">
+              <div class="modal-title" style="color:#117A79;">
+                <span>⚙️ ${r.id ? 'Editar Regra Permanente de Honorário' : 'Nova Regra Permanente de Honorário'}</span>
+              </div>
+              <button class="modal-close" onclick="closeAgenteImportModal()">✕</button>
+            </div>
+            <div class="modal-body">
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Área</label>
+                  <select id="fr-area" class="input">
+                    ${['Pilates', 'Colete iMotion', 'Fisioterapia', 'Nutrição', 'Psicologia', 'Terapias Especiais'].map(a => `<option value="${a}" ${r.area === a ? 'selected' : ''}>${a}</option>`).join('')}
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Unidade</label>
+                  <select id="fr-unidade" class="input">
+                    <option value="TODAS" ${r.unidade === 'TODAS' ? 'selected' : ''}>TODAS</option>
+                    <option value="Paulista" ${r.unidade === 'Paulista' ? 'selected' : ''}>Av. Paulista</option>
+                    <option value="Granja/Jandira" ${r.unidade === 'Granja/Jandira' ? 'selected' : ''}>Granja Viana / Jandira</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Profissional (ou TODOS)</label>
+                  <input id="fr-prof" class="input" value="${esc(r.profissional || 'TODOS')}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Convênio / Plano</label>
+                  <input id="fr-conv" class="input" value="${esc(r.convenio || '')}">
+                </div>
+                <div style="grid-column: span 2;">
+                  <label style="font-size:11px; font-weight:700;">Procedimento Padrão</label>
+                  <input id="fr-proc" class="input" value="${esc(r.procedimento_padrao || '')}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700; color:#047857;">Valor de Repasse Fixo (R$)</label>
+                  <input type="number" step="0.01" id="fr-valor" class="input" style="font-weight:800;" value="${r.valor_repasse || 0}">
+                </div>
+                <div>
+                  <label style="font-size:11px; font-weight:700;">Prioridade (1 a 100)</label>
+                  <input type="number" id="fr-prio" class="input" value="${r.prioridade || 85}">
+                </div>
+                <div style="grid-column: span 2;">
+                  <label style="font-size:11px; font-weight:700;">Palavras-Chave de Identificação Automática no Ágil</label>
+                  <input id="fr-kw" class="input" value="${esc(r.palavras_chave || '')}">
+                </div>
+                <div style="grid-column: span 2;">
+                  <label style="font-size:11px; font-weight:700;">Observação / Regra</label>
+                  <textarea id="fr-obs" class="input" rows="2">${esc(r.observacao || '')}</textarea>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+                <button class="btn btn-ghost" onclick="closeAgenteImportModal()">Cancelar</button>
+                <button class="btn btn-primary" style="background:#1DAAA9; border-color:#1DAAA9;" onclick="saveRegraHonorarioModal(${r.id || 'null'})">💾 Salvar Regra Fixa</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function saveRegraHonorarioModal(id) {
+      const regra = {
+        id: id || null,
+        area: document.getElementById('fr-area').value,
+        unidade: document.getElementById('fr-unidade').value,
+        profissional: document.getElementById('fr-prof').value || 'TODOS',
+        convenio: document.getElementById('fr-conv').value,
+        procedimento_padrao: document.getElementById('fr-proc').value,
+        valor_repasse: document.getElementById('fr-valor').value,
+        prioridade: document.getElementById('fr-prio').value,
+        palavras_chave: document.getElementById('fr-kw').value,
+        observacao: document.getElementById('fr-obs').value
+      };
+      const res = await api('fechamento-profissionais', {
+        action: 'save_regra',
+        regra
+      });
+      if (res.ok) {
+        toast('✅ Regra salva permanentemente na Memória de Honorários!');
+        closeAgenteImportModal();
+        loadFechamentoData(false);
+      } else {
+        toast(res.error || 'Erro ao salvar regra', true);
+      }
+    }
+
+    async function deleteRegraHonorario(id) {
+      const ok = await modal({ title: 'Excluir Regra de Honorário', text: 'Deseja remover esta regra da Tabela Oficial?', confirmLabel: 'Excluir', danger: true });
+      if (!ok) return;
+      const res = await api('fechamento-profissionais', { action: 'delete_regra', id });
+      if (res.ok) {
+        toast('🗑️ Regra removida.');
+        loadFechamentoData(false);
+      }
     }
 
     function getNextBeatrizWindowInfo() {
