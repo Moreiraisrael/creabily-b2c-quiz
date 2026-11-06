@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /crm.html
+Disallow: /apresentacao-outubro-2026.html
+Disallow: /.netlify/
+
+Sitemap: https://avaliacao.creabily.com/sitemap.xml
