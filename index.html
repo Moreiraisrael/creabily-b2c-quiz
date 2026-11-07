@@ -97,15 +97,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Google tag (gtag.js) -->
+    <!-- Google tag (gtag.js) + Consent Mode v2 & Conversões Otimizadas (Enhanced Conversions) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-949626738"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        'ad_storage': 'granted',
+        'ad_user_data': 'granted',
+        'ad_personalization': 'granted',
+        'analytics_storage': 'granted'
+      });
       gtag('js', new Date());
 
-      gtag('config', 'AW-949626738');
-      gtag('config', 'AW-18466424706');
+      gtag('config', 'AW-949626738', { 'allow_enhanced_conversions': true });
+      gtag('config', 'AW-18466424706', { 'allow_enhanced_conversions': true });
     </script>
     
     <!-- Tailwind CSS -->
@@ -1211,16 +1217,35 @@
         function showResults() {
             hideAllViews();
             
-            // Disparar conversão do Google Ads na conta definitiva e administradora
+            // Disparar conversão do Google Ads com Conversões Otimizadas (Enhanced Conversions E.164)
             if (typeof gtag !== 'undefined') {
+                const rawDigits = String(state.whatsapp || '').replace(/\D/g, '');
+                const e164Phone = rawDigits.length >= 10
+                    ? (rawDigits.startsWith('55') ? ('+' + rawDigits) : ('+55' + rawDigits))
+                    : undefined;
+                const nameParts = String(state.nome || '').trim().split(/\s+/);
+                const firstName = nameParts[0] || undefined;
+                const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : undefined;
+
+                if (e164Phone) {
+                    gtag('set', 'user_data', {
+                        'phone_number': e164Phone,
+                        'address': {
+                            'first_name': firstName,
+                            'last_name': lastName,
+                            'country': 'BR'
+                        }
+                    });
+                }
+
                 gtag('event', 'conversion', {
                     'send_to': 'AW-949626738/GrO6CK76uoAdEPLO6MQD',
-                    'value': 1.0,
+                    'value': 300.0,
                     'currency': 'BRL'
                 });
                 gtag('event', 'conversion', {
                     'send_to': 'AW-18466424706/GrO6CK76uoAdEPLO6MQD',
-                    'value': 1.0,
+                    'value': 300.0,
                     'currency': 'BRL'
                 });
             }
