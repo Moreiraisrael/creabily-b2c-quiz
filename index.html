@@ -889,6 +889,16 @@
             hideAllViews();
             document.getElementById('view-start').classList.remove('hidden');
             updateProgress(20);
+
+            if (typeof gtag !== 'undefined') {
+                const slugUnit = unitName.toLowerCase().includes('granja') ? 'granja-viana' : 'paulista';
+                gtag('event', 'page_view', {
+                    'page_title': `Quiz Etapa 1 - Unidade ${unitName}`,
+                    'page_location': `https://avaliacao.creabily.com/quiz-etapa-1-${slugUnit}`,
+                    'page_path': `/quiz-etapa-1-${slugUnit}`,
+                    'send_to': ['AW-949626738', 'AW-18466424706']
+                });
+            }
         }
 
         const resultData = {
@@ -954,6 +964,15 @@
             if (targetEl) {
                 targetEl.classList.remove('hidden');
                 updateProgress(40);
+            }
+
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_view', {
+                    'page_title': `Quiz Etapa 2 - Especialidade ${path}`,
+                    'page_location': `https://avaliacao.creabily.com/quiz-etapa-2-${path.toLowerCase()}`,
+                    'page_path': `/quiz-etapa-2-${path.toLowerCase()}`,
+                    'send_to': ['AW-949626738', 'AW-18466424706']
+                });
             }
         }
 
@@ -1068,6 +1087,15 @@
                 document.getElementById('progress-bar-container').classList.add('hidden');
                 hideAllViews();
                 document.getElementById('view-capture').classList.remove('hidden');
+
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'page_view', {
+                        'page_title': 'Quiz Etapa 3 - Chegou no Formulario de Captura',
+                        'page_location': 'https://avaliacao.creabily.com/quiz-etapa-3-formulario-captura',
+                        'page_path': '/quiz-etapa-3-formulario-captura',
+                        'send_to': ['AW-949626738', 'AW-18466424706']
+                    });
+                }
             }, 1150);
         }
 
@@ -1238,6 +1266,12 @@
                     });
                 }
 
+                gtag('event', 'page_view', {
+                    'page_title': 'Quiz Etapa 4 - Concluido Lead Enviado',
+                    'page_location': 'https://avaliacao.creabily.com/quiz-etapa-4-concluido',
+                    'page_path': '/quiz-etapa-4-concluido',
+                    'send_to': ['AW-949626738', 'AW-18466424706']
+                });
                 gtag('event', 'conversion', {
                     'send_to': 'AW-949626738/GrO6CK76uoAdEPLO6MQD',
                     'value': 300.0,
